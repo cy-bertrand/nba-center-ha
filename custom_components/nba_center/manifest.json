@@ -10,6 +10,7 @@
   ],
   "config_flow": true,
   "documentation": "https://github.com/cy-bertrand/nba-center-ha",
+  "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/cy-bertrand/nba-center-ha/issues",
   "requirements": [],
