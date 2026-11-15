@@ -210,7 +210,7 @@ class NBACenterCard extends LitElement {
     this._selectedDate = localDateISO();
     this._calendarGames = []; this._calendarLoading = false; this._calendarError = ""; this._calendarStale = false; this._calendarStaleError = ""; this._calendarRequest = 0; this._calendarInitialized = false;
     this._overlayGame = null; this._overlayDetails = null; this._overlayRequest = 0;
-    this._overlayLoading = false; this._overlayError = "";
+    this._overlayLoading = false; this._overlayError = ""; this._overlayRefreshTimer = null;
     this._playoffData = null; this._playoffLoading = false; this._playoffError = ""; this._playoffSeason = 2027; this._playoffRequest = 0;
     this._playersSeason = new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0); this._playersPhase = "regular"; this._playersLeaders = null; this._playersLoading = false; this._playersError = ""; this._playersRequest = 0; this._playersLeadersCache = new Map();
     this._standingSeason = new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0); this._standingPhase = "regular"; this._seasonStandings = null; this._seasonStandingsLoading = false; this._seasonStandingsError = ""; this._seasonStandingsRequest = 0;
@@ -965,6 +965,7 @@ class NBACenterCard extends LitElement {
   }
 
   async _openGame(game) {
+    this._stopOverlayAutoRefresh();
     const request = ++this._overlayRequest;
     this._overlayGame = game; this._overlayDetails = null; this._overlayError = ""; this._overlayLoading = true;
     this._showAllPlays = false; this._scoringOnly = false;
@@ -972,42 +973,74 @@ class NBACenterCard extends LitElement {
       const details = await this.hass.callWS({ type: "nba_center/game_details", game_id: String(game.id) });
       if (request !== this._overlayRequest || String(this._overlayGame?.id) !== String(game.id)) return;
       this._overlayDetails = details;
-      const competitors = details?.live_state?.competitors ?? [];
-      if (competitors.length >= 2) {
-        const catalog = this._teamsCatalog().teams;
-        const toTeam = (competitor) => {
-          const catalogTeam = catalog.find((team) =>
-            (competitor.team_id && String(team.id) === String(competitor.team_id))
-            || String(team.abbreviation ?? team.abbr ?? "").toUpperCase() === String(competitor.abbr ?? "").toUpperCase()
-          );
-          return {
-            id: competitor.team_id,
-            name: competitor.name ?? catalogTeam?.display_name ?? catalogTeam?.name ?? competitor.abbr,
-            abbr: competitor.abbr ?? catalogTeam?.abbreviation,
-            logo: catalogTeam?.logo,
-            score: competitor.score,
-          };
-        };
-        const away = competitors.find((team) => team.home_away === "away");
-        const home = competitors.find((team) => team.home_away === "home");
-        if (away && home) {
-          const liveState = details.live_state.state;
-          this._overlayGame = {
-            ...this._overlayGame,
-            state: liveState === "pre" ? "pre" : liveState === "in" ? "in" : "post",
-            detail: details.live_state.status_detail ?? this._overlayGame.detail,
-            away: toTeam(away),
-            home: toTeam(home),
-          };
-        }
-      }
+      this._syncOverlayGame(details);
     } catch (err) {
       if (request !== this._overlayRequest) return;
       this._overlayError = err?.message ?? "Résumé du match indisponible.";
     } finally {
-      if (request === this._overlayRequest) this._overlayLoading = false;
+      if (request === this._overlayRequest) {
+        this._overlayLoading = false;
+        if (this._overlayGame?.state === "in") this._startOverlayAutoRefresh();
+      }
     }
   }
+
+  _syncOverlayGame(details) {
+    const competitors = details?.live_state?.competitors ?? [];
+    if (competitors.length < 2 || !this._overlayGame) return;
+    const catalog = this._teamsCatalog().teams;
+    const toTeam = (competitor) => {
+      const catalogTeam = catalog.find((team) =>
+        (competitor.team_id && String(team.id) === String(competitor.team_id))
+        || String(team.abbreviation ?? team.abbr ?? "").toUpperCase() === String(competitor.abbr ?? "").toUpperCase()
+      );
+      return {
+        id: competitor.team_id,
+        name: competitor.name ?? catalogTeam?.display_name ?? catalogTeam?.name ?? competitor.abbr,
+        abbr: competitor.abbr ?? catalogTeam?.abbreviation,
+        logo: catalogTeam?.logo,
+        score: competitor.score,
+      };
+    };
+    const away = competitors.find((team) => team.home_away === "away");
+    const home = competitors.find((team) => team.home_away === "home");
+    if (!away || !home) return;
+    const liveState = details.live_state.state;
+    this._overlayGame = {
+      ...this._overlayGame,
+      state: liveState === "pre" ? "pre" : liveState === "in" ? "in" : "post",
+      detail: details.live_state.status_detail ?? this._overlayGame.detail,
+      away: toTeam(away),
+      home: toTeam(home),
+    };
+  }
+
+  _startOverlayAutoRefresh() {
+    if (this._overlayRefreshTimer || !this.isConnected || this._overlayGame?.state !== "in") return;
+    this._overlayRefreshTimer = setInterval(() => {
+      if (!this.isConnected || !this._overlayGame || this._overlayGame.state !== "in") {
+        this._stopOverlayAutoRefresh();
+        return;
+      }
+      this._refreshGameDetails();
+    }, 15000);
+  }
+
+  _stopOverlayAutoRefresh() {
+    if (this._overlayRefreshTimer) clearInterval(this._overlayRefreshTimer);
+    this._overlayRefreshTimer = null;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (this._overlayGame?.state === "in") this._startOverlayAutoRefresh();
+  }
+
+  disconnectedCallback() {
+    this._stopOverlayAutoRefresh();
+    super.disconnectedCallback();
+  }
+
   async _refreshGameDetails() {
     const gameId = this._overlayGame?.id;
     if (!gameId || this._overlayLoading) return;
@@ -1018,6 +1051,8 @@ class NBACenterCard extends LitElement {
       const details = await this.hass.callWS({ type: "nba_center/game_details", game_id: String(gameId), force: true });
       if (request !== this._overlayRequest || String(this._overlayGame?.id) !== String(gameId)) return;
       this._overlayDetails = details;
+      this._syncOverlayGame(details);
+      if (this._overlayGame?.state !== "in") this._stopOverlayAutoRefresh();
     } catch (err) {
       if (request === this._overlayRequest) this._overlayError = err?.message ?? "Actualisation du match impossible.";
     } finally {
@@ -1026,6 +1061,7 @@ class NBACenterCard extends LitElement {
   }
 
   _closeOverlay() {
+    this._stopOverlayAutoRefresh();
     this._overlayRequest += 1;
     this._overlayGame = null; this._overlayDetails = null; this._overlayLoading = false; this._overlayError = "";
   }
@@ -1481,7 +1517,7 @@ class NBACenterCard extends LitElement {
         ${this._overlayGame ? html`<div class="overlay" @click=${(event) => { if (event.target === event.currentTarget) this._closeOverlay(); }} @keydown=${this._onOverlayKeydown}>
           <section class="overlay-panel" role="dialog" aria-modal="true" aria-label="Détails du match">
             <header class="overlay-head"><h2>MATCH CENTER</h2><div class="overlay-actions">
-              <button class="overlay-refresh" ?disabled=${this._overlayLoading} @click=${() => this._openGame(this._overlayGame)} aria-label="Actualiser les détails du match">${this._overlayLoading ? "CHARGEMENT…" : "↻ ACTUALISER"}</button>
+              <button class="overlay-refresh" ?disabled=${this._overlayLoading} @click=${() => this._refreshGameDetails()} aria-label="Actualiser les détails du match">${this._overlayLoading ? "CHARGEMENT…" : "↻ ACTUALISER"}</button>
               <button class="overlay-close" aria-label="Fermer" @click=${this._closeOverlay}>✕</button>
             </div></header>
             <div class="overlay-body"><div class="overlay-teams">
