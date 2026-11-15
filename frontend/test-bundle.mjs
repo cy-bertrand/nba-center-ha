@@ -13,16 +13,16 @@ assert.match(bundle, /SCORES & CALENDRIER/, "scores view must be included");
 assert.match(bundle, /PLAYERS CENTER/, "players view must be included");
 assert.match(source, /\{ id: "stats", label: "STANDINGS" \}/, "standings must be the unified navigation destination");
 assert.doesNotMatch(source, /\{ id: "playoffs", label: "PLAYOFFS" \}/, "standalone PLAYOFFS navigation tab must be removed");
-assert.match(source, /nba\/standings/, "historical regular-season standings must load through websocket");
+assert.match(source, /nba_center\/standings/, "historical regular-season standings must load through websocket");
 assert.match(source, /_loadHistoricalStandings/, "season selector must load historical standings");
 assert.match(source, /SAISON RÉGULIÈRE/, "standings center must switch between regular season and playoffs");
 assert.match(source, /STANDINGS CENTER/, "unified standings center must be rendered");
-assert.match(source, /nba\/playoff_bracket/, "playoffs view must use the Home Assistant websocket service");
+assert.match(source, /nba_center\/playoff_bracket/, "playoffs view must use the Home Assistant websocket service");
 assert.match(source, /TABLEAU DES PLAYOFFS/, "playoff bracket must be embedded in standings center");
 assert.match(source, /_playoffSeriesCard\(series\)/, "playoff series must have a dedicated card renderer");
 assert.match(source, /_openPlayoffSeries\(series\)/, "playoff series cards must open their game list");
 assert.match(source, /_playoffSeriesOverlay\(\)/, "playoff series must have a dedicated match list overlay");
-assert.match(source, /nba\/game_details/, "playoff game selection must reuse Match Center details");
+assert.match(source, /nba_center\/game_details/, "playoff game selection must reuse Match Center details");
 assert.match(source, /playoff-game-row/, "playoff series overlay must list individual games");
 assert.match(source, /declaredWinners = \(game\.teams \?\? \[\]\)\.filter\(\(team\) => team\.winner === true\)/, "playoff game winner must use ESPN's explicit winner flag");
 assert.match(source, /winnerSide === "away" \? html/, "playoff game winner must be explicitly highlighted");
@@ -38,7 +38,7 @@ assert.match(source, /@media\(max-width:390px\)/, "NBA Center must include a com
 assert.match(source, /\.date-picker-control\{min-width:112px/, "score date picker must remain usable on narrow phones");
 assert.match(source, /return \{ label: "À VENIR", live: false, className: "scheduled" \}/, "upcoming game card must not duplicate its time in the footer");
 assert.match(source, /_teamSelectedSeason/, "team profile must retain its selected NBA season");
-assert.match(source, /type: "nba\/team_roster", team_id: String\(team\.id\), season_year: this\._teamSelectedSeason/, "team roster requests must include the selected season");
+assert.match(source, /type: "nba_center\/team_roster", team_id: String\(team\.id\), season_year: this\._teamSelectedSeason/, "team roster requests must include the selected season");
 assert.match(source, /_selectTeamSeason\(year\)/, "team profile must reload when its season changes");
 assert.match(source, /team-season-picker/, "team profile must expose a season selector");
 assert.match(source, /<h3>5 DERNIERS MATCHS<\/h3>/, "player game log heading must stay concise");
@@ -75,7 +75,7 @@ assert.match(bundle, /NBA FINALS/, "bundled card must include NBA Finals");
 assert.match(bundle, /FORME RÉCENTE/, "favorite team recent form must be included");
 assert.match(source, /_teamsCatalog\(\)/, "Teams Center must read the global franchise catalog sensor");
 assert.match(source, /_teamCatalogCard\(team\)/, "Teams Center must render lightweight franchise cards");
-assert.match(source, /nba\/team_roster/, "franchise detail must load its roster through Home Assistant websocket");
+assert.match(source, /nba_center\/team_roster/, "franchise detail must load its roster through Home Assistant websocket");
 assert.match(source, /_teamRosterPanel\(\)/, "franchise roster overlay must be rendered");
 assert.match(source, /request !== this\._teamRequest/, "stale franchise roster responses must not overwrite the currently selected team");
 assert.match(source, /this\._teamRequest \+= 1/, "closing a franchise overlay must invalidate pending roster requests");
@@ -98,8 +98,8 @@ assert.match(source, /EAST/, "Teams Center must include conference filtering");
 assert.match(source, /WEST/, "Teams Center must include conference filtering");
 assert.match(bundle, /EASTERN CONFERENCE/, "standings view must be included");
 assert.match(bundle, /Filtrer une équipe/, "interactive team search must be included");
-assert.match(bundle, /nba\/scoreboard/, "date-based scoreboard websocket command must be used");
-assert.match(bundle, /nba\/game_details/, "game details websocket command must be used");
+assert.match(bundle, /nba_center\/scoreboard/, "date-based scoreboard websocket command must be used");
+assert.match(bundle, /nba_center\/game_details/, "game details websocket command must be used");
 assert.match(bundle, /MATCH CENTER/, "interactive match overlay must be included");
 assert.match(bundle, /BOX SCORE · JOUEURS/, "full player box score view must be included");
 assert.match(source, /game-leaders-grid/, "compact team leaders layout must be present");
@@ -140,7 +140,7 @@ assert.match(bundle, /\.player-game-row\{display:grid;grid-template-columns:66px
 assert.match(source, /game\.result === "D" \? "loss" : "unknown"/, "unknown recent game outcomes must not be styled as losses");
 
 
-assert.match(source, /nba\/player_leaders/, "Players Center must load season-specific ESPN leaderboards");
+assert.match(source, /nba_center\/player_leaders/, "Players Center must load season-specific ESPN leaderboards");
 assert.match(source, /_setPlayersSeason/, "Players Center must expose a season selector");
 assert.match(source, /_setPlayersPhase/, "Players Center must separate regular season and playoffs");
 assert.match(source, /_playersLeadersCache/, "Players Center must cache leaderboards by season and phase");
@@ -155,7 +155,7 @@ assert.match(source, /career_statistics\?\.find\(\(row\) => row\.name === "games
 assert.match(source, /player-game-header/, "recent games must use a compact column header");
 assert.match(source, /grid-template-columns:66px 48px repeat\(6,minmax\(0,1fr\)\)/, "recent game stats must use compact aligned columns");
 assert.match(source, /if \(result\.bio && String\(result\.bio\.id\) === String\(playerId\)\)/, "player profile must merge the verified Core API biography returned by the backend");
-assert.doesNotMatch(source.slice(source.indexOf("async _openPlayer("), source.indexOf("async _loadPlayerPlayoffSeason")), /nba\/team_roster/, "player profile must not fall back to loading a team roster for biography");
+assert.doesNotMatch(source.slice(source.indexOf("async _openPlayer("), source.indexOf("async _loadPlayerPlayoffSeason")), /nba_center\/team_roster/, "player profile must not fall back to loading a team roster for biography");
 assert.match(source, /"gamesplayed", "gamesstarted", "fieldgoalsmadeattemptedpergame"/, "regular-season GP and GS must lead the detailed stats table");
 assert.match(source, /"gamesplayed", "gamesstarted", "fieldgoalsmade"/, "playoff GP and GS must lead the detailed stats table");
 assert.doesNotMatch(source.slice(source.indexOf("const quickDefinitions"), source.indexOf("const normalizeStatKey")), /\["GP"|\["GS"/, "GP and GS must not be primary stat tiles");
@@ -232,7 +232,7 @@ assert.match(source, /Effectif historique non proposé/, "historical team roster
 assert.match(source, /NBA Center affiche uniquement l’effectif de la saison actuelle/, "historical team profile must explain that only current rosters are supported");
 assert.match(source, /team-playoff-path/, "team playoff path must have a dedicated panel");
 
-assert.match(source, /nba\/team_playoff_path/, "selected season playoff path must load through its websocket endpoint");
+assert.match(source, /nba_center\/team_playoff_path/, "selected season playoff path must load through its websocket endpoint");
 assert.match(source, /_loadTeamPlayoffPath\(team, this\._teamSelectedSeason, request\)/, "selected season playoff path must load after the fast roster request");
 
 assert.match(source, /player\.nationality/, "player profile header must show available nationality");
