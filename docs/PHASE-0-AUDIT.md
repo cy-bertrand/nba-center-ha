@@ -11,7 +11,7 @@ Le dépôt source est une intégration Home Assistant Python existante, utilisan
 - matchs du jour, dernier/prochain/en cours par équipe ;
 - classements Est/Ouest ;
 - leaders de saison (points, rebonds, passes, interceptions, contres) ;
-- événements `nba_game_start` et `nba_game_end` ;
+- événements `nba_center_game_start` et `nba_center_game_end` ;
 - service `nba_center.get_game_details` avec réponse ;
 - blueprint de notification installé automatiquement ;
 - cartes Lovelace YAML existantes.
@@ -48,9 +48,9 @@ Le service `nba_center.get_game_details` accepte `game_id` et utilise `SupportsR
 
 Le portage devra conserver sans changement non justifié :
 - les identifiants et attributs des capteurs ;
-- le domaine `nba` ;
+- le domaine `nba_center` ;
 - le service `nba_center.get_game_details` et son schéma ;
-- les événements `nba_game_start` et `nba_game_end` ;
+- les événements `nba_center_game_start` et `nba_center_game_end` ;
 - le flux de configuration ;
 - les options des équipes favorites ;
 - l'installation et le comportement du blueprint.
@@ -206,7 +206,7 @@ L'arbre source ne contient pas de tests automatisés ni de workflow CI. Aucun te
 
 ## 12. Architecture recommandée pour NBA Center
 
-1. **Conserver le domaine `nba` et les entités historiques** : ne pas casser les installations existantes.
+1. **Isoler le nouveau domaine `nba_center`** et laisser l'ancienne intégration sous `nba` afin de permettre les tests en parallèle.
 2. **Ajouter une API de données à la demande** côté intégration : calendrier par date, détail d'un match, équipes, effectifs, profils et statistiques joueurs.
 3. **Centraliser les requêtes ESPN** dans des modules backend spécialisés, tous appelés par le coordinateur ou une couche de service unique.
 4. **Définir un cache par ressource** : TTL court pour scores live, TTL moyen pour calendrier/rosters, TTL long pour historiques et profils ; cache borné et invalidation contrôlée.

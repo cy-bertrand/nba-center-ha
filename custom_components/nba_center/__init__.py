@@ -25,7 +25,7 @@ GAME_DETAILS_SCHEMA = vol.Schema({vol.Required("game_id"): cv.string})
 
 
 def _install_blueprint(config_dir: str, component_dir: Path) -> None:
-    """Copie le blueprint fourni vers /config/blueprints/automation/nba/.
+    """Copie le blueprint fourni vers /config/blueprints/automation/nba_center/.
 
     - ne fait rien si le fichier source est absent ;
     - crée le fichier s'il n'existe pas ;
@@ -59,7 +59,7 @@ def _install_blueprint(config_dir: str, component_dir: Path) -> None:
 
 
 async def _register_services(hass: HomeAssistant) -> None:
-    """Enregistre le service nba.get_game_details (une seule fois)."""
+    """Enregistre le service nba_center.get_game_details (une seule fois)."""
     if hass.services.has_service(DOMAIN, SERVICE_GET_GAME_DETAILS):
         return
 
