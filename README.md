@@ -21,7 +21,7 @@ Follow games, explore teams and players in an immersive NBA Dark Lovelace interf
 ---
 
 <a id="français"></a>
-# Français
+# Fr
 
 ## Toute la NBA dans votre tableau de bord
 
@@ -114,7 +114,7 @@ NBA Center HomeAssistant est un projet indépendant, non affilié, approuvé ou 
 ---
 
 <a id="english"></a>
-# 🇬🇧 English
+# En
 
 ## 🏀 The NBA in your Home Assistant dashboard
 
