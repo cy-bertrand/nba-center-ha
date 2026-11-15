@@ -5,11 +5,11 @@
     "http",
     "lovelace"
   ],
-  "codeowners": [
-    "@cy-bertrand"
-  ],
   "categories": [
     "news_social_media"
+  ],
+  "codeowners": [
+    "@cy-bertrand"
   ],
   "config_flow": true,
   "documentation": "https://github.com/cy-bertrand/nba-center-ha",
