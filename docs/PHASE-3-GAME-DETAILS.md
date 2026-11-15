@@ -18,12 +18,12 @@ Transformer l'overlay Match Center de la Phase 2 en fiche de match approfondie, 
 - Les colonnes du box-score conservent aussi les statistiques supplémentaires rencontrées, au lieu de limiter l'affichage à la liste standard.
 - Une première timeline Play-by-Play est ajoutée : chronologie inversée (actions récentes en haut), filtre « points seulement », score associé quand fourni, libellé de période ESPN (y compris prolongations) et affichage progressif des actions.
 - Le parseur `summary.plays` conserve texte, quart-temps, horloge, type, équipe, score et indicateur de panier sans reconstituer les champs absents.
-- Le service historique `nba.get_game_details` et la commande WebSocket `nba/game_details` conservent leur contrat externe ; les nouveaux champs sont ajoutés à la réponse.
+- Le service historique `nba_center.get_game_details` et la commande WebSocket `nba_center/game_details` conservent leur contrat externe ; les nouveaux champs sont ajoutés à la réponse.
 
 ## Fichiers modifiés / créés
 
-- `custom_components/nba/game_details.py` : nouveaux parseurs purs des box scores et actions Play-by-Play.
-- `custom_components/nba/coordinator.py` : intégration des statistiques et des actions au résumé ESPN.
+- `custom_components/nba_center/game_details.py` : nouveaux parseurs purs des box scores et actions Play-by-Play.
+- `custom_components/nba_center/coordinator.py` : intégration des statistiques et des actions au résumé ESPN.
 - `tests/test_game_details.py` : tests unitaires du parsing des statistiques équipes/joueurs, DNP, valeurs manquantes et actions Play-by-Play.
 - `frontend/src/nba-center-card.js` : tableaux joueurs, comparaison équipes, actualisation manuelle et affichage des erreurs dans le Match Center.
 - `frontend/test-bundle.mjs` : assertions de présence du box score, du Play-by-Play et des contrôles d'actualisation/erreur.

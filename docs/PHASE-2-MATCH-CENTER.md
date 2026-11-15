@@ -105,15 +105,15 @@ La documentation communautaire consultée décrit le paramètre `dates` et le r�
 
 ## Fichiers pressentis
 
-- `custom_components/nba/coordinator.py` : récupération par date, cache et normalisation.
-- `custom_components/nba/const.py` : paramètres/constantes de cache et commandes.
-- Nouveau module backend WebSocket, par exemple `custom_components/nba/websocket.py`.
-- `custom_components/nba/__init__.py` : enregistrement/désenregistrement propre des commandes si nécessaire.
+- `custom_components/nba_center/coordinator.py` : récupération par date, cache et normalisation.
+- `custom_components/nba_center/const.py` : paramètres/constantes de cache et commandes.
+- Nouveau module backend WebSocket, par exemple `custom_components/nba_center/websocket.py`.
+- `custom_components/nba_center/__init__.py` : enregistrement/désenregistrement propre des commandes si nécessaire.
 - `frontend/src/nba-center-card.js` : date, états asynchrones, interaction des matchs et overlay.
 - `frontend/test-bundle.mjs` et nouveaux tests Python : couverture frontend/backend.
 - `docs/FRONTEND-INSTALLATION.md` : documentation des nouvelles interactions si nécessaire.
 
-Ne pas modifier le contrat des capteurs existants sans raison et préserver les événements, le service `nba.get_game_details`, le blueprint et les dashboards Lovelace historiques.
+Ne pas modifier le contrat des capteurs existants sans raison et préserver les événements, le service `nba_center.get_game_details`, le blueprint et les dashboards Lovelace historiques.
 
 ## Plan d'exécution
 
@@ -148,7 +148,7 @@ Déjà intégré sur `main` :
 - Récupération du scoreboard ESPN par dates US adjacentes et filtrage après conversion dans le fuseau local Home Assistant.
 - Cache par date, verrou contre les requêtes simultanées et TTL de 30 secondes en LIVE / 180 secondes hors LIVE.
 - Repli sur le dernier calendrier en cache marqué obsolète si un appel de date adjacent échoue ; sans cache complet, une erreur est remontée plutôt qu'une liste partielle présentée comme complète.
-- Commandes WebSocket `nba/scoreboard` et `nba/game_details`, enregistrées une seule fois par instance HA.
+- Commandes WebSocket `nba/scoreboard` et `nba_center/game_details`, enregistrées une seule fois par instance HA.
 - Navigation par date, recherche et filtres dans SCORES.
 - Clic sur les rencontres ouvrant un overlay avec résumé ESPN, quart-temps et leaders disponibles.
 - Contrôles frontend ajoutés pour vérifier les commandes WebSocket et les composants Match Center.

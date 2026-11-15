@@ -19,7 +19,7 @@ Après installation, redémarrez Home Assistant puis ajoutez **NBA Center HomeAs
 La carte Lovelace est enregistrée automatiquement par l'intégration. Les exemples de configuration se trouvent dans [lovelace/](lovelace/) et les instructions complémentaires dans [docs/FRONTEND-INSTALLATION.md](docs/FRONTEND-INSTALLATION.md).
 
 ## Développement frontend
-Le code source Lit se trouve dans `frontend/src/nba-center-card.js`. Le bundle distribué à Home Assistant est généré dans `custom_components/nba/www/nba-center-card.js`.
+Le code source Lit se trouve dans `frontend/src/nba-center-card.js`. Le bundle distribué à Home Assistant est généré dans `custom_components/nba_center/www/nba-center-card.js`.
 
 ```bash
 npm ci

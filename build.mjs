@@ -2,7 +2,7 @@ import { build } from "esbuild";
 
 const result = await build({
   entryPoints: ["frontend/src/nba-center-card.js"],
-  outfile: "custom_components/nba/www/nba-center-card.js",
+  outfile: "custom_components/nba_center/www/nba-center-card.js",
   bundle: true,
   packages: "bundle",
   metafile: true,
@@ -13,5 +13,5 @@ const result = await build({
   legalComments: "none",
 });
 console.log("ESBUILD INPUTS", JSON.stringify(result.metafile.inputs));
-console.log("ESBUILD OUTPUT IMPORTS", JSON.stringify(result.metafile.outputs["custom_components/nba/www/nba-center-card.js"].imports));
-console.log("ESBUILD OUTPUT BYTES", result.metafile.outputs["custom_components/nba/www/nba-center-card.js"].bytes);
+console.log("ESBUILD OUTPUT IMPORTS", JSON.stringify(result.metafile.outputs["custom_components/nba_center/www/nba-center-card.js"].imports));
+console.log("ESBUILD OUTPUT BYTES", result.metafile.outputs["custom_components/nba_center/www/nba-center-card.js"].bytes);

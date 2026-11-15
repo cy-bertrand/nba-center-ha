@@ -1,60 +1,46 @@
-# Import du socle existant
+# Migration vers NBA Center HomeAssistant
 
-**Source :** `cy-bertrand/ha-nba`  
-**Cible :** `cy-bertrand/ha-nba-center`
+**Dépôt source :** `cy-bertrand/ha-nba`  
+**Dépôt cible :** `cy-bertrand/nba-center-ha`  
+**Socle importé :** NBA Center v0.7.7c
 
-## Fichiers importés
+## Objectif
 
-### Intégration Home Assistant
-- `custom_components/nba/__init__.py`
-- `custom_components/nba/coordinator.py`
-- `custom_components/nba/manifest.json`
-- `custom_components/nba/const.py`
-- `custom_components/nba/config_flow.py`
-- `custom_components/nba/sensor.py`
-- `custom_components/nba/services.yaml`
-- `custom_components/nba/strings.json`
-- `custom_components/nba/translations/en.json`
-- `custom_components/nba/translations/fr.json`
-- `custom_components/nba/blueprints/automation/nba_game_notification.yaml`
+Le nouveau dépôt prépare la distribution HACS de **NBA Center HomeAssistant**, tout en permettant de conserver l'ancienne intégration dans Home Assistant pour les tests comparatifs.
 
-### Cartes Lovelace existantes
-- `lovelace/today-games-card.yaml`
-- `lovelace/standings-card.yaml`
-- `lovelace/team-card.yaml`
-- `lovelace/leaders-card.yaml`
-- `lovelace/last-games-card.yaml`
-- `lovelace/top3-passeurs-card.yaml`
-- `lovelace/top3-rebondeurs-card.yaml`
-- `lovelace/top3-contreurs-card.yaml`
-- `lovelace/top3-intercepteurs-card.yaml`
-- `lovelace/dashboard-example.yaml`
+Les deux intégrations doivent pouvoir être installées simultanément :
 
-### Métadonnées
-- `hacs.json`
+- ancienne intégration : domaine technique `nba`, dossier `custom_components/nba` ;
+- nouvelle intégration : domaine technique `nba_center`, dossier `custom_components/nba_center`.
 
-Le dépôt cible contient aussi un fichier `LICENSE` GNU GPL version 3, absent du dépôt source. Son maintien doit être confirmé par le propriétaire avant de considérer la question de licence comme réglée.
+Le domaine `nba` de l'ancienne intégration n'est pas réutilisé ni remplacé par ce dépôt.
 
-Le `README.md` racine a été remplacé par la présentation du projet NBA Center. Les métadonnées de documentation et de suivi d'incidents dans le manifest ont été redirigées vers le nouveau dépôt. Le domaine d'intégration, le nom, le codeowner, le flux de configuration, le type IoT et la version source `0.4.1` sont conservés.
+## Isolation technique de la nouvelle intégration
 
-## Préservation fonctionnelle
+La migration conserve la logique métier du socle importé, mais isole les identifiants Home Assistant de la nouvelle intégration :
 
-Aucune logique Python métier n'a été réécrite lors de cet import. Le domaine `nba`, les capteurs, le service `nba.get_game_details`, les événements et le blueprint sont repris tels quels dans les fichiers importés.
+- domaine et entrée de configuration : `nba_center` ;
+- services : `nba_center.get_game_details` ;
+- événements : `nba_center_game_start` et `nba_center_game_end` ;
+- commandes WebSocket : préfixe `nba_center/` ;
+- identifiants uniques des capteurs et appareil : namespace `nba_center` ;
+- blueprint installé dans `blueprints/automation/nba_center/` ;
+- carte Lovelace et exemples : capteurs `sensor.nba_center_*`.
 
-## Vérifications effectuées
+Les appels ESPN, le coordinateur, les parseurs et les fonctionnalités de la carte restent dans la nouvelle intégration. Les identifiants de l'ancienne installation ne doivent pas être modifiés.
 
-- Dépôt cible public, branche par défaut `main`.
-- Fichiers Python centraux présents après import.
-- Manifest vérifié et liens du dépôt mis à jour.
-- Fichiers de traduction, métadonnées de service, blueprint et cartes Lovelace connues importés.
+## Licence et propriété
 
-## À faire avant de clore la Phase 0
+Le propriétaire a confirmé détenir les droits sur le code source importé. Le dépôt cible utilise la **PolyForm Noncommercial License 1.0.0**, et non la licence GPL.
 
-- Valider la comparaison exhaustive des arbres Git source et cible (23 fichiers suivis dans le source ; code et cartes identiques hors README et manifest adaptés).
-- Faire valider le choix de licence GPL-3.0 présent uniquement dans le dépôt cible.
-- Vérifier la présence de tests et les exécuter dans un environnement Home Assistant adapté.
-- Valider le chargement de l'intégration importée dans Home Assistant.
-- Documenter et tester des exemples de réponses ESPN pour chaque ressource.
-- Faire valider le plan technique avant toute implémentation de la Phase 1.
+Cette licence couvre le code du projet dans les limites de ses conditions. Elle ne confère aucun droit sur les marques, logos, images, données ou services de la NBA, d'ESPN ou de Home Assistant.
 
-**Important :** l'import constitue une base de travail, pas une preuve de compatibilité d'exécution. Aucun test d'intégration Home Assistant n'a encore été exécuté.
+## État des validations
+
+Le dépôt contient les tests Python, les fixtures ESPN et les tests/build frontend. Le workflow GitHub Actions est configuré pour exécuter ces vérifications et construire le bundle distribué.
+
+La présence du workflow ne prouve pas à elle seule que les tests ont réussi. Les résultats CI doivent être vérifiés après le commit de migration. Un test d'installation et de fonctionnement sur une instance Home Assistant réelle reste également nécessaire avant une première publication HACS.
+
+## Statut
+
+La séparation des domaines techniques est une étape de migration. Elle ne constitue pas encore une validation complète de compatibilité, ni une publication officielle. Aucun tag de release ne doit être créé avant la validation CI, le contrôle HACS et le test en situation réelle.

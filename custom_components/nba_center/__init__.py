@@ -38,7 +38,7 @@ def _install_blueprint(config_dir: str, component_dir: Path) -> None:
     if not source.is_file():
         return
 
-    target_dir = Path(config_dir) / "blueprints" / "automation" / "nba"
+    target_dir = Path(config_dir) / "blueprints" / "automation" / "nba_center"
     target = target_dir / BLUEPRINT_FILE
 
     if target.exists():

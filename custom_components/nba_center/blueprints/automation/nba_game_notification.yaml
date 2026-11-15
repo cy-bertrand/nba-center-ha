@@ -1,5 +1,5 @@
 blueprint:
-  name: NBA - Notification de match
+  name: NBA Center - Notification de match
   description: >
     Envoie une notification au début et/ou à la fin d'un match de vos équipes
     favorites. Le message affiche le score et l'heure locale.
@@ -100,10 +100,10 @@ trigger_variables:
 
 trigger:
   - platform: event
-    event_type: nba_game_start
+    event_type: nba_center_game_start
     id: start
   - platform: event
-    event_type: nba_game_end
+    event_type: nba_center_game_end
     id: end
 
 condition:

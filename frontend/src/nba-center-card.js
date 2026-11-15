@@ -19,15 +19,15 @@ const LEADERS = {
   blocks: ["CONTRES", "contr"],
 };
 const DEFAULT_ENTITIES = {
-  games: "sensor.nba_matchs_du_jour",
-  status: "sensor.nba_etat_du_flux_principal",
-  east: "sensor.nba_classement_est",
-  west: "sensor.nba_classement_ouest",
-  points: "sensor.nba_meilleurs_marqueurs",
-  rebounds: "sensor.nba_meilleurs_rebondeurs",
-  assists: "sensor.nba_meilleurs_passeurs",
-  steals: "sensor.nba_meilleurs_intercepteurs",
-  blocks: "sensor.nba_meilleurs_contreurs",
+  games: "sensor.nba_center_matchs_du_jour",
+  status: "sensor.nba_center_etat_du_flux_principal",
+  east: "sensor.nba_center_classement_est",
+  west: "sensor.nba_center_classement_ouest",
+  points: "sensor.nba_center_meilleurs_marqueurs",
+  rebounds: "sensor.nba_center_meilleurs_rebondeurs",
+  assists: "sensor.nba_center_meilleurs_passeurs",
+  steals: "sensor.nba_center_meilleurs_intercepteurs",
+  blocks: "sensor.nba_center_meilleurs_contreurs",
 };
 const localDateISO = (date = new Date(), timeZone) => {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(date);
@@ -320,7 +320,7 @@ class NBACenterCard extends LitElement {
     this._teamRosterLoading = true;
     this._loadTeamPlayoffPath(team, this._teamSelectedSeason, request);
     try {
-      const roster = await this.hass.callWS({ type: "nba/team_roster", team_id: String(team.id), season_year: this._teamSelectedSeason });
+      const roster = await this.hass.callWS({ type: "nba_center/team_roster", team_id: String(team.id), season_year: this._teamSelectedSeason });
       if (request !== this._teamRequest || String(this._teamOverlay?.id) !== String(team.id)) return;
       this._teamRoster = roster;
     } catch (err) {
@@ -333,7 +333,7 @@ class NBACenterCard extends LitElement {
 
   async _loadTeamPlayoffPath(team, seasonYear, request) {
     try {
-      const result = await this.hass.callWS({ type: "nba/team_playoff_path", team_id: String(team.id), season_year: Number(seasonYear) });
+      const result = await this.hass.callWS({ type: "nba_center/team_playoff_path", team_id: String(team.id), season_year: Number(seasonYear) });
       if (request !== this._teamRequest || String(this._teamOverlay?.id) !== String(team.id)) return;
       this._teamPlayoffPath = result ?? null;
     } catch (err) {
@@ -443,7 +443,7 @@ class NBACenterCard extends LitElement {
     this._playerOverlay = { ...source, id: String(playerId), name: source.player ?? source.name ?? "Joueur NBA" };
     this._playerData = null; this._playerError = ""; this._playerLoading = true; this._playerSelectedSeason = ""; this._playerSelectedPlayoffSeason = ""; this._playerPlayoffLoading = false;
     try {
-      const result = await this.hass.callWS({ type: "nba/player_data", player_id: String(playerId) });
+      const result = await this.hass.callWS({ type: "nba_center/player_data", player_id: String(playerId) });
       if (request !== this._playerRequest) return;
       this._playerData = result;
       // Le sélecteur playoffs est indépendant de celui de saison régulière.
@@ -470,7 +470,7 @@ class NBACenterCard extends LitElement {
     const playerRequest = this._playerRequest;
     const playoffRequest = ++this._playerPlayoffRequest;
     try {
-      const result = await this.hass.callWS({ type: "nba/player_data", player_id: String(playerId), postseason_year: seasonYear });
+      const result = await this.hass.callWS({ type: "nba_center/player_data", player_id: String(playerId), postseason_year: seasonYear });
       if (playerRequest !== this._playerRequest || playoffRequest !== this._playerPlayoffRequest || !this._playerOverlay) return;
       this._playerData = { ...this._playerData, postseason_stats: result.postseason_stats, postseason_gamelog: result.postseason_gamelog };
     } catch (err) {
@@ -752,7 +752,7 @@ class NBACenterCard extends LitElement {
     this._seasonStandingsError = "";
     this._seasonStandings = null;
     try {
-      const result = await this.hass.callWS({ type: "nba/standings", season_year: year });
+      const result = await this.hass.callWS({ type: "nba_center/standings", season_year: year });
       if (request !== this._seasonStandingsRequest || year !== this._standingSeason) return;
       this._standingsResultsCache.set(year, { at: Date.now(), data: result });
       this._seasonStandings = result;
@@ -777,7 +777,7 @@ class NBACenterCard extends LitElement {
     }
     this._playoffLoading = true; this._playoffError = ""; this._playoffData = null;
     try {
-      const result = await this.hass.callWS({ type: "nba/playoff_bracket", season_year: year });
+      const result = await this.hass.callWS({ type: "nba_center/playoff_bracket", season_year: year });
       if (request !== this._playoffRequest || year !== this._playoffSeason) return;
       this._playoffResultsCache.set(year, { at: Date.now(), data: result });
       this._playoffData = result;
@@ -885,7 +885,7 @@ class NBACenterCard extends LitElement {
     const request = ++this._calendarRequest;
     this._calendarLoading = true; this._calendarError = ""; this._calendarStale = false; this._calendarStaleError = "";
     try {
-      const result = await this.hass.callWS({ type: "nba/scoreboard", date });
+      const result = await this.hass.callWS({ type: "nba_center/scoreboard", date });
       if (request !== this._calendarRequest || date !== this._selectedDate) return;
       this._calendarGames = result.games ?? [];
       this._calendarStale = Boolean(result.stale);
@@ -969,7 +969,7 @@ class NBACenterCard extends LitElement {
     this._overlayGame = game; this._overlayDetails = null; this._overlayError = ""; this._overlayLoading = true;
     this._showAllPlays = false; this._scoringOnly = false;
     try {
-      const details = await this.hass.callWS({ type: "nba/game_details", game_id: String(game.id) });
+      const details = await this.hass.callWS({ type: "nba_center/game_details", game_id: String(game.id) });
       if (request !== this._overlayRequest || String(this._overlayGame?.id) !== String(game.id)) return;
       this._overlayDetails = details;
       const competitors = details?.live_state?.competitors ?? [];
@@ -1015,7 +1015,7 @@ class NBACenterCard extends LitElement {
     this._overlayLoading = true;
     this._overlayError = "";
     try {
-      const details = await this.hass.callWS({ type: "nba/game_details", game_id: String(gameId), force: true });
+      const details = await this.hass.callWS({ type: "nba_center/game_details", game_id: String(gameId), force: true });
       if (request !== this._overlayRequest || String(this._overlayGame?.id) !== String(gameId)) return;
       this._overlayDetails = details;
     } catch (err) {
@@ -1413,7 +1413,7 @@ class NBACenterCard extends LitElement {
     this._playersError = "";
     this._playersLeaders = null;
     try {
-      const result = await this.hass.callWS({ type: "nba/player_leaders", season_year: year, postseason });
+      const result = await this.hass.callWS({ type: "nba_center/player_leaders", season_year: year, postseason });
       if (request !== this._playersRequest || year !== this._playersSeason || postseason !== (this._playersPhase === "playoffs")) return;
       this._playersLeadersCache.set(key, { at: Date.now(), data: result });
       this._playersLeaders = result;

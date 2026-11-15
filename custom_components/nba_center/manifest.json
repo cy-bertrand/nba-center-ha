@@ -1,5 +1,5 @@
 {
-  "domain": "nba",
+  "domain": "nba_center",
   "name": "NBA Center HomeAssistant",
   "codeowners": [
     "@cy-bertrand"

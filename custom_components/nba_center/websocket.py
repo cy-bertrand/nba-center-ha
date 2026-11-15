@@ -12,7 +12,7 @@ from .const import DOMAIN
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "nba/scoreboard",
+        vol.Required("type"): "nba_center/scoreboard",
         vol.Required("date"): str,
     }
 )
@@ -41,7 +41,7 @@ async def websocket_get_scoreboard(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "nba/game_details",
+        vol.Required("type"): "nba_center/game_details",
         vol.Required("game_id"): str,
         vol.Optional("force", default=False): bool,
     }
@@ -66,7 +66,7 @@ async def websocket_get_game_details(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "nba/team_roster",
+        vol.Required("type"): "nba_center/team_roster",
         vol.Required("team_id"): str,
         vol.Optional("season_year"): int,
     }
@@ -96,7 +96,7 @@ async def websocket_get_team_roster(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "nba/team_playoff_path",
+        vol.Required("type"): "nba_center/team_playoff_path",
         vol.Required("team_id"): str,
         vol.Required("season_year"): int,
     }
@@ -127,7 +127,7 @@ async def websocket_get_team_playoff_path(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "nba/player_leaders",
+        vol.Required("type"): "nba_center/player_leaders",
         vol.Required("season_year"): int,
         vol.Optional("postseason", default=False): bool,
     }
@@ -158,7 +158,7 @@ async def websocket_get_player_leaders(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "nba/player_data",
+        vol.Required("type"): "nba_center/player_data",
         vol.Required("player_id"): str,
         vol.Optional("postseason_year"): int,
     }
@@ -188,7 +188,7 @@ async def websocket_get_player_data(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "nba/standings",
+        vol.Required("type"): "nba_center/standings",
         vol.Required("season_year"): int,
     }
 )
@@ -216,7 +216,7 @@ async def websocket_get_standings(
 
 @websocket_api.websocket_command(
     {
-        vol.Required("type"): "nba/playoff_bracket",
+        vol.Required("type"): "nba_center/playoff_bracket",
         vol.Required("season_year"): int,
     }
 )

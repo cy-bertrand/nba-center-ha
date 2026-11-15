@@ -1,11 +1,11 @@
 # Classement Est avec logos, couleurs de zones (playoffs / play-in) et équipes favorites en surbrillance.
-# Pour le classement Ouest : remplacez sensor.nba_classement_est par sensor.nba_classement_ouest
+# Pour le classement Ouest : remplacez sensor.nba_center_classement_est par sensor.nba_center_classement_ouest
 # et le titre par "Classement Ouest".
 type: markdown
 title: 🏀 Classement Est
 content: >-
-  {% set rows = state_attr('sensor.nba_classement_est', 'standings') or [] %}
-  {% set favs = state_attr('sensor.nba_classement_est', 'favorites') or [] %}
+  {% set rows = state_attr('sensor.nba_center_classement_est', 'standings') or [] %}
+  {% set favs = state_attr('sensor.nba_center_classement_est', 'favorites') or [] %}
   <table width="100%" style="border-collapse:collapse;font-size:14px">
   <tr style="opacity:.6;font-size:12px;text-align:center">
   <th>#</th><th style="text-align:left">Équipe</th><th>V</th><th>D</th><th>%</th><th>Écart</th><th>Série</th>

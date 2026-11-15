@@ -1,7 +1,7 @@
 """Constantes de l'intégration NBA."""
 from datetime import timedelta
 
-DOMAIN = "nba"
+DOMAIN = "nba_center"
 INTEGRATION_NAME = "NBA Center HomeAssistant"
 CONF_TEAMS = "teams"
 CONF_NOTIFY_START = "notify_start"
@@ -37,5 +37,5 @@ SERVICE_GET_GAME_DETAILS = "get_game_details"
 SCAN_INTERVAL_IDLE = timedelta(minutes=15)
 SCAN_INTERVAL_LIVE = timedelta(seconds=30)
 
-EVENT_GAME_START = "nba_game_start"
-EVENT_GAME_END = "nba_game_end"
+EVENT_GAME_START = "nba_center_game_start"
+EVENT_GAME_END = "nba_center_game_end"

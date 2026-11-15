@@ -38,7 +38,7 @@
 ### Compatibilité existante
 - IDs et noms d'entités historiques inchangés.
 - Attributs existants conservés.
-- Service `nba.get_game_details` conserve son schéma d'entrée et de sortie.
+- Service `nba_center.get_game_details` conserve son schéma d'entrée et de sortie.
 - Événements `nba_game_start` et `nba_game_end` inchangés.
 - Blueprint existant et installation automatique conservés.
 - Capteurs et automatisations ne dépendent pas des nouveaux endpoints.

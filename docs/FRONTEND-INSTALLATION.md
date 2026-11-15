@@ -3,7 +3,7 @@
 ## Prérequis
 
 - Home Assistant **2024.7 ou plus récent**.
-- Intégration NBA installée et configurée.
+- Intégration **NBA Center HomeAssistant** installée et configurée.
 - Au moins une équipe favorite sélectionnée pour afficher les fiches équipes.
 
 ## Ressource Lovelace
@@ -46,14 +46,14 @@ type: custom:nba-center-card
 title: NBA CENTER
 subtitle: Your league. Your teams. One center.
 entities:
-  games: sensor.nba_matchs_du_jour
-  east: sensor.nba_classement_est
-  west: sensor.nba_classement_ouest
-  points: sensor.nba_meilleurs_marqueurs
-  rebounds: sensor.nba_meilleurs_rebondeurs
-  assists: sensor.nba_meilleurs_passeurs
-  steals: sensor.nba_meilleurs_intercepteurs
-  blocks: sensor.nba_meilleurs_contreurs
+  games: sensor.nba_center_matchs_du_jour
+  east: sensor.nba_center_classement_est
+  west: sensor.nba_center_classement_ouest
+  points: sensor.nba_center_meilleurs_marqueurs
+  rebounds: sensor.nba_center_meilleurs_rebondeurs
+  assists: sensor.nba_center_meilleurs_passeurs
+  steals: sensor.nba_center_meilleurs_intercepteurs
+  blocks: sensor.nba_center_meilleurs_contreurs
 ```
 
 Les identifiants ci-dessus sont les valeurs par défaut attendues à partir des noms actuels des capteurs. La carte tente aussi de découvrir automatiquement les capteurs par leurs attributs ; utilise la surcharge si tu as renommé des entités.

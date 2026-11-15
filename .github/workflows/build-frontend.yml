@@ -18,8 +18,8 @@ on:
       - 'frontend/**'
       - 'tests/**'
       - '.github/workflows/**'
-      - 'custom_components/nba/**/*.py'
-      - 'custom_components/nba/manifest.json'
+      - 'custom_components/nba_center/**/*.py'
+      - 'custom_components/nba_center/manifest.json'
       - 'package.json'
       - 'package-lock.json'
       - 'build.mjs'
@@ -65,13 +65,13 @@ jobs:
           npm test
       - name: Commit generated frontend bundle
         run: |
-          if git diff --quiet -- custom_components/nba/www/nba-center-card.js; then
+          if git diff --quiet -- custom_components/nba_center/www/nba-center-card.js; then
             echo "Frontend bundle is already up to date."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add custom_components/nba/www/nba-center-card.js package-lock.json
+          git add custom_components/nba_center/www/nba-center-card.js package-lock.json
           git commit -m "build(frontend): bundle NBA Center Lit card"
           TARGET_BRANCH="${{ github.head_ref || github.ref_name }}"
           git fetch origin "$TARGET_BRANCH"

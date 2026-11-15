@@ -7,7 +7,7 @@
 
 - Enregistrement idempotent de la ressource JavaScript par Home Assistant.
 - Compatibilité minimale alignée sur Home Assistant 2024.7 (API `StaticPathConfig` et `async_register_static_paths`).
-- Bundle Lit autonome généré avec esbuild et livré dans `custom_components/nba/www/`.
+- Bundle Lit autonome généré avec esbuild et livré dans `custom_components/nba_center/www/`.
 - Interface NBA Dark responsive avec cinq vues.
 - Consommation des entités et attributs Home Assistant existants : scoreboard, classements, leaders et capteurs des équipes favorites.
 - Filtres de scores par état et recherche textuelle par équipe.
@@ -36,7 +36,7 @@
 ## CI et contrôles
 
 Dernier workflow validé : [run 43304380955](https://github.com/cy-bertrand/ha-nba-center/actions/runs/43304186808) — succès.\n\nLe workflow GitHub Actions exécute :
-- `python -m compileall -q custom_components/nba`
+- `python -m compileall -q custom_components/nba_center`
 - `npm ci`
 - `npm run build`
 - `npm test` (bundle Lit, cinq vues, contrôles des fonctionnalités et absence d'appels ESPN dans le frontend).
@@ -52,5 +52,5 @@ Voir `docs/FRONTEND-INSTALLATION.md`.
 - Installation et chargement de la ressource confirmés dans Home Assistant 2024.7+.
 - Les cinq vues affichent les données de l'intégration sans entités mal associées.
 - Vérification desktop et mobile.
-- Capteurs, service `nba.get_game_details`, événements et blueprint historiques non régressés.
+- Capteurs, service `nba_center.get_game_details`, événements et blueprint historiques non régressés.
 - Rapport final, puis validation explicite de l'utilisateur avant Phase 2.

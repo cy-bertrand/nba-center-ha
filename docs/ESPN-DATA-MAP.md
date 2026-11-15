@@ -36,7 +36,7 @@
 
 Les commandes WebSocket de travail sont documentées dans [PHASE-0-AUDIT.md](PHASE-0-AUDIT.md), section 14. Elles couvriront le scoreboard par date, le détail de match, les franchises, le profil et roster d'équipe, la recherche et le profil joueur, le gamelog et les leaders.
 
-Le service existant `nba.get_game_details` est conservé pour la compatibilité.
+Le service existant `nba_center.get_game_details` est conservé pour la compatibilité.
 
 ## État de validation
 
@@ -321,7 +321,7 @@ Ces fichiers sont des fixtures réduites aux champs utiles, recopiés depuis les
 
 ## Parseur indépendant — première version (13 novembre 2026)
 
-Le module `custom_components/nba/playoff_data.py` est maintenant créé. Il reste volontairement pur : aucune requête HTTP, aucune dépendance Home Assistant, aucune modification du coordinateur.
+Le module `custom_components/nba_center/playoff_data.py` est maintenant créé. Il reste volontairement pur : aucune requête HTTP, aucune dépendance Home Assistant, aucune modification du coordinateur.
 
 Fonctions publiques :
 - `parse_playoff_event(event)` : normalise un événement ESPN, ou renvoie `None` si le type n'est pas postseason/Play-In ou si les équipes indispensables sont absentes.

@@ -42,8 +42,8 @@ class NBABaseSensor(CoordinatorEntity[NBACoordinator], SensorEntity):
     def __init__(self, coordinator: NBACoordinator) -> None:
         super().__init__(coordinator)
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, "nba")},
-            name="NBA",
+            identifiers={(DOMAIN, "nba_center")},
+            name="NBA Center",
             manufacturer="ESPN",
             entry_type=DeviceEntryType.SERVICE,
         )

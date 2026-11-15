@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const bundle = await readFile("custom_components/nba/www/nba-center-card.js", "utf8");
+const bundle = await readFile("custom_components/nba_center/www/nba-center-card.js", "utf8");
 const source = await readFile("frontend/src/nba-center-card.js", "utf8");
 
 console.log("BUNDLE LENGTH", bundle.length, "SOURCE LENGTH", source.length);

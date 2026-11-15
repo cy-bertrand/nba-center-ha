@@ -12,14 +12,14 @@ Le dépôt source est une intégration Home Assistant Python existante, utilisan
 - classements Est/Ouest ;
 - leaders de saison (points, rebonds, passes, interceptions, contres) ;
 - événements `nba_game_start` et `nba_game_end` ;
-- service `nba.get_game_details` avec réponse ;
+- service `nba_center.get_game_details` avec réponse ;
 - blueprint de notification installé automatiquement ;
 - cartes Lovelace YAML existantes.
 
 Les fichiers centraux inspectés :
-- `custom_components/nba/__init__.py`
-- `custom_components/nba/coordinator.py`
-- `custom_components/nba/manifest.json`
+- `custom_components/nba_center/__init__.py`
+- `custom_components/nba_center/coordinator.py`
+- `custom_components/nba_center/manifest.json`
 - `README.md`
 
 Version déclarée dans le manifest inspecté : `0.4.1`.
@@ -42,14 +42,14 @@ Les données sont actuellement structurées principalement autour de `games`, `s
 
 ### Service existant
 
-Le service `nba.get_game_details` accepte `game_id` et utilise `SupportsResponse.ONLY`. Le frontend pourra appeler les services Home Assistant via son API de services, sans accès direct à ESPN.
+Le service `nba_center.get_game_details` accepte `game_id` et utilise `SupportsResponse.ONLY`. Le frontend pourra appeler les services Home Assistant via son API de services, sans accès direct à ESPN.
 
 ### Compatibilité à protéger
 
 Le portage devra conserver sans changement non justifié :
 - les identifiants et attributs des capteurs ;
 - le domaine `nba` ;
-- le service `nba.get_game_details` et son schéma ;
+- le service `nba_center.get_game_details` et son schéma ;
 - les événements `nba_game_start` et `nba_game_end` ;
 - le flux de configuration ;
 - les options des équipes favorites ;
@@ -121,7 +121,7 @@ Conserver le backend existant comme socle et ajouter une couche de consultation 
 ## 8. Inventaire exhaustif du dépôt source
 
 L'arborescence Git source a été récupérée avec l'API GitHub (arbre récursif non tronqué). Elle contient 23 fichiers suivis :
-- 11 fichiers dans `custom_components/nba/` et ses sous-dossiers ;
+- 11 fichiers dans `custom_components/nba_center/` et ses sous-dossiers ;
 - 10 fichiers dans `lovelace/` ;
 - `hacs.json` ;
 - `README.md`.
@@ -130,7 +130,7 @@ Aucun dossier de tests, fichier de dépendances séparé, configuration de lint 
 
 La comparaison de l'arbre source et de l'arbre cible confirme que tous les fichiers de code, traductions, services, blueprint, cartes et métadonnées ont été repris avec le même identifiant Git de contenu, sauf :
 - `README.md`, remplacé par la présentation NBA Center ;
-- `custom_components/nba/manifest.json`, dont les liens documentation et issue tracker pointent maintenant vers le nouveau dépôt.
+- `custom_components/nba_center/manifest.json`, dont les liens documentation et issue tracker pointent maintenant vers le nouveau dépôt.
 
 Le dépôt cible contient également un fichier `LICENSE` GPL-3.0 qui n'existe pas dans l'arbre source. Il faut confirmer que cette licence est bien intentionnelle avant publication de versions ou diffusion du projet. Ne pas la supprimer ni la remplacer sans décision du propriétaire.
 
@@ -150,7 +150,7 @@ Conséquences :
 
 ### 9.2 Détails de match et box score
 
-Le parseur `_parse_summary` lit les équipes, scores par quart-temps et leaders de catégories. Il ne lit pas le bloc `boxscore.players` ni les statistiques individuelles complètes. Le service `nba.get_game_details` n'est donc pas encore un box score complet.
+Le parseur `_parse_summary` lit les équipes, scores par quart-temps et leaders de catégories. Il ne lit pas le bloc `boxscore.players` ni les statistiques individuelles complètes. Le service `nba_center.get_game_details` n'est donc pas encore un box score complet.
 
 La documentation communautaire des endpoints ESPN décrit le summary comme une réponse contenant le box score des équipes et des joueurs. C'est une piste prometteuse pour construire Game Details sans multiplier les appels, à confirmer avec des réponses réelles et des tests de schéma.
 
@@ -290,7 +290,7 @@ Commandes proposées (noms de travail, pas encore implémentés) :
 - `nba/center/player_gamelog` : athlete_id, season, season_type ; renvoie l'historique ;
 - `nba/center/leaders` : season, season_type, category, limit ; renvoie les leaders.
 
-Le service historique `nba.get_game_details` doit rester disponible pour la compatibilité des automatisations et des utilisateurs existants. Il pourra partager la même logique backend que la nouvelle commande WebSocket.
+Le service historique `nba_center.get_game_details` doit rester disponible pour la compatibilité des automatisations et des utilisateurs existants. Il pourra partager la même logique backend que la nouvelle commande WebSocket.
 
 ### Ressource Lovelace intégrée
 

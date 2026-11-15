@@ -1,11 +1,11 @@
 # Top 10 des meilleurs marqueurs (moyenne par match), avec podium pour les 3 premiers.
 # Pour les autres categories, remplacez le capteur et le titre :
-#   sensor.nba_meilleurs_rebondeurs / sensor.nba_meilleurs_passeurs
-#   sensor.nba_meilleurs_intercepteurs / sensor.nba_meilleurs_contreurs
+#   sensor.nba_center_meilleurs_rebondeurs / sensor.nba_center_meilleurs_passeurs
+#   sensor.nba_center_meilleurs_intercepteurs / sensor.nba_center_meilleurs_contreurs
 type: markdown
 title: "🏆 Meilleurs marqueurs"
 content: >-
-  {% set rows = state_attr('sensor.nba_meilleurs_marqueurs', 'leaders') or [] %}
+  {% set rows = state_attr('sensor.nba_center_meilleurs_marqueurs', 'leaders') or [] %}
   {% set medals = ['🥇', '🥈', '🥉'] %}
   {% set colors = ['#FFD700', '#C0C0C0', '#CD7F32'] %}
   {% if rows | length >= 3 %}

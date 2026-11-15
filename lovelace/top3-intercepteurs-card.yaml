@@ -2,7 +2,7 @@
 type: markdown
 title: "🖐️ Top 3 intercepteurs"
 content: >-
-  {% set rows = state_attr('sensor.nba_meilleurs_intercepteurs', 'leaders') or [] %}
+  {% set rows = state_attr('sensor.nba_center_meilleurs_intercepteurs', 'leaders') or [] %}
   {% set medals = ['🥇', '🥈', '🥉'] %}
   {% set colors = ['#FFD700', '#C0C0C0', '#CD7F32'] %}
   {% if rows | length >= 3 %}
