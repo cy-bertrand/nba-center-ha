@@ -2,6 +2,7 @@
 from datetime import timedelta
 
 DOMAIN = "nba"
+INTEGRATION_NAME = "NBA Center HomeAssistant"
 CONF_TEAMS = "teams"
 CONF_NOTIFY_START = "notify_start"
 CONF_NOTIFY_END = "notify_end"
