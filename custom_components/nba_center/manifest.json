@@ -14,5 +14,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/cy-bertrand/nba-center-ha/issues",
   "requirements": [],
-  "version": "0.5.3"
+  "version": "1.0.0"
 }

@@ -15,49 +15,22 @@ Sur le commit `bca7f56aa42a3b33c3ce3f98d36856335be0cb55` :
 Workflow de validation : https://github.com/cy-bertrand/nba-center-ha/actions/runs/43747202161  
 Workflow frontend : https://github.com/cy-bertrand/nba-center-ha/actions/runs/43747202190
 
-## Vérifications manuelles déjà réalisées
+## Vérifications manuelles
 
 - Le dépôt a été ajouté comme dépôt personnalisé HACS de type Integration.
-- L'utilisateur a confirmé que l'intégration enregistre automatiquement la ressource Lovelace en mode stockage.
-- La carte `custom:nba-center-ha-card` se charge sur l'instance de test.
-- **Coexistence validée par l'utilisateur :** l'ancienne intégration `nba` et la nouvelle `nba_center` ont été installées simultanément et fonctionnent correctement.
-- **Fonctionnement autonome validé par l'utilisateur :** après désactivation de l'ancienne intégration `nba`, NBA Center HomeAssistant continue de fonctionner.
+- L'intégration enregistre automatiquement la ressource Lovelace en mode stockage.
+- La carte `custom:nba-center-ha-card` se charge sur l'instance Home Assistant de test.
+- L'installation et le fonctionnement de l'intégration ont été vérifiés sur l'instance réelle de l'utilisateur.
 
-Le test de coexistence et le test sans l'ancienne intégration sont donc considérés comme validés sur l'instance réelle de l'utilisateur.
+## Version de publication
 
-## Bloqueurs avant une première release
+La première version stable est fixée à **1.0.0**. Le manifeste de l'intégration porte cette version.
 
-### 1. Test complet dans Home Assistant — validé par l'utilisateur
+## Étapes restantes
 
-L'utilisateur confirme avoir installé les deux intégrations en parallèle, puis désactivé l'ancienne intégration `nba`. NBA Center HomeAssistant continue de fonctionner. La coexistence et l'autonomie de la nouvelle intégration sont donc validées sur son instance.
-
-La liste ci-dessous constitue une trace de vérification détaillée complémentaire, si nécessaire :
-
-1. Les deux intégrations apparaissent et restent configurables simultanément.
-2. Les capteurs de la nouvelle intégration sont créés sous le namespace `nba_center`.
-3. Le service `nba_center.get_game_details` fonctionne.
-4. Les événements `nba_center_game_start` et `nba_center_game_end` sont émis correctement.
-5. Le blueprint de notification est installé dans le dossier `nba_center` et fonctionne.
-6. La carte NBA Center charge ses vues et reçoit les données.
-7. L'ancienne intégration `nba`, ses capteurs, sa carte, ses ressources et ses automatisations restent fonctionnels.
-
-### 2. Réconcilier le versionnement
-
-État observé :
-
-- Manifeste du dépôt cible : `0.5.3`.
-- Manifeste actuel du dépôt source `ha-nba` : `0.4.1`.
-- Dernière release publique observée sur le dépôt source : `v0.4.1`.
-- Le document d'import mentionne un socle `0.7.7c`, qui ne correspond pas à ces valeurs.
-
-Il faut clarifier l'origine de cette référence `0.7.7c` et décider du numéro de la première release de `nba-center-ha`. **Ne pas créer de tag ou de release avant cette décision.**
-
-## Étapes de publication après validation
-
-1. Fixer le numéro de version dans `manifest.json`.
-2. Mettre à jour les notes de version et les instructions d'installation.
-3. Relancer HACS Action, Hassfest et le build frontend sur le commit final.
-4. Créer une **GitHub Release complète** (pas seulement un tag), après réussite des contrôles.
-5. Soumettre le dépôt à `hacs/default`, dans la liste `integration`, en respectant l'ordre alphabétique et le modèle de PR HACS.
+1. Finaliser les ressources graphiques de marque aux formats et dimensions Home Assistant recommandés.
+2. Vérifier une dernière fois HACS Action, Hassfest et le build frontend sur le commit de publication.
+3. Créer la release GitHub **v1.0.0** avec ses notes de version.
+4. Soumettre le dépôt à `hacs/default`, dans la liste `integration`, en respectant l'ordre alphabétique et le modèle de PR HACS.
 
 La réussite de HACS Action et de Hassfest est un prérequis technique ; elle ne constitue pas à elle seule une acceptation dans le catalogue HACS par défaut.
