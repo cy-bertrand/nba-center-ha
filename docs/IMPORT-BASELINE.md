@@ -45,3 +45,14 @@ La présence du workflow ne prouve pas à elle seule que les tests ont réussi. 
 ## Statut
 
 La séparation des domaines techniques est une étape de migration. Elle ne constitue pas encore une validation complète de compatibilité, ni une publication officielle. Aucun tag de release ne doit être créé avant la validation CI, le contrôle HACS et le test en situation réelle.
+
+
+## Vérification du versionnement avant publication — 15 novembre 2026
+
+Une vérification complémentaire du dépôt source public `cy-bertrand/ha-nba` indique :
+
+- son manifeste `custom_components/nba/manifest.json` annonce actuellement `0.4.1` ;
+- sa dernière release publique observée est `v0.4.1` ;
+- le manifeste du dépôt cible `nba-center-ha` annonce `0.5.3`.
+
+La référence au socle importé `v0.7.7c` ci-dessus reste donc à expliquer : elle ne correspond ni au manifeste actuel du dépôt source ni à sa dernière release publiée. Ne pas déduire automatiquement le numéro de la première release NBA Center de cette référence. La décision de version est reportée jusqu'à la validation de la migration et du fonctionnement en coexistence. Voir [HACS-PUBLICATION.md](HACS-PUBLICATION.md).

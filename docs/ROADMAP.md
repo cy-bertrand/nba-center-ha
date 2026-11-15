@@ -13,7 +13,7 @@ Le développement suit strictement les phases ci-dessous. Chaque phase est inspe
 | 4 | Teams Center | À faire |
 | 5 | Players Center | À faire |
 | 6 | Stats Center | À faire |
-| 7 | Robustesse, tests, HACS et documentation | À faire |
+| 7 | Robustesse, tests, HACS et documentation | En cours — HACS Action (10/10), Hassfest et build frontend validés ; test complet de coexistence HA et version de première release encore à valider |
 
 ## Règles de validation
 
