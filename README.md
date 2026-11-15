@@ -43,9 +43,35 @@ Les données sportives sont récupérées automatiquement depuis ESPN, sans clé
 
 ## 📸 Aperçu de l'interface
 
-Les captures d'écran de l'interface seront ajoutées ici afin de présenter les vues principales : Match Center, Teams Center, Players Center et statistiques.
+NBA Center propose plusieurs espaces pour suivre toute la saison NBA depuis Home Assistant.
 
-> Vous pouvez contribuer à cette section en partageant des captures d'écran de votre installation. Pensez à masquer les informations personnelles ou sensibles visibles dans Home Assistant.
+### Accueil et suivi des rencontres
+
+<p align="center">
+  <img src="docs/images/home.png" alt="Accueil NBA Center" width="48%">
+  <img src="docs/images/scores.png" alt="Scores et calendrier NBA" width="48%">
+</p>
+
+### Le détail des matchs
+
+<p align="center">
+  <img src="docs/images/match-center.png" alt="Match Center : score et leaders" width="48%">
+  <img src="docs/images/box-score.png" alt="Box Score détaillé des joueurs" width="48%">
+</p>
+
+### Équipes et joueurs
+
+<p align="center">
+  <img src="docs/images/teams.png" alt="Teams Center : liste des franchises" width="48%">
+  <img src="docs/images/player-profile.png" alt="Fiche détaillée d'un joueur" width="48%">
+</p>
+
+### Statistiques et classements
+
+<p align="center">
+  <img src="docs/images/players.png" alt="Classements statistiques des joueurs" width="48%">
+  <img src="docs/images/standings.png" alt="Classements des conférences Est et Ouest" width="48%">
+</p>
 
 ## 🚀 Installation avec HACS
 
