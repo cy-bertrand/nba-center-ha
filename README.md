@@ -1,24 +1,98 @@
-# NBA Center HomeAssistant
+# 🏀 NBA Center HomeAssistant
 
-**NBA Dark · ESPN sans clé API · Home Assistant · Lovelace**
+<p align="center">
+  <strong>Le basket NBA au cœur de votre Home Assistant.</strong><br>
+  Suivez les matchs, explorez les équipes et les joueurs, et retrouvez les statistiques dans une interface Lovelace immersive au thème NBA Dark.
+</p>
 
-NBA Center HomeAssistant est une intégration Home Assistant avec un centre NBA complet dans Lovelace : matchs, équipes, joueurs, statistiques et suivi des rencontres.
+<p align="center">
+  <a href="https://github.com/cy-bertrand/nba-center-ha/actions/workflows/validate-hacs.yml">
+    <img src="https://github.com/cy-bertrand/nba-center-ha/actions/workflows/validate-hacs.yml/badge.svg?branch=main" alt="HACS et Hassfest validation">
+  </a>
+  <a href="https://github.com/cy-bertrand/nba-center-ha/actions/workflows/build-frontend.yml">
+    <img src="https://github.com/cy-bertrand/nba-center-ha/actions/workflows/build-frontend.yml/badge.svg?branch=main" alt="Frontend build et tests">
+  </a>
+  <a href="https://github.com/cy-bertrand/nba-center-ha/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
+  </a>
+  <a href="https://www.buymeacoffee.com/cybertrand">
+    <img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-support-FFDD00?logo=buy-me-a-coffee&logoColor=black" alt="Buy me a coffee">
+  </a>
+</p>
 
-## Fonctionnalités
+<p align="center">
+  <img src="custom_components/nba_center/brand/icon.png" alt="NBA Center HomeAssistant" width="128">
+</p>
+
+## 🏀 Toute la NBA dans votre tableau de bord
+
+NBA Center HomeAssistant transforme votre Home Assistant en véritable centre de suivi NBA. Plus besoin de multiplier les sites et les applications : retrouvez l'essentiel de la saison dans une seule interface, directement depuis Lovelace.
+
+Que vous souhaitiez suivre une rencontre en direct, consulter le calendrier, comparer les équipes ou découvrir les performances d'un joueur, NBA Center rassemble les informations dans une expérience visuelle sombre, moderne et pensée pour les fans de basket.
+
+### Ce que vous pouvez faire
+
+- **Suivre les matchs** — retrouvez les rencontres du jour, les matchs à venir et les résultats, avec les scores et les informations de match disponibles.
+- **Explorer les équipes** — consultez les équipes NBA, leurs informations et leurs performances.
+- **Découvrir les joueurs** — accédez aux fiches joueurs, à leurs statistiques et aux saisons disponibles.
+- **Analyser les rencontres** — consultez les détails et les statistiques de match, dont les boxscores lorsqu'ils sont fournis par la source.
+- **Profiter d'une interface dédiée** — navigation Lovelace, thème NBA Dark et affichage adapté à Home Assistant.
+- **Garder le contrôle dans Home Assistant** — l'intégration fournit également des entités, services et événements utilisables dans vos tableaux de bord et automatisations.
+
+Les données sportives sont récupérées automatiquement depuis ESPN, sans clé API à configurer.
+
+## 📸 Aperçu de l'interface
+
+Les captures d'écran de l'interface seront ajoutées ici afin de présenter les vues principales : Match Center, Teams Center, Players Center et statistiques.
+
+> Vous pouvez contribuer à cette section en partageant des captures d'écran de votre installation. Pensez à masquer les informations personnelles ou sensibles visibles dans Home Assistant.
+
+## 🚀 Installation avec HACS
+
+NBA Center HomeAssistant est conçu pour être installé via HACS.
+
+1. Ouvrez **HACS → Intégrations**.
+2. Ouvrez le menu **⋮ → Dépôts personnalisés**.
+3. Ajoutez le dépôt suivant avec le type **Integration** :
+
+   `https://github.com/cy-bertrand/nba-center-ha`
+
+4. Recherchez **NBA Center HomeAssistant** et installez-le.
+5. Redémarrez Home Assistant.
+6. Allez dans **Paramètres → Appareils et services → Ajouter une intégration** et recherchez **NBA Center HomeAssistant**.
+
+La carte Lovelace est enregistrée automatiquement lorsque Home Assistant utilise le mode Storage. Vous pouvez ensuite ajouter la carte à votre tableau de bord avec le type :
+
+```yaml
+type: custom:nba-center-ha-card
+```
+
+Pour les installations Lovelace en mode YAML ou pour les options avancées, consultez [le guide d'installation frontend](docs/FRONTEND-INSTALLATION.md) et les exemples dans [lovelace/](lovelace/).
+
+## ☕ Soutenir le projet
+
+NBA Center HomeAssistant est développé et maintenu avec passion. Si le projet vous plaît et que vous souhaitez encourager son développement, vous pouvez offrir un café :
+
+<p align="center">
+  <a href="https://www.buymeacoffee.com/cybertrand">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60">
+  </a>
+</p>
+
+Merci pour votre soutien ! ⭐
+
+## 🔧 Pour les utilisateurs avancés
+
+### Architecture
+
 - Intégration Home Assistant autonome avec backend Python.
-- Carte Lovelace NBA Center construite avec Lit et compilée avec esbuild.
-- Données ESPN centralisées côté backend ; aucun appel ESPN direct depuis le frontend.
+- Carte Lovelace développée en JavaScript avec Lit et Web Components.
+- Les appels ESPN sont centralisés dans le backend : le frontend ne contacte pas directement ESPN.
 - Cache des données, gestion des erreurs et respect du fuseau horaire Home Assistant.
-- Capteurs, services, événements et automatisations historiques conservés.
+- Bundle frontend précompilé et fourni dans le dépôt : aucune installation de Node.js n'est nécessaire sur Home Assistant.
 
-## Installation
-Le dépôt est conçu pour être installé avec HACS comme intégration personnalisée. Tant qu'il n'est pas référencé dans le magasin HACS par défaut, ajoutez-le dans **HACS → Intégrations → ⋮ → Dépôts personnalisés**, avec l'URL `https://github.com/cy-bertrand/nba-center-ha` et le type **Integration**.
+### Développement frontend
 
-Après installation, redémarrez Home Assistant puis ajoutez **NBA Center HomeAssistant** depuis **Paramètres → Appareils et services**.
-
-La carte Lovelace est enregistrée automatiquement par l'intégration. Les exemples de configuration se trouvent dans [lovelace/](lovelace/) et les instructions complémentaires dans [docs/FRONTEND-INSTALLATION.md](docs/FRONTEND-INSTALLATION.md).
-
-## Développement frontend
 Le code source Lit se trouve dans `frontend/src/nba-center-card.js`. Le bundle distribué à Home Assistant est généré dans `custom_components/nba_center/www/nba-center-card.js`.
 
 ```bash
@@ -27,24 +101,19 @@ npm run build
 npm test
 ```
 
-Le bundle compilé est versionné dans le dépôt ; Home Assistant n'a pas besoin de Node.js ni d'esbuild pour exécuter l'intégration.
+### Contrôles automatisés
 
-## Principes techniques
-- Le backend Python/Home Assistant est la seule couche qui communique avec ESPN.
-- Pas de réécriture inutile des fonctionnalités Python existantes.
-- Cache centralisé et gestion tolérante des erreurs.
-- Pas de statistiques inventées ou extrapolées.
-- Fuseaux horaires gérés par Home Assistant.
-- Les changements frontend sont validés par les tests et le build avant publication.
+Les badges en haut de cette page reflètent directement les workflows GitHub :
 
-## Licence
-Le code original de NBA Center HomeAssistant est distribué sous **licence MIT**. Vous pouvez l'utiliser, le copier, le modifier, le distribuer, le sous-licencier et le vendre, y compris dans un contexte commercial, à condition de conserver l'avis de droit d'auteur et le texte de licence dans les copies ou portions substantielles du logiciel.
+- **HACS + Hassfest** : contrôles de validation du dépôt et de l'intégration Home Assistant.
+- **Frontend build et tests** : compilation et tests du frontend.
 
-Le texte complet de la licence figure dans le fichier [LICENSE](LICENSE).
+Les résultats détaillés sont disponibles dans l'onglet [Actions](https://github.com/cy-bertrand/nba-center-ha/actions).
 
-**Important :** cette licence couvre uniquement le code sur lequel le projet détient les droits. Elle ne confère aucun droit sur ESPN, la NBA, les marques, logos, images, données ou autres contenus de tiers. Ceux-ci restent soumis à leurs propres conditions et droits.
+## 📄 Licence et droits tiers
 
-## Remerciements et droits tiers
-Les données sportives sont obtenues à partir des services ESPN accessibles publiquement. NBA Center HomeAssistant est un projet indépendant, non affilié, approuvé ou sponsorisé par la NBA, ESPN ou Home Assistant.
+Le code original de NBA Center HomeAssistant est distribué sous **licence MIT**. Vous pouvez l'utiliser, le copier, le modifier, le distribuer et l'utiliser commercialement, à condition de conserver l'avis de droit d'auteur et le texte de licence dans les copies ou portions substantielles du logiciel.
 
-Consultez [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) pour les précisions relatives aux éléments tiers.
+Consultez le fichier [LICENSE](LICENSE) pour le texte complet.
+
+**Important :** NBA Center HomeAssistant est un projet indépendant, non affilié, approuvé ou sponsorisé par la NBA, ESPN ou Home Assistant. La licence MIT couvre uniquement le code sur lequel le projet détient les droits ; elle ne confère aucun droit sur les marques, logos, images, données ou services de tiers. Consultez [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) pour plus de précisions.
