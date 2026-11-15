@@ -43,9 +43,9 @@ def _load_coordinator():
 
     custom = _module("custom_components", package=True)
     custom.__path__ = [str(ROOT / "custom_components")]
-    nba = _module("custom_components.nba", package=True)
-    nba.__path__ = [str(ROOT / "custom_components" / "nba")]
-    return importlib.import_module("custom_components.nba.coordinator")
+    nba = _module("custom_components.nba_center", package=True)
+    nba.__path__ = [str(ROOT / "custom_components" / "nba_center")]
+    return importlib.import_module("custom_components.nba_center.coordinator")
 
 
 coordinator = _load_coordinator()

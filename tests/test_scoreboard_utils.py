@@ -6,7 +6,7 @@ from pathlib import Path
 from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-MODULE_PATH = Path(__file__).resolve().parents[1] / "custom_components" / "nba" / "scoreboard_utils.py"
+MODULE_PATH = Path(__file__).resolve().parents[1] / "custom_components" / "nba_center" / "scoreboard_utils.py"
 SPEC = importlib.util.spec_from_file_location("scoreboard_utils", MODULE_PATH)
 scoreboard_utils = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(scoreboard_utils)

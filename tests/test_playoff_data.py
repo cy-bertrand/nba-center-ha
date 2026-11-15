@@ -3,7 +3,7 @@ import json
 import unittest
 from pathlib import Path
 
-from custom_components.nba.playoff_data import (
+from custom_components.nba_center.playoff_data import (
     build_playoff_bracket,
     build_playoff_series,
     annotate_playoff_bracket,

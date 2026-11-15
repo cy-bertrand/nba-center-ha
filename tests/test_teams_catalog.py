@@ -3,7 +3,7 @@ import importlib.util
 import unittest
 from pathlib import Path
 
-MODULE_PATH = Path(__file__).resolve().parents[1] / "custom_components" / "nba" / "teams_catalog.py"
+MODULE_PATH = Path(__file__).resolve().parents[1] / "custom_components" / "nba_center" / "teams_catalog.py"
 SPEC = importlib.util.spec_from_file_location("teams_catalog", MODULE_PATH)
 module = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(module)

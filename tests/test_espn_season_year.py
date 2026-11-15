@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location(
-    "nba_player_data_test", ROOT / "custom_components" / "nba" / "player_data.py"
+    "nba_player_data_test", ROOT / "custom_components" / "nba_center" / "player_data.py"
 )
 PLAYER_DATA = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PLAYER_DATA)

@@ -1,7 +1,7 @@
 """Tests des parseurs de données individuelles ESPN."""
 import unittest
 
-from custom_components.nba.player_data import parse_core_postseason_stats, parse_player_gamelog, parse_player_stats
+from custom_components.nba_center.player_data import parse_core_postseason_stats, parse_player_gamelog, parse_player_stats
 
 
 class PlayerDataParserTests(unittest.TestCase):
@@ -585,7 +585,7 @@ class PlayerDataParserTests(unittest.TestCase):
 
 
     def test_empty_boxscore_does_not_erase_gamelog_stats(self):
-        from custom_components.nba.player_data import apply_boxscore_player
+        from custom_components.nba_center.player_data import apply_boxscore_player
 
         game = {"stats": {"PTS": "24", "REB": "7"}}
         enriched = apply_boxscore_player(game, {
@@ -597,7 +597,7 @@ class PlayerDataParserTests(unittest.TestCase):
         self.assertEqual(game["player_name"], "Test Player")
 
     def test_nonempty_boxscore_replaces_gamelog_stats(self):
-        from custom_components.nba.player_data import apply_boxscore_player
+        from custom_components.nba_center.player_data import apply_boxscore_player
 
         game = {"stats": {"PTS": "24"}}
         enriched = apply_boxscore_player(game, {
@@ -607,7 +607,7 @@ class PlayerDataParserTests(unittest.TestCase):
         self.assertEqual(game["stats"], {"PTS": "26", "REB": "8"})
 
     def test_boxscore_stats_fallback_and_did_not_play_metadata(self):
-        from custom_components.nba.player_data import apply_boxscore_player
+        from custom_components.nba_center.player_data import apply_boxscore_player
 
         game = {"stats": {"PTS": "0"}}
         enriched = apply_boxscore_player(game, {
@@ -619,7 +619,7 @@ class PlayerDataParserTests(unittest.TestCase):
 
 
     def test_boxscore_with_only_empty_values_does_not_replace_stats(self):
-        from custom_components.nba.player_data import apply_boxscore_player
+        from custom_components.nba_center.player_data import apply_boxscore_player
 
         game = {"stats": {"PTS": "18", "REB": "5"}}
         enriched = apply_boxscore_player(game, {
@@ -629,7 +629,7 @@ class PlayerDataParserTests(unittest.TestCase):
         self.assertEqual(game["stats"], {"PTS": "18", "REB": "5"})
 
     def test_zero_is_a_valid_boxscore_stat(self):
-        from custom_components.nba.player_data import apply_boxscore_player
+        from custom_components.nba_center.player_data import apply_boxscore_player
 
         game = {"stats": {"PTS": "18"}}
         enriched = apply_boxscore_player(game, {"stats_by_key": {"PTS": "0"}})

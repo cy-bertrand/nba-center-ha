@@ -1,7 +1,7 @@
 """Tests du parseur d'effectif ESPN."""
 import unittest
 
-from custom_components.nba.team_roster import parse_team_roster
+from custom_components.nba_center.team_roster import parse_team_roster
 
 
 class TeamRosterParserTests(unittest.TestCase):
