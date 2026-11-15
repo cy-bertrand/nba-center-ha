@@ -37,6 +37,7 @@ Que vous souhaitiez suivre une rencontre en direct, consulter le calendrier, com
 - **Découvrir les joueurs** — accédez aux fiches joueurs, à leurs statistiques et aux saisons disponibles.
 - **Analyser les rencontres** — consultez les détails et les statistiques de match, dont les boxscores lorsqu'ils sont fournis par la source.
 - **Profiter d'une interface dédiée** — navigation Lovelace, thème NBA Dark et affichage adapté à Home Assistant.
+- **Recevoir des notifications de match** — un blueprint inclus avec l'intégration permet d'être averti au début et/ou à la fin des rencontres de vos équipes favorites.
 - **Garder le contrôle dans Home Assistant** — l'intégration fournit également des entités, services et événements utilisables dans vos tableaux de bord et automatisations.
 
 Les données sportives sont récupérées automatiquement depuis ESPN, sans clé API à configurer.
@@ -108,12 +109,7 @@ Le blueprint permet de choisir :
 
 La notification de début annonce les équipes et l'heure locale. À la fin du match, elle indique le score final et, lorsque le score le permet, l'équipe gagnante.
 
-**Installation du blueprint :**
-
-1. Téléchargez le fichier [NBA Center – Notification de match](custom_components/nba_center/blueprints/automation/nba_game_notification.yaml).
-2. Copiez-le dans le dossier `config/blueprints/automation/` de Home Assistant.
-3. Dans Home Assistant, ouvrez **Paramètres → Automatisations et scènes → Blueprints**, puis actualisez les blueprints si nécessaire.
-4. Créez une automatisation à partir de **NBA Center – Notification de match** et choisissez vos appareils et équipes.
+**Aucune installation manuelle n'est nécessaire :** le blueprint est fourni avec l'intégration NBA Center. Après l'installation de l'intégration et le redémarrage de Home Assistant, il est disponible dans **Paramètres → Automatisations et scènes → Blueprints**. Il suffit de créer une automatisation à partir de **NBA Center – Notification de match**, puis de choisir les appareils et les équipes à suivre.
 
 Le blueprint s'appuie sur les événements `nba_center_game_start` et `nba_center_game_end` émis par l'intégration.
 
