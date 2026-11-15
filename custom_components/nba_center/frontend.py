@@ -84,7 +84,7 @@ async def _async_register_lovelace_resource(hass: HomeAssistant) -> None:
         _LOGGER.info("Registered NBA Center Lovelace resource: %s", versioned_url)
         return
 
-    if existing.get("url") != versioned_url or existing.get("res_type") != "module":
+    if existing.get("url") != versioned_url or existing.get("type") != "module":
         await resources.async_update_item(
             existing["id"],
             {"res_type": "module", "url": versioned_url},
