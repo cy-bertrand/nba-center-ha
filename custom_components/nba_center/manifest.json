@@ -8,6 +8,9 @@
   "codeowners": [
     "@cy-bertrand"
   ],
+  "categories": [
+    "news_social_media"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/cy-bertrand/nba-center-ha",
   "integration_type": "service",
