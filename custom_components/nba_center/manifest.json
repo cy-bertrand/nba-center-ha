@@ -1,17 +1,17 @@
 {
   "domain": "nba_center",
   "name": "NBA Center HomeAssistant",
+  "after_dependencies": [
+    "http",
+    "lovelace"
+  ],
   "codeowners": [
     "@cy-bertrand"
   ],
   "config_flow": true,
   "documentation": "https://github.com/cy-bertrand/nba-center-ha",
-  "issue_tracker": "https://github.com/cy-bertrand/nba-center-ha/issues",
   "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/cy-bertrand/nba-center-ha/issues",
   "requirements": [],
-  "version": "0.5.3",
-  "after_dependencies": [
-    "http",
-    "lovelace"
-  ]
+  "version": "0.5.3"
 }
