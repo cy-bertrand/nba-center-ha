@@ -7,7 +7,7 @@ Suivez les matchs, explorez les équipes et les joueurs dans une interface Lovel
 Follow games, explore teams and players in an immersive NBA Dark Lovelace interface.
 </p>
 
-<p align="center"><a href="#français">🇫🇷 Français</a> · <a href="#english">🇬🇧 English</a></p>
+<p align="center"><a href="#français">🇫🇷 / 🇧🇪 Français</a> · <a href="#english">🇬🇧 English</a></p>
 
 <p align="center">
 <a href="https://github.com/cy-bertrand/nba-center-ha/actions/workflows/validate-hacs.yml"><img src="https://github.com/cy-bertrand/nba-center-ha/actions/workflows/validate-hacs.yml/badge.svg?branch=main" alt="HACS and Hassfest validation"></a>
@@ -21,9 +21,9 @@ Follow games, explore teams and players in an immersive NBA Dark Lovelace interf
 ---
 
 <a id="français"></a>
-# 🇫🇷 Français
+# Français
 
-## 🏀 Toute la NBA dans votre tableau de bord
+## Toute la NBA dans votre tableau de bord
 
 NBA Center HomeAssistant transforme votre Home Assistant en véritable centre de suivi NBA. Retrouvez l'essentiel de la saison dans une seule interface, directement depuis Lovelace.
 
