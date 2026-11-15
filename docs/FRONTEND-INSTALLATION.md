@@ -1,25 +1,25 @@
-# NBA Center — installation de la carte
+# Installation de la carte Lovelace
 
 ## Prérequis
 
-- Home Assistant **2024.7 ou plus récent**.
+- Home Assistant compatible avec la version de l'intégration.
 - Intégration **NBA Center HomeAssistant** installée et configurée.
-- Au moins une équipe favorite sélectionnée pour afficher les fiches équipes.
 
-## Ressource Lovelace
+## Enregistrement automatique
 
-La ressource est servie par l'intégration à l'URL :
+En mode Lovelace **Storage**, l'intégration enregistre automatiquement la ressource frontend. Aucune déclaration manuelle n'est nécessaire.
+
+La ressource est servie à l'adresse :
 
 ```text
 /nba-center-ha/nba-center-card.js
 ```
 
-Ajoute cette ressource une seule fois dans **Paramètres → Tableaux de bord → Ressources** :
+Si elle n'apparaît pas après l'installation ou une mise à jour, redémarre Home Assistant et vérifie **Paramètres → Tableaux de bord → Ressources**. Évite de déclarer une seconde fois une ressource déjà enregistrée.
 
-- URL : `/nba-center-ha/nba-center-card.js`
-- Type : **JavaScript module**
+## Installation en mode YAML
 
-En mode YAML :
+Pour une configuration Lovelace en mode YAML, ajoute la ressource :
 
 ```yaml
 lovelace:
@@ -29,48 +29,20 @@ lovelace:
       type: module
 ```
 
-Ne la déclare pas deux fois si elle est déjà enregistrée dans les ressources Lovelace.
+## Carte
 
-## Carte minimale
+Ajoute une carte manuelle avec cette configuration minimale :
 
 ```yaml
 type: custom:nba-center-ha-card
 ```
 
-## Configuration facultative
+La carte peut aussi accepter des options de titre et des identifiants d'entités personnalisés. Les entités par défaut sont découvertes à partir des données de l'intégration ; si tu as renommé des entités, utilise les options correspondantes dans la configuration de la carte.
 
-Le titre, le sous-titre et les entity_id peuvent être surchargés si Home Assistant a généré des identifiants différents :
+## Architecture frontend
 
-```yaml
-type: custom:nba-center-ha-card
-title: NBA CENTER
-subtitle: Your league. Your teams. One center.
-entities:
-  games: sensor.nba_center_matchs_du_jour
-  east: sensor.nba_center_classement_est
-  west: sensor.nba_center_classement_ouest
-  points: sensor.nba_center_meilleurs_marqueurs
-  rebounds: sensor.nba_center_meilleurs_rebondeurs
-  assists: sensor.nba_center_meilleurs_passeurs
-  steals: sensor.nba_center_meilleurs_intercepteurs
-  blocks: sensor.nba_center_meilleurs_contreurs
-```
+- Le frontend est un bundle JavaScript précompilé fourni dans le dépôt.
+- Aucune installation de Node.js ni compilation n'est nécessaire sur Home Assistant.
+- Les appels ESPN sont effectués par le backend Python ; le navigateur ne contacte pas directement ESPN.
 
-Les identifiants ci-dessus sont les valeurs par défaut attendues à partir des noms actuels des capteurs. La carte tente aussi de découvrir automatiquement les capteurs par leurs attributs ; utilise la surcharge si tu as renommé des entités.
-
-## Vues disponibles
-
-- **HOME** : matchs en direct, prochaines rencontres, équipes favorites et leaders en points.
-- **SCORES** : matchs chargés par le coordinateur, filtres Tous / Live / À venir / Terminés et recherche par équipe.
-- **TEAMS** : fiches des équipes favorites, dernier et prochain match, forme récente sur cinq rencontres.
-- **PLAYERS** : leaders en points, rebonds, passes, interceptions et contres.
-- **STATS** : classements Est/Ouest et leaders statistiques.
-
-Les vues exploitent exclusivement les états et attributs Home Assistant. Le navigateur n'appelle pas ESPN.
-
-## Limites actuelles
-
-- Le capteur historique expose le scoreboard courant ; le sélecteur de dates et les archives seront ajoutés dans la phase Match Center.
-- Les joueurs sont présentés via les capteurs de leaders existants ; les profils, recherches et comparaisons individuelles viendront dans Players Center.
-- Les détails complets / box scores ne sont pas encore exposés dans cette interface.
-- La validation automatique du bundle ne remplace pas un test sur une instance Home Assistant réelle.
+Pour contribuer au frontend, le code source se trouve dans `frontend/src/nba-center-card.js`. Les commandes de développement sont documentées dans le dépôt.
