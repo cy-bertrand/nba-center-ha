@@ -132,7 +132,7 @@ La comparaison de l'arbre source et de l'arbre cible confirme que tous les fichi
 - `README.md`, remplacé par la présentation NBA Center ;
 - `custom_components/nba_center/manifest.json`, dont les liens documentation et issue tracker pointent maintenant vers le nouveau dépôt.
 
-Le dépôt cible contient également un fichier `LICENSE` GPL-3.0 qui n'existe pas dans l'arbre source. Il faut confirmer que cette licence est bien intentionnelle avant publication de versions ou diffusion du projet. Ne pas la supprimer ni la remplacer sans décision du propriétaire.
+Le dépôt cible contenait initialement un fichier `LICENSE` GPL-3.0 absent de l'arbre source. Ce constat historique a ensuite été clarifié par le propriétaire ; voir la décision de licence actualisée à la section 18.
 
 ## 9. Constats détaillés sur le code existant
 
@@ -202,7 +202,7 @@ L'arbre source ne contient pas de tests automatisés ni de workflow CI. Aucun te
 - tests des erreurs HTTP, timeouts, données absentes et réponses partielles ;
 - test de chargement de l'intégration sur la version minimale HA annoncée ;
 - test des cartes historiques existantes ;
-- validation du choix de licence GPL-3.0 présent dans le dépôt cible.
+- confirmation du choix de licence du dépôt cible (décision actualisée à la section 18).
 
 ## 12. Architecture recommandée pour NBA Center
 
@@ -326,7 +326,7 @@ Références Home Assistant :
 - Déterminer si les réponses nécessitent pagination, paramètres de région/langue, ou traitement spécifique par saison.
 - Valider le contrat WebSocket et l'enregistrement de la ressource Lovelace sur les versions Home Assistant prises en charge.
 - Ajouter une suite de tests fixtures et lancer les tests d'intégration.
-- Confirmer la licence GPL-3.0 du dépôt cible.
+- Confirmer la licence du dépôt cible (point depuis résolu ; voir section 18).
 
 
 ## 17. Vérification supplémentaire des réponses ESPN et compatibilité Home Assistant
@@ -375,4 +375,6 @@ La documentation actuelle Home Assistant confirme que :
 
 ## 18. Licence
 
-L'utilisateur a confirmé le **12 novembre 2026** que le dépôt `ha-nba-center` doit conserver la licence **GNU GPL-3.0**. Le fichier `LICENSE` existant est donc conservé. Cette décision concerne le nouveau dépôt ; le dépôt source `ha-nba` n'est pas modifié.
+Le propriétaire a confirmé le **15 novembre 2026** que le dépôt `nba-center-ha` doit être distribué sous **licence MIT**, en remplacement de la licence PolyForm Noncommercial 1.0.0 utilisée jusqu'alors. Ce choix autorise également les usages commerciaux du code, sous réserve du respect des conditions de la licence MIT.
+
+Cette décision concerne uniquement le nouveau dépôt `nba-center-ha`. Le dépôt source `ha-nba` n'est pas modifié. La licence MIT ne couvre pas les marques, logos, images, données ou services appartenant à des tiers.

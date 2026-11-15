@@ -32,9 +32,9 @@ Les appels ESPN, le coordinateur, les parseurs et les fonctionnalités de la car
 
 ## Licence et propriété
 
-Le propriétaire a confirmé détenir les droits sur le code source importé. Le dépôt cible utilise la **PolyForm Noncommercial License 1.0.0**, et non la licence GPL.
+Le propriétaire a confirmé détenir les droits sur le code source importé. Le **15 novembre 2026**, il a confirmé le passage du dépôt cible à la **licence MIT**, afin de permettre une distribution compatible avec les exigences de licence du magasin HACS par défaut.
 
-Cette licence couvre le code du projet dans les limites de ses conditions. Elle ne confère aucun droit sur les marques, logos, images, données ou services de la NBA, d'ESPN ou de Home Assistant.
+La licence MIT autorise notamment l'utilisation commerciale, la modification et la redistribution du code, sous réserve de conserver l'avis de droit d'auteur et le texte de licence. Elle couvre uniquement le code sur lequel le projet détient les droits et ne confère aucun droit sur les marques, logos, images, données ou services de la NBA, d'ESPN ou de Home Assistant.
 
 ## État des validations
 

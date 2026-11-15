@@ -38,11 +38,9 @@ Le bundle compilé est versionné dans le dépôt ; Home Assistant n'a pas besoi
 - Les changements frontend sont validés par les tests et le build avant publication.
 
 ## Licence
-Le code original de NBA Center HomeAssistant est distribué sous **PolyForm Noncommercial License 1.0.0**. Cette licence autorise les usages non commerciaux, y compris l'utilisation personnelle, l'étude, les modifications et la redistribution dans les conditions prévues par la licence.
+Le code original de NBA Center HomeAssistant est distribué sous **licence MIT**. Vous pouvez l'utiliser, le copier, le modifier, le distribuer, le sous-licencier et le vendre, y compris dans un contexte commercial, à condition de conserver l'avis de droit d'auteur et le texte de licence dans les copies ou portions substantielles du logiciel.
 
-Toute utilisation commerciale nécessite une autorisation distincte du titulaire des droits.
-
-Texte officiel : https://polyformproject.org/licenses/noncommercial/1.0.0
+Le texte complet de la licence figure dans le fichier [LICENSE](LICENSE).
 
 **Important :** cette licence couvre uniquement le code sur lequel le projet détient les droits. Elle ne confère aucun droit sur ESPN, la NBA, les marques, logos, images, données ou autres contenus de tiers. Ceux-ci restent soumis à leurs propres conditions et droits.
 
