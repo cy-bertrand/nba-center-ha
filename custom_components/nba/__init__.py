@@ -11,7 +11,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.helpers import config_validation as cv
 
-from .const import DOMAIN, SERVICE_GET_GAME_DETAILS
+from .const import DOMAIN, INTEGRATION_NAME, SERVICE_GET_GAME_DETAILS
 from .coordinator import NBACoordinator
 from .websocket import async_register as async_register_websocket
 
@@ -30,8 +30,8 @@ def _install_blueprint(config_dir: str, component_dir: Path) -> None:
     - ne fait rien si le fichier source est absent ;
     - crée le fichier s'il n'existe pas ;
     - n'écrase jamais un fichier déjà présent, afin de respecter
-      d'éventuelles modifications de l'utilisateur. Pour récupérer une
-      nouvelle version, il suffit de supprimer l'ancien fichier puis
+      d'éventuelles modifications de l'utilisateur. Pour récupérer
+      une nouvelle version, il suffit de supprimer l'ancien fichier puis
       de redémarrer Home Assistant.
     """
     source = component_dir / "blueprints" / "automation" / BLUEPRINT_FILE
@@ -42,8 +42,6 @@ def _install_blueprint(config_dir: str, component_dir: Path) -> None:
     target = target_dir / BLUEPRINT_FILE
 
     if target.exists():
-        # Mise à jour uniquement si le fichier installé est identique à une
-        # ancienne copie non modifiée par l'utilisateur (marqueur ci-dessous).
         try:
             installed = target.read_text(encoding="utf-8")
             new = source.read_text(encoding="utf-8")
@@ -82,6 +80,11 @@ async def _register_services(hass: HomeAssistant) -> None:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Démarre l'intégration depuis une entrée de configuration."""
+    # Renomme aussi les entrées déjà installées, sans modifier leur domaine
+    # technique, leur entry_id, leurs options ou leurs entités.
+    if entry.title != INTEGRATION_NAME:
+        hass.config_entries.async_update_entry(entry, title=INTEGRATION_NAME)
+
     # Enregistrement de la carte intégrée : une erreur frontend ne doit pas
     # empêcher le chargement des capteurs et services historiques.
     if not hass.data.get("nba_center_frontend_registered", False):
