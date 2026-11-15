@@ -1,0 +1,79 @@
+name: Build NBA Center frontend
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+      - phase-2-match-center
+      - phase-5-playoff-player-data
+      - phase-5-playoff-leaderboards
+      - phase-5-playoff-series
+      - feature/player-center-season-polish
+      - fix/player-profile-gamelog-playoffs-season
+      - fix/player-playoffs-season-year
+    paths:
+      - 'frontend/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+      - 'custom_components/nba/**/*.py'
+      - 'custom_components/nba/manifest.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'build.mjs'
+  workflow_dispatch:
+
+concurrency:
+  group: nba-center-frontend-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Sur pull_request, éviter le ref synthétique "<numéro>/merge" :
+          # le bundle généré doit être commité sur la branche source.
+          ref: ${{ github.head_ref || github.ref_name }}
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Validate Python syntax
+        run: |
+          python -m compileall -q custom_components/nba
+          python -m unittest discover -s tests -v
+      - name: Build bundled Lit card
+        run: |
+          npm install --package-lock-only --no-audit --no-fund
+          npm ci --no-audit --no-fund
+          npm ls lit esbuild
+          node --check frontend/src/nba-center-card.js
+          npm ls lit esbuild
+          npm run build
+          npm test
+      - name: Commit generated frontend bundle
+        run: |
+          if git diff --quiet -- custom_components/nba/www/nba-center-card.js; then
+            echo "Frontend bundle is already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add custom_components/nba/www/nba-center-card.js package-lock.json
+          git commit -m "build(frontend): bundle NBA Center Lit card"
+          TARGET_BRANCH="${{ github.head_ref || github.ref_name }}"
+          git fetch origin "$TARGET_BRANCH"
+          git rebase "origin/$TARGET_BRANCH"
+          git push origin "HEAD:$TARGET_BRANCH"

@@ -1,0 +1,1537 @@
+"""Coordinateur : récupère les données ESPN et déclenche les événements."""
+from __future__ import annotations
+
+import asyncio
+import logging
+import math
+from datetime import datetime, timedelta
+from typing import Any
+
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
+
+from .scoreboard_utils import async_load_scoreboard, parse_score
+from .game_details import parse_boxscore, parse_game_state, parse_plays
+from .teams_catalog import parse_teams_catalog
+from .team_roster import parse_team_roster
+from .player_data import apply_boxscore_player, parse_core_postseason_stats, parse_player_gamelog, parse_player_stats, season_matches_espn_year
+from .playoff_data import (
+    annotate_playoff_bracket,
+    build_playoff_bracket,
+    build_playoff_series,
+    parse_playoff_payload,
+    parse_playoff_standings,
+    validate_playoff_seeds,
+)
+
+from .const import (
+    CONF_NOTIFY_END,
+    CONF_NOTIFY_START,
+    CONF_TEAMS,
+    DOMAIN,
+    EVENT_GAME_END,
+    EVENT_GAME_START,
+    LAST_GAMES_COUNT,
+    LEADER_CATEGORIES,
+    LEADERS_COUNT,
+    LEADERS_URL,
+    PLAYER_DATA_URL,
+    CORE_PLAYER_URL,
+    SCAN_INTERVAL_IDLE,
+    SCAN_INTERVAL_LIVE,
+    SCOREBOARD_URL,
+    STANDINGS_URL,
+    SUMMARY_URL,
+    TEAM_SCHEDULE_URL,
+    TEAM_ROSTER_URL,
+    TEAMS_URL,
+)
+
+_LOGGER = logging.getLogger(__name__)
+
+
+def _to_int(value: Any) -> int:
+    """Convertit un entier ESPN sans tronquer les fractions ni accepter booléens/infini."""
+    if isinstance(value, dict):
+        value = value.get("value", value.get("displayValue"))
+    if isinstance(value, bool) or value is None or value == "":
+        return 0
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return 0
+    if not math.isfinite(number) or not number.is_integer():
+        return 0
+    return int(number)
+
+
+def _local_date(raw: str | None) -> dict[str, str | None]:
+    """Convertit une date ESPN (UTC) en heure locale de Home Assistant.
+
+    Retourne l'ISO local, un texte lisible (ex: 'dim. 15/11 à 22:00') et le jour.
+    """
+    if not raw:
+        return {"iso": None, "text": None, "day": None, "time": None}
+    parsed = dt_util.parse_datetime(raw)
+    if parsed is None:
+        return {"iso": raw, "text": raw, "day": None, "time": None}
+    local = dt_util.as_local(parsed)
+    jours = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."]
+    day = f"{jours[local.weekday()]} {local:%d/%m}"
+    hour = f"{local:%H:%M}"
+    return {"iso": local.isoformat(), "text": f"{day} à {hour}", "day": day, "time": hour}
+
+
+class NBACoordinator(DataUpdateCoordinator[dict[str, Any]]):
+    """Gère la récupération des données NBA."""
+
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
+        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL_IDLE)
+        self.entry = entry
+        self.session = async_get_clientsession(hass)
+        self.teams: list[str] = entry.options.get(CONF_TEAMS, entry.data.get(CONF_TEAMS, []))
+        self._last_state: dict[str, str] = {}
+        self._leaders: dict[str, list[dict]] = {}
+        self._postseason_leaders: dict[str, list[dict]] = {}
+        self._leaders_fetched: dict[str, datetime] = {}
+        self._season_leaders_cache: dict[tuple[int, int, str], tuple[datetime, list[dict]]] = {}
+        self._daily_performances: dict[str, Any] = {"date": None, "categories": {}}
+        self._daily_performances_fetched: datetime | None = None
+        self._details_cache: dict[str, dict[str, Any]] = {}
+        self._scoreboard_cache: dict[str, tuple[datetime, dict[str, Any]]] = {}
+        self._scoreboard_lock = asyncio.Lock()
+        self._teams_catalog: dict[str, Any] = {"teams": [], "count": 0, "expected_count": 30, "complete": False}
+        self._teams_catalog_fetched: datetime | None = None
+        self._team_roster_cache: dict[tuple[str, int], tuple[datetime, dict[str, Any]]] = {}
+        self._team_roster_locks: dict[str, asyncio.Lock] = {}
+        self._team_playoff_path_cache: dict[tuple[str, int], tuple[datetime, dict[str, Any]]] = {}
+        self._player_data_cache: dict[str, tuple[datetime, dict[str, Any]]] = {}
+        self._player_data_locks: dict[str, asyncio.Lock] = {}
+        self._playoff_cache: dict[int, tuple[datetime, dict[str, Any]]] = {}
+        self._playoff_locks: dict[int, asyncio.Lock] = {}
+        self._standings_cache: dict[int, tuple[datetime, dict[str, Any]]] = {}
+        self._standings_locks: dict[int, asyncio.Lock] = {}
+
+    async def _get(self, url: str, params: dict | None = None) -> dict:
+        """Appel ESPN avec deux tentatives courtes pour les incidents réseau transitoires."""
+        last_error: Exception | None = None
+        for attempt in range(3):
+            try:
+                async with self.session.get(url, params=params, timeout=20) as resp:
+                    resp.raise_for_status()
+                    payload = await resp.json()
+                    if not isinstance(payload, dict):
+                        raise ValueError(f"Réponse ESPN invalide pour {url}: objet JSON attendu")
+                    return payload
+            except Exception as err:  # noqa: BLE001 - les erreurs réseau ESPN varient selon aiohttp
+                last_error = err
+                if attempt < 2:
+                    await asyncio.sleep(1 + attempt)
+        assert last_error is not None
+        raise last_error
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Actualise chaque ressource indépendamment et conserve les dernières données valides."""
+        previous = self.data or {}
+        errors: list[str] = []
+
+        try:
+            # Le scoreboard ESPN sans paramètre de date ne garantit pas de
+            # retourner toute la journée locale. Charge aujourd'hui et demain,
+            # puis conserve les matchs en direct et ceux à venir dans les 24 h.
+            local_now = dt_util.as_local(dt_util.now())
+            local_end = local_now + timedelta(hours=24)
+            dates = (
+                local_now.strftime("%Y%m%d"),
+                local_end.strftime("%Y%m%d"),
+            )
+            requested_dates = tuple(dict.fromkeys(dates))
+            scoreboard_results = await asyncio.gather(
+                *(self._get(SCOREBOARD_URL, params={"dates": day}) for day in requested_dates),
+                return_exceptions=True,
+            )
+            successful_payloads = []
+            failed_dates = set()
+            for requested_day, result in zip(requested_dates, scoreboard_results):
+                if isinstance(result, Exception):
+                    failed_dates.add(requested_day)
+                    errors.append(f"scoreboard {requested_day}: {result}")
+                    _LOGGER.warning("Scoreboard ESPN indisponible pour %s : %s", requested_day, result)
+                else:
+                    successful_payloads.append(result)
+            if not successful_payloads:
+                raise UpdateFailed("Tous les calendriers ESPN demandés sont indisponibles")
+            parsed_games = [
+                game
+                for payload in successful_payloads
+                for game in (self._parse_game(event) for event in payload.get("events", []))
+                if game
+            ]
+            unique_games = {str(game["id"]): game for game in parsed_games}
+            # Si une des deux dates échoue, conserve ses anciens matchs sans
+            # sacrifier les résultats frais de l'autre date.
+            for old_game in previous.get("games", []):
+                old_date = dt_util.parse_datetime(old_game.get("date") or "")
+                if old_date is None:
+                    continue
+                old_day = dt_util.as_local(old_date).strftime("%Y%m%d")
+                if old_day in failed_dates:
+                    unique_games.setdefault(str(old_game.get("id")), old_game)
+            games = []
+            for game in unique_games.values():
+                kickoff = dt_util.parse_datetime(game.get("date") or "")
+                if game.get("state") == "in":
+                    games.append(game)
+                elif game.get("state") == "pre" and kickoff is not None:
+                    kickoff_local = dt_util.as_local(kickoff)
+                    if local_now <= kickoff_local <= local_end:
+                        games.append(game)
+                elif game.get("state") == "post" and kickoff is not None:
+                    if dt_util.as_local(kickoff).date() == local_now.date():
+                        games.append(game)
+            games.sort(key=lambda game: game.get("date") or "")
+        except Exception as err:  # noqa: BLE001 - une panne ESPN ne doit pas effacer les données déjà affichées
+            errors.append(f"scoreboard: {err}")
+            games = previous.get("games", [])
+            _LOGGER.warning(
+                "Scoreboard ESPN indisponible : démarrage en mode dégradé ou conservation des données précédentes (%s)",
+                err,
+            )
+
+        try:
+            standings_raw = await self._get(STANDINGS_URL)
+            standings = self._parse_standings(standings_raw)
+            if not standings and previous.get("standings"):
+                raise ValueError("ESPN a renvoyé un classement vide")
+        except Exception as err:  # noqa: BLE001
+            errors.append(f"standings: {err}")
+            standings = previous.get("standings", {})
+            _LOGGER.warning("Classements ESPN indisponibles : conservation des données précédentes (%s)", err)
+
+        team_data: dict[str, Any] = {}
+        for team_id in self.teams:
+            try:
+                schedule = await self._get(TEAM_SCHEDULE_URL.format(team_id=team_id))
+                team_data[team_id] = self._parse_team(team_id, schedule, games)
+            except Exception as err:  # noqa: BLE001
+                errors.append(f"schedule {team_id}: {err}")
+                old_team = previous.get("teams", {}).get(team_id)
+                if old_team is not None:
+                    team_data[team_id] = old_team
+                else:
+                    team_data[team_id] = {
+                        "name": team_id, "abbr": None, "logo": None,
+                        "last": None, "next": None, "live": None, "recent": [],
+                    }
+                _LOGGER.warning("Calendrier ESPN indisponible pour %s : conservation des données précédentes (%s)", team_id, err)
+
+        errors.extend(await self._update_leaders())
+        errors.extend(await self._update_teams_catalog())
+        await self._update_daily_performances()
+
+        # Enrichit les matchs récents sans rendre le rafraîchissement global dépendant
+        # de la disponibilité de l'endpoint summary.
+        detail_ids = list(dict.fromkeys(
+            game["id"] for info in team_data.values() for game in info.get("recent", [])
+        ))
+        for game_id in detail_ids:
+            summary = await self.async_get_game_details(game_id)
+            detail = {"teams": summary.get("teams", [])} if summary and not summary.get("error") else {"teams": []}
+            for info in team_data.values():
+                for recent_game in info.get("recent", []):
+                    if recent_game.get("id") == game_id:
+                        recent_game["details"] = detail
+
+        data = {
+            "games": games,
+            "standings": standings,
+            "teams": team_data,
+            "leaders": self._leaders,
+            "postseason_leaders": self._postseason_leaders,
+            "daily_performances": self._daily_performances,
+            "favorites": list(self.teams),
+            "teams_catalog": self._teams_catalog,
+            "data_errors": errors,
+            "data_updated_at": dt_util.utcnow().isoformat(),
+            "data_stale": bool(errors),
+        }
+        if any(error.startswith("scoreboard:") for error in errors):
+            _LOGGER.warning("Événements NBA non évalués : scoreboard indisponible")
+        else:
+            self._fire_events(games)
+        if errors:
+            _LOGGER.warning("NBA Center utilise des données partiellement conservées : %s", "; ".join(errors))
+        live = any(g.get("state") == "in" for g in games)
+        self.update_interval = SCAN_INTERVAL_LIVE if live else SCAN_INTERVAL_IDLE
+        return data
+
+    async def _update_teams_catalog(self) -> list[str]:
+        """Actualise le catalogue des franchises au maximum une fois par jour.
+
+        Une réponse vide/incomplète ne remplace pas un catalogue complet déjà
+        connu. Une panne du catalogue ne bloque pas les autres données NBA.
+        """
+        now = dt_util.utcnow()
+        if self._teams_catalog_fetched and (now - self._teams_catalog_fetched).total_seconds() < 86400:
+            return []
+        try:
+            raw = await self._get(TEAMS_URL)
+            parsed = parse_teams_catalog(raw)
+            if parsed["count"] == 0:
+                raise ValueError("ESPN a renvoyé un catalogue d'équipes vide")
+            if self._teams_catalog.get("complete") and not parsed["complete"]:
+                _LOGGER.warning(
+                    "Catalogue ESPN incomplet (%s/30) : conservation du catalogue complet en cache",
+                    parsed["count"],
+                )
+                return [f"teams_catalog: catalogue incomplet ({parsed['count']}/30), cache complet conservé"]
+            self._teams_catalog = parsed
+            self._teams_catalog_fetched = now
+            if not parsed["complete"]:
+                _LOGGER.warning("Catalogue ESPN incomplet : %s/30 franchises", parsed["count"])
+                return [f"teams_catalog: catalogue incomplet ({parsed['count']}/30)"]
+            return []
+        except Exception as err:  # noqa: BLE001 - cette ressource ne bloque pas le coordinator
+            _LOGGER.warning("Catalogue des franchises NBA indisponible : %s", err)
+            return [f"teams_catalog: {err}"]
+
+    async def _update_daily_performances(self) -> None:
+        """Récupère les meilleurs joueurs de la dernière journée NBA terminée.
+
+        Le résultat est mis en cache plusieurs heures. On cherche la journée
+        la plus récente avec des matchs terminés, puis on lit les résumés
+        ESPN de cette seule journée (pas les classements cumulés de saison).
+        """
+        now = dt_util.utcnow()
+        if self._daily_performances_fetched and (now - self._daily_performances_fetched).total_seconds() < 4 * 3600:
+            return
+
+        previous = self._daily_performances
+        local_now = dt_util.as_local(now)
+        games: list[dict[str, Any]] = []
+        match_day = None
+        for offset in range(0, 8):
+            day = (local_now - timedelta(days=offset)).strftime("%Y%m%d")
+            try:
+                raw = await self._get(SCOREBOARD_URL, params={"dates": day})
+                day_games = [
+                    game for game in (self._parse_game(event) for event in raw.get("events", []))
+                    if game and game.get("state") == "post"
+                ]
+            except Exception as err:  # noqa: BLE001
+                _LOGGER.debug("Scoreboard du %s indisponible pour les performances quotidiennes: %s", day, err)
+                continue
+            if day_games:
+                games = day_games
+                match_day = day
+                break
+
+        if not games or not match_day:
+            # Conserve les dernières performances valides pendant les jours sans match.
+            self._daily_performances_fetched = now
+            return
+
+        semaphore = asyncio.Semaphore(4)
+
+        async def load_summary(game: dict[str, Any]) -> dict[str, Any]:
+            async with semaphore:
+                return await self.async_get_game_details(str(game["id"]))
+
+        summaries = await asyncio.gather(*(load_summary(game) for game in games))
+        categories: dict[str, list[dict[str, Any]]] = {
+            "points": [], "rebounds": [], "assists": [],
+        }
+        category_keys = {
+            "point": "points",
+            "rebond": "rebounds",
+            "rebound": "rebounds",
+            "assist": "assists",
+        }
+        for game, summary in zip(games, summaries):
+            if not isinstance(summary, dict) or summary.get("error"):
+                continue
+            for team in summary.get("teams", []):
+                if not isinstance(team, dict):
+                    continue
+                for player in team.get("top_players", []):
+                    if not isinstance(player, dict):
+                        continue
+                    label = str(player.get("category") or "").lower()
+                    key = next((target for fragment, target in category_keys.items() if fragment in label), None)
+                    if not key or not player.get("player") or player.get("value") is None:
+                        continue
+                    raw_value = str(player["value"]).replace(",", ".").split()[0]
+                    try:
+                        numeric = float(raw_value)
+                    except (TypeError, ValueError):
+                        continue
+                    categories[key].append({
+                        "player": player.get("player"),
+                        "headshot": player.get("headshot"),
+                        "team": team.get("abbr") or team.get("name"),
+                        "value": player.get("value"),
+                        "sort_value": numeric,
+                        "game_id": game.get("id"),
+                        "opponent": next(
+                            (other.get("abbr") for other in summary.get("teams", [])
+                             if isinstance(other, dict) and other is not team),
+                            None,
+                        ),
+                    })
+
+        for key, rows in categories.items():
+            # Un même joueur peut apparaître dans plusieurs matchs lors d'une
+            # journée à cheval sur plusieurs fuseaux ; on ne garde que sa meilleure ligne.
+            unique: dict[str, dict[str, Any]] = {}
+            for row in rows:
+                player_key = str(row["player"]).casefold()
+                if player_key not in unique or row["sort_value"] > unique[player_key]["sort_value"]:
+                    unique[player_key] = row
+            categories[key] = sorted(unique.values(), key=lambda row: row["sort_value"], reverse=True)[:3]
+
+        self._daily_performances = {
+            "date": games[0].get("day") or match_day,
+            "categories": categories,
+        }
+        self._daily_performances_fetched = now
+
+    async def _update_leaders(self) -> list[str]:
+        """Actualise chaque classement indépendamment sans effacer les données valides."""
+        now = dt_util.utcnow()
+        regular = dict(self._leaders)
+        postseason = dict(self._postseason_leaders)
+        season_year = now.year + (1 if now.month >= 10 else 0)
+        errors: list[str] = []
+
+        for key, (_label, sort) in LEADER_CATEGORIES.items():
+            for season_type, target, cache in (
+                (2, regular, self._leaders),
+                (3, postseason, self._postseason_leaders),
+            ):
+                cache_key = f"{season_type}:{key}"
+                fetched_at = self._leaders_fetched.get(cache_key)
+                if fetched_at and (now - fetched_at).total_seconds() < 3600:
+                    continue
+
+                params = {
+                    "region": "us", "lang": "en", "contentorigin": "espn",
+                    "season": season_year, "seasontype": season_type,
+                    "isqualified": "true", "page": 1, "limit": LEADERS_COUNT, "sort": sort,
+                }
+                try:
+                    raw = await self._get(LEADERS_URL, params=params)
+                    # Une catégorie statistique absente est une absence de données,
+                    # pas une erreur ESPN (notamment avant le début des playoffs).
+                    # Seule une structure de réponse réellement invalide est signalée.
+                    if not isinstance(raw.get("categories"), list) or not isinstance(raw.get("athletes"), list):
+                        if season_type == 3:
+                            # ESPN ne publie pas toujours la structure des leaders
+                            # postseason hors période de playoffs. Ce n'est pas une panne.
+                            self._leaders_fetched[cache_key] = now
+                            _LOGGER.debug("Classement playoffs ESPN indisponible (%s) ; aucune erreur signalée", cache_key)
+                            continue
+                        raise ValueError("structure ESPN invalide pour le classement")
+                    parsed = self._parse_leaders(raw, key)
+                    self._leaders_fetched[cache_key] = now
+                    if parsed:
+                        target[key] = parsed
+                    elif key in cache:
+                        _LOGGER.debug("Classement ESPN vide (%s) ; cache conservé", cache_key)
+                except Exception as err:  # noqa: BLE001
+                    errors.append(f"leaders {cache_key}: {err}")
+                    _LOGGER.warning(
+                        "Classement ESPN indisponible (%s) ; cache conservé : %s",
+                        cache_key, err,
+                    )
+
+        self._leaders = regular
+        self._postseason_leaders = postseason
+        return errors
+
+    async def async_get_leaders_for_season(self, season_year: int, postseason: bool = False) -> dict[str, Any]:
+        """Return the five ESPN per-game leaderboards for one selected season."""
+        if isinstance(season_year, bool) or not isinstance(season_year, int) or not 2002 <= season_year <= 2100:
+            raise ValueError("Saison NBA invalide.")
+        season_type = 3 if postseason else 2
+        now = dt_util.utcnow()
+        ttl = 15 * 60 if season_year == now.year + (1 if now.month >= 10 else 0) else 7 * 86400
+        result: dict[str, list[dict]] = {}
+        errors: dict[str, str] = {}
+        semaphore = asyncio.Semaphore(4)
+
+        async def load_category(key: str, sort: str) -> tuple[str, list[dict]]:
+            cache_key = (season_year, season_type, key)
+            cached = self._season_leaders_cache.get(cache_key)
+            if cached and (now - cached[0]).total_seconds() < ttl:
+                return key, cached[1]
+            params = {
+                "region": "us", "lang": "en", "contentorigin": "espn",
+                "season": season_year, "seasontype": season_type,
+                "isqualified": "true", "page": 1, "limit": LEADERS_COUNT, "sort": sort,
+            }
+            async with semaphore:
+                raw = await self._get(LEADERS_URL, params=params)
+            # L'absence de la statistique demandée signifie simplement qu'aucun
+            # classement n'est disponible pour cette saison/phase.
+            if not isinstance(raw.get("categories"), list) or not isinstance(raw.get("athletes"), list):
+                if postseason:
+                    # Hors playoffs, ESPN peut ne pas fournir ces tableaux du tout.
+                    parsed: list[dict] = []
+                    self._season_leaders_cache[cache_key] = (now, parsed)
+                    return key, parsed
+                raise ValueError("Structure ESPN invalide pour le classement.")
+            parsed = self._parse_leaders(raw, key)
+            self._season_leaders_cache[cache_key] = (now, parsed)
+            return key, parsed
+
+        tasks = {
+            key: asyncio.create_task(load_category(key, sort))
+            for key, (_label, sort) in LEADER_CATEGORIES.items()
+        }
+        for key, task in tasks.items():
+            try:
+                category, rows = await task
+                result[category] = rows
+            except Exception as err:  # noqa: BLE001
+                errors[key] = str(err)
+                cached = self._season_leaders_cache.get((season_year, season_type, key))
+                result[key] = cached[1] if cached else []
+
+        return {
+            "season_year": season_year,
+            "season_type": season_type,
+            "phase": "playoffs" if postseason else "regular",
+            "leaders": result,
+            "errors": errors,
+            "available": any(result.values()),
+        }
+
+    @staticmethod
+    def _parse_leaders(raw: dict, key: str) -> list[dict]:
+        """Extrait uniquement la statistique demandée ; aucune substitution silencieuse."""
+        wanted = {
+            "points": "avgPoints",
+            "rebounds": "avgRebounds",
+            "assists": "avgAssists",
+            "steals": "avgSteals",
+            "blocks": "avgBlocks",
+        }.get(key)
+        if not wanted or not isinstance(raw, dict):
+            return []
+
+        positions: list[tuple[int, int]] = []
+        categories = raw.get("categories")
+        athletes = raw.get("athletes")
+        if not isinstance(categories, list) or not isinstance(athletes, list):
+            return []
+        for category_index, category in enumerate(categories):
+            if not isinstance(category, dict):
+                continue
+            names = category.get("names")
+            if isinstance(names, list):
+                positions.extend(
+                    (category_index, stat_index)
+                    for stat_index, name in enumerate(names)
+                    if name == wanted
+                )
+        if not positions:
+            return []
+
+        rows: list[dict] = []
+        for item in athletes:
+            if not isinstance(item, dict):
+                continue
+            athlete = item.get("athlete")
+            if not isinstance(athlete, dict) or not athlete.get("displayName"):
+                continue
+            athlete_categories = item.get("categories")
+            if not isinstance(athlete_categories, list):
+                continue
+            value = None
+            for category_index, stat_index in positions:
+                try:
+                    values = athlete_categories[category_index].get("values")
+                    if isinstance(values, list) and stat_index < len(values):
+                        value = values[stat_index]
+                        break
+                except (IndexError, TypeError, AttributeError):
+                    continue
+            if value is None:
+                continue
+            try:
+                numeric_value = float(value)
+            except (TypeError, ValueError, OverflowError):
+                continue
+            if not math.isfinite(numeric_value):
+                continue
+            numeric_value = round(numeric_value, 1)
+
+            athlete_team = athlete.get("team") if isinstance(athlete.get("team"), dict) else {}
+            team_logos = athlete_team.get("logos") or athlete.get("teamLogos") or []
+            team_logo = athlete_team.get("logo")
+            if not team_logo and team_logos and isinstance(team_logos[0], dict):
+                team_logo = team_logos[0].get("href")
+            headshot = athlete.get("headshot")
+            rows.append({
+                "rank": len(rows) + 1,
+                "id": str(athlete.get("id")) if athlete.get("id") is not None else None,
+                "player": athlete.get("displayName"),
+                            "player_id": athlete.get("id"),
+                "team": athlete_team.get("abbreviation") or athlete.get("teamAbbreviation")
+                        or athlete.get("teamShortName") or athlete.get("teamName"),
+                "team_abbreviation": athlete_team.get("abbreviation") or athlete.get("teamAbbreviation"),
+                "team_id": str(athlete_team.get("id") or athlete.get("teamId"))
+                           if athlete_team.get("id") or athlete.get("teamId") else None,
+                "team_logo": team_logo,
+                "headshot": headshot.get("href") if isinstance(headshot, dict) else headshot,
+                "value": numeric_value,
+            })
+            if len(rows) >= LEADERS_COUNT:
+                break
+        return rows
+
+    @staticmethod
+    def _parse_game(event: dict) -> dict[str, Any] | None:
+        """Transforme un match ESPN en dictionnaire simple.
+
+        Le format diffère selon l'endpoint : le statut est parfois sur l'événement
+        (scoreboard), parfois dans competitions[0] (calendrier d'équipe).
+        Retourne None si le match est dans un format inattendu.
+        """
+        if not isinstance(event, dict):
+            return None
+        try:
+            competitions = event.get("competitions")
+            if not isinstance(competitions, list) or not competitions or not isinstance(competitions[0], dict):
+                return None
+            comp = competitions[0]
+            status = event.get("status") or comp.get("status") or {}
+            status_type = status.get("type") or {}
+            state = status_type.get("state")
+            if state is None:
+                state = "post" if status_type.get("completed") else "pre"
+
+            when = _local_date(event.get("date") or comp.get("date"))
+            game: dict[str, Any] = {
+                "id": event["id"],
+                "date": when["iso"],
+                "date_text": when["text"],
+                "day": when["day"],
+                "time": when["time"],
+                "name": event.get("shortName") or event.get("name"),
+                "state": state,  # pre / in / post
+                "detail": status_type.get("detail") or status_type.get("shortDetail"),
+                "period": status.get("period"),
+                "clock": status.get("displayClock"),
+                "home": {},
+                "away": {},
+            }
+            competitors = comp.get("competitors")
+            if not isinstance(competitors, list):
+                return None
+            for competitor in competitors:
+                if not isinstance(competitor, dict):
+                    continue
+                side = competitor.get("homeAway")
+                if side not in ("home", "away") or game[side]:
+                    continue
+                team = competitor.get("team")
+                if not isinstance(team, dict):
+                    team = {}
+                team_id = team.get("id") or competitor.get("id")
+                if team_id is None or not str(team_id).strip():
+                    continue
+                logos = team.get("logos")
+                fallback_logo = logos[0].get("href") if isinstance(logos, list) and logos and isinstance(logos[0], dict) else None
+                records = competitor.get("records")
+                record = records[0].get("summary") if isinstance(records, list) and records and isinstance(records[0], dict) else None
+                game[side] = {
+                    "id": str(team_id),
+                    "name": team.get("displayName") or team.get("name"),
+                    "abbr": team.get("abbreviation"),
+                    "logo": team.get("logo") or fallback_logo,
+                    "score": parse_score(competitor.get("score")),
+                    "winner": competitor.get("winner", False) is True,
+                    "record": record,
+                }
+            # Les consommateurs (capteurs, forme récente et carte) attendent
+            # impérativement deux équipes : ne jamais publier un match incomplet.
+            if not game["home"] or not game["away"]:
+                return None
+            if game["home"]["id"] == game["away"]["id"]:
+                return None
+            if state not in ("pre", "in", "post"):
+                return None
+            return game
+        except (KeyError, IndexError, TypeError, AttributeError) as err:
+            _LOGGER.debug("Match ignoré (format inattendu: %s): %s", err, event.get("id"))
+            return None
+
+    @staticmethod
+    def _parse_standings(raw: dict) -> dict[str, list[dict]]:
+        """Parse les classements en ignorant les lignes ESPN mal formées."""
+        result: dict[str, list[dict]] = {}
+        children = raw.get("children") if isinstance(raw, dict) else None
+        if not isinstance(children, list):
+            return result
+        for conf in children:
+            if not isinstance(conf, dict):
+                continue
+            conf_name = conf.get("name")
+            standings = conf.get("standings")
+            entries = standings.get("entries") if isinstance(standings, dict) else None
+            if not isinstance(conf_name, str) or not conf_name or not isinstance(entries, list):
+                continue
+            rows = []
+            for entry in entries:
+                if not isinstance(entry, dict) or not isinstance(entry.get("team"), dict):
+                    continue
+                team = entry["team"]
+                team_id = team.get("id")
+                if team_id is None:
+                    continue
+                raw_stats = entry.get("stats")
+                stats = {
+                    item["name"]: item.get("displayValue")
+                    for item in raw_stats
+                    if isinstance(item, dict) and isinstance(item.get("name"), str)
+                } if isinstance(raw_stats, list) else {}
+                logos = team.get("logos")
+                logo = logos[0].get("href") if isinstance(logos, list) and logos and isinstance(logos[0], dict) else None
+                rows.append(
+                    {
+                        "team_id": str(team_id),
+                        "team": team.get("displayName") or team.get("name") or str(team_id),
+                        "abbr": team.get("abbreviation"),
+                        "logo": logo,
+                        "wins": stats.get("wins"),
+                        "losses": stats.get("losses"),
+                        "pct": stats.get("winPercent"),
+                        "gb": stats.get("gamesBehind"),
+                        "streak": stats.get("streak"),
+                        "rank": _to_int(stats.get("playoffSeed")),
+                    }
+                )
+            rows.sort(key=lambda row: (row["rank"] == 0, row["rank"]))
+            result[conf_name] = rows
+        return result
+
+    def _parse_team(self, team_id: str, schedule: dict, today_games: list[dict]) -> dict[str, Any]:
+        team = schedule.get("team", {})
+        last, nxt = None, None
+        history: list[dict] = []
+        for ev in schedule.get("events", []):
+            g = self._parse_game(ev)
+            if not g:
+                continue
+            if g["state"] == "post":
+                last = g
+                history.append(g)
+            elif g["state"] in ("pre", "in") and nxt is None:
+                nxt = g
+        # L'ordre des événements ESPN n'est pas garanti : trier avant de retenir
+        # le dernier match terminé et les cinq rencontres récentes.
+        history.sort(key=lambda game: game.get("date") or "")
+        last = history[-1] if history else None
+        upcoming = [
+            self._parse_game(event)
+            for event in schedule.get("events", [])
+        ]
+        upcoming = [
+            game for game in upcoming
+            if game and game["state"] in ("pre", "in")
+        ]
+        upcoming.sort(key=lambda game: game.get("date") or "")
+        nxt = upcoming[0] if upcoming else None
+        recent: list[dict] = []
+        for g in reversed(history[-LAST_GAMES_COUNT:]):
+            is_home = g["home"].get("id") == team_id
+            me = g["home"] if is_home else g["away"]
+            opp = g["away"] if is_home else g["home"]
+            recent.append(
+                {
+                    "id": g["id"],
+                    "day": g["day"],
+                    "date_text": g["date_text"],
+                    "home_away": "vs" if is_home else "@",
+                    "result": "V" if me.get("winner") is True else (
+                        "D" if opp.get("winner") is True else "—"
+                    ),
+                    "team_abbr": me.get("abbr"),
+                    "team_score": me.get("score"),
+                    "opp_abbr": opp.get("abbr"),
+                    "opp_name": opp.get("name"),
+                    "opp_logo": opp.get("logo"),
+                    "opp_score": opp.get("score"),
+                }
+            )
+        now = datetime.now().astimezone()
+        live = next(
+            (
+                g for g in today_games
+                if g.get("state") == "in"
+                and team_id in (g.get("home", {}).get("id"), g.get("away", {}).get("id"))
+                # ESPN peut parfois signaler prématurément un état "in" dans
+                # les données de calendrier. Ne jamais afficher LIVE avant
+                # l'heure réelle de début du match.
+                and (game_start := dt_util.parse_datetime(g.get("date") or "")) is not None
+                and game_start <= now
+            ),
+            None,
+        )
+        return {
+            "name": team.get("displayName", team_id),
+            "abbr": team.get("abbreviation"),
+            "logo": team.get("logo"),
+            "last": last,
+            "next": nxt,
+            "live": live,
+            "recent": recent,
+        }
+
+
+    async def async_get_team_playoff_path(self, team_id: str, season_year: int) -> dict[str, Any]:
+        """Charge uniquement le parcours postseason d'une franchise pour une saison."""
+        if isinstance(season_year, bool) or not isinstance(season_year, int) or not 2002 <= season_year <= 2100:
+            raise ValueError("Saison de playoffs NBA invalide")
+        team_id = str(team_id).strip()
+        cache_key = (team_id, season_year)
+        now = dt_util.utcnow()
+        current_year = now.year + (1 if dt_util.as_local(now).month >= 10 else 0)
+        cache_ttl = 900 if season_year == current_year else 7 * 86400
+        cached = self._team_playoff_path_cache.get(cache_key)
+        if cached and (now - cached[0]).total_seconds() < cache_ttl:
+            return cached[1]
+
+        teams_by_id = {
+            str(team.get("id")): team
+            for team in self._teams_catalog.get("teams", [])
+            if isinstance(team, dict) and team.get("id") is not None
+        }
+        known_teams = set(teams_by_id)
+        if team_id not in known_teams:
+            raise ValueError("Identifiant de franchise NBA inconnu")
+
+        try:
+            payload = await self._get(
+                TEAM_SCHEDULE_URL.format(team_id=team_id),
+                params={"season": season_year, "seasontype": 3},
+            )
+            games = parse_playoff_payload(payload)
+        except Exception as err:  # noqa: BLE001 - données postseason facultatives
+            _LOGGER.debug("Parcours playoffs équipe %s saison %s indisponible: %s", team_id, season_year, err)
+            games = []
+
+        team_games = [
+            game for game in games
+            if any(str(team.get("id")) == team_id for team in game.get("teams", []))
+        ]
+        series = [
+            item for item in build_playoff_series(team_games)
+            if any(str(team.get("id")) == team_id for team in item.get("teams", []))
+        ]
+        def round_rank(item: dict[str, Any]) -> int:
+            label = str(item.get("round_label") or "").casefold()
+            if "nba finals" in label or "nba championship" in label:
+                return 4
+            if "1st round" in label or "first round" in label or "round 1" in label:
+                return 1
+            if "semifinal" in label or "semi final" in label or "round 2" in label:
+                return 2
+            if "conference final" in label or "round 3" in label or label.endswith(" finals"):
+                return 3
+            return 99
+
+        series.sort(key=lambda item: (round_rank(item), str(item.get("round_label") or "")))
+
+        rounds = []
+        for item in series:
+            own = next((team for team in item.get("teams", []) if str(team.get("id")) == team_id), None)
+            opponent = next((team for team in item.get("teams", []) if str(team.get("id")) != team_id), None)
+            if own is None or opponent is None:
+                continue
+            won = item.get("winner") is not None and str(item["winner"].get("id")) == team_id
+            lost = item.get("winner") is not None and not won
+            rounds.append({
+                "round_label": item.get("round_label") or "Tour des playoffs",
+                "opponent": {
+                    "id": opponent.get("id"),
+                    "name": opponent.get("name") or opponent.get("abbreviation"),
+                    "abbreviation": opponent.get("abbreviation"),
+                    "logo": teams_by_id.get(str(opponent.get("id")), {}).get("logo"),
+                },
+                "wins": own.get("wins"),
+                "opponent_wins": opponent.get("wins"),
+                "status": item.get("status"),
+                "outcome": "win" if won else "loss" if lost else "in_progress",
+            })
+
+        last_round = rounds[-1] if rounds else None
+        last_label = str(last_round.get("round_label") or "").casefold() if last_round else ""
+        nba_finals = "nba finals" in last_label or "nba championship" in last_label
+        champion = bool(
+            last_round
+            and nba_finals
+            and last_round.get("outcome") == "win"
+            and last_round.get("wins") == 4
+        )
+        data_available = season_year > 2007
+        result = {
+            "season_year": season_year,
+            "available": data_available,
+            "rounds": rounds,
+            "result": "Champion NBA" if champion else (
+                f"Éliminé · {last_round['round_label']}" if last_round and last_round["outcome"] == "loss"
+                else "En cours · " + last_round["round_label"] if last_round and last_round["outcome"] == "in_progress"
+                else "Qualifié pour les finales NBA" if last_round and round_rank({"round_label": last_round["round_label"]}) == 3 and last_round["outcome"] == "win"
+                else "En playoffs" if last_round else "Aucun playoff cette saison" if data_available else "Données playoffs indisponibles pour cette saison"
+            ),
+        }
+        self._team_playoff_path_cache[cache_key] = (dt_util.utcnow(), result)
+        return result
+
+    async def async_get_team_roster(self, team_id: str, season_year: int | None = None) -> dict[str, Any]:
+        """Charge l'effectif, le calendrier et le classement d'une équipe pour une saison."""
+        if season_year is None:
+            now_local = dt_util.as_local(dt_util.utcnow())
+            season_year = now_local.year + (1 if now_local.month >= 10 else 0)
+        if isinstance(season_year, bool) or not isinstance(season_year, int) or not 2002 <= season_year <= 2100:
+            raise ValueError("Saison NBA invalide")
+        team_id = str(team_id).strip()
+        known_teams = {
+            str(team.get("id"))
+            for team in self._teams_catalog.get("teams", [])
+            if isinstance(team, dict) and team.get("id") is not None
+        }
+        if team_id not in known_teams:
+            raise ValueError("Identifiant de franchise NBA inconnu")
+        cache_key = (team_id, season_year)
+        now = dt_util.utcnow()
+        cache_ttl = 900 if season_year == (now.year + (1 if dt_util.as_local(now).month >= 10 else 0)) else 7 * 86400
+        cached = self._team_roster_cache.get(cache_key)
+        if cached and (now - cached[0]).total_seconds() < cache_ttl:
+            return cached[1]
+
+        lock = self._team_roster_locks.setdefault(f"{team_id}:{season_year}", asyncio.Lock())
+        async with lock:
+            now = dt_util.utcnow()
+            cached = self._team_roster_cache.get(cache_key)
+            if cached and (now - cached[0]).total_seconds() < cache_ttl:
+                return cached[1]
+            current_season = now.year + (1 if dt_util.as_local(now).month >= 10 else 0)
+            if season_year == current_season:
+                # Seul l'effectif courant est demandé à ESPN.
+                roster_raw = await self._get(TEAM_ROSTER_URL.format(team_id=team_id))
+                parsed = parse_team_roster({
+                    **roster_raw,
+                    "season": roster_raw.get("season") or {
+                        "year": season_year,
+                        "displayName": f"{season_year - 1}-{str(season_year)[-2:]}",
+                    },
+                })
+            else:
+                # Aucun appel ESPN pour les effectifs historiques : cette donnée
+                # n'est pas proposée. Le calendrier, le classement et les playoffs
+                # historiques continuent d'être chargés indépendamment.
+                parsed = {
+                    "season": f"{season_year - 1}-{str(season_year)[-2:]}",
+                    "season_year": season_year,
+                    "players": [],
+                    "count": 0,
+                }
+            team = next(
+                (item for item in self._teams_catalog.get("teams", [])
+                 if str(item.get("id")) == team_id),
+                {},
+            )
+            schedule_info = {}
+            try:
+                schedule_raw = await self._get(TEAM_SCHEDULE_URL.format(team_id=team_id), params={"season": season_year})
+                today_games = (self.data or {}).get("games", [])
+                schedule_info = self._parse_team(team_id, schedule_raw, today_games)
+            except Exception as err:  # noqa: BLE001 - l'effectif reste exploitable sans calendrier
+                _LOGGER.debug("Calendrier de l'équipe %s indisponible: %s", team_id, err)
+
+            standing = None
+            try:
+                historical = await self.async_get_historical_standings(season_year)
+                for rows in historical.get("standings", {}).values():
+                    standing = next((row for row in rows if str(row.get("team_id")) == team_id), None)
+                    if standing:
+                        break
+            except Exception as err:  # noqa: BLE001 - ne pas inventer un classement historique
+                _LOGGER.debug("Classement de l'équipe %s pour %s indisponible: %s", team_id, season_year, err)
+
+            result = {
+                "team": team,
+                "standing": standing,
+                "schedule": schedule_info,
+                **parsed,
+                "season_year": season_year,
+                "fetched_at": now.isoformat(),
+            }
+            self._team_roster_cache[cache_key] = (now, result)
+            return result
+
+
+    async def async_get_player_data(self, player_id: str, postseason_year: int | None = None) -> dict[str, Any]:
+        """Charge les statistiques et le gamelog d'un joueur ESPN, avec cache d'une heure."""
+        player_id = str(player_id).strip()
+        if not player_id.isdigit() or len(player_id) > 12:
+            raise ValueError("Identifiant de joueur ESPN invalide")
+        if postseason_year is not None and (isinstance(postseason_year, bool) or not isinstance(postseason_year, int) or not 2000 <= postseason_year <= 2100):
+            raise ValueError("Saison playoffs invalide")
+        cache_key = f"{player_id}:{postseason_year or 'current'}"
+        now = dt_util.utcnow()
+        cached = self._player_data_cache.get(cache_key)
+        if cached and (now - cached[0]).total_seconds() < 3600:
+            return cached[1]
+
+        lock = self._player_data_locks.setdefault(cache_key, asyncio.Lock())
+        async with lock:
+            now = dt_util.utcnow()
+            cached = self._player_data_cache.get(cache_key)
+            if cached and (now - cached[0]).total_seconds() < 3600:
+                return cached[1]
+
+            resources: dict[str, Any] = {}
+            errors: dict[str, str] = {}
+            for resource in ("overview", "stats", "gamelog"):
+                url = PLAYER_DATA_URL.format(player_id=player_id, resource=resource)
+                try:
+                    resources[resource] = await self._get(url)
+                except Exception as err:  # noqa: BLE001 - chaque ressource est indépendante
+                    errors[resource] = str(err)
+                    _LOGGER.debug("Données joueur %s (%s) indisponibles: %s", player_id, resource, err)
+
+            overview = parse_player_stats(resources.get("overview", {}))
+            stats = parse_player_stats(resources.get("stats", {}))
+            # Le split Career peut être absent de l'endpoint overview pour
+            # certains joueurs (notamment lorsqu'ils ont changé de franchise).
+            # Le endpoint stats expose parfois le même split : on le réutilise
+            # comme repli, sans dépendre de l'effectif d'une équipe.
+            if not overview.get("career_statistics") and stats.get("career_statistics"):
+                overview["career_statistics"] = stats["career_statistics"]
+
+            # Profil biographique Core API v2 : la réponse est indexée par
+            # l'identifiant ESPN et ne dépend pas du roster d'une franchise.
+            bio: dict[str, Any] = {}
+            try:
+                athlete = await self._get(CORE_PLAYER_URL.format(player_id=player_id))
+                if str(athlete.get("id") or "") != player_id:
+                    raise ValueError("identifiant joueur absent ou différent dans la réponse ESPN")
+                position = athlete.get("position") if isinstance(athlete.get("position"), dict) else {}
+                headshot = athlete.get("headshot") if isinstance(athlete.get("headshot"), dict) else {}
+                status = athlete.get("status") if isinstance(athlete.get("status"), dict) else {}
+                height_inches = athlete.get("height")
+                weight_lbs = athlete.get("weight")
+                birth_place = athlete.get("birthPlace") if isinstance(athlete.get("birthPlace"), dict) else {}
+                draft = athlete.get("draft") if isinstance(athlete.get("draft"), dict) else {}
+                draft_round = draft.get("round")
+                draft_selection = draft.get("selection")
+                draft_text = (
+                    f"{draft.get('year')} · {'1er' if draft_round == 1 else f'{draft_round}e'} tour · "
+                    f"{draft_selection}{'er' if draft_selection == 1 else 'e'} choix"
+                    if draft.get("year") is not None and draft_round is not None
+                    and draft_selection is not None
+                    else draft.get("displayText") or draft.get("displayName")
+                )
+                citizenship = athlete.get("citizenship") or athlete.get("nationality")
+                if isinstance(citizenship, dict):
+                    citizenship = citizenship.get("displayName") or citizenship.get("name")
+                birth_parts = [
+                    birth_place.get("city"),
+                    birth_place.get("state"),
+                    birth_place.get("country"),
+                ]
+                birth_place_text = ", ".join(str(part) for part in birth_parts if part)
+                bio = {
+                    "id": player_id,
+                    "name": athlete.get("displayName") or athlete.get("fullName"),
+                    "short_name": athlete.get("shortName"),
+                    "headshot": headshot.get("href"),
+                    "jersey": str(athlete.get("jersey")) if athlete.get("jersey") is not None else None,
+                    "position": position.get("abbreviation") or position.get("displayName"),
+                    "position_name": position.get("displayName") or position.get("name"),
+                    "height": athlete.get("displayHeight"),
+                    "weight": athlete.get("displayWeight"),
+                    "height_cm": round(float(height_inches) * 2.54) if isinstance(height_inches, (int, float)) else None,
+                    "weight_kg": round(float(weight_lbs) * 0.45359237, 1) if isinstance(weight_lbs, (int, float)) else None,
+                    "age": athlete.get("age"),
+                    "birth_place": birth_place_text or None,
+                    "nationality": citizenship,
+                    "draft": draft_text,
+                    "experience_years": athlete.get("experience", {}).get("years") if isinstance(athlete.get("experience"), dict) else None,
+                    "status": status.get("name") or status.get("abbreviation"),
+                }
+            except Exception as err:  # noqa: BLE001 - la fiche statistique reste disponible
+                errors["bio"] = str(err)
+                _LOGGER.debug("Profil Core API ESPN indisponible pour %s: %s", player_id, err)
+
+            gamelog = parse_player_gamelog(resources.get("gamelog", {}))
+
+            # Les playoffs sont un split ESPN distinct (seasontype=3). On
+            # conserve ce bloc séparément et on vérifie le filtre retourné
+            # avant de l'exposer : aucune moyenne de saison régulière ne peut
+            # ainsi être étiquetée par erreur comme une statistique de playoffs.
+            postseason_stats: dict[str, Any] = {}
+            season_year = None
+            if stats.get("season_history"):
+                try:
+                    season_year = int(stats["season_history"][0].get("year"))
+                except (TypeError, ValueError):
+                    season_year = None
+            if postseason_year is not None:
+                season_year = postseason_year
+            if season_year is None and stats.get("season"):
+                parts = str(stats["season"]).split("-")
+                if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                    suffix = int(parts[1])
+                    season_year = suffix if suffix > 99 else (int(parts[0]) // 100) * 100 + suffix
+            if season_year:
+                # Le Web API v3 expose les catégories de moyennes par match (avgMinutes,
+                # avgPoints, etc.). Il est prioritaire : on affiche les valeurs ESPN telles
+                # quelles, sans recalculer des moyennes à partir de totaux.
+                try:
+                    postseason_raw = await self._get(
+                        PLAYER_DATA_URL.format(player_id=player_id, resource="stats"),
+                        params={"season": season_year, "seasontype": 3},
+                    )
+                    parsed_postseason = parse_player_stats(postseason_raw, season_year=season_year)
+                    raw_categories = postseason_raw.get("categories")
+                    category_trace = [
+                        {
+                            "name": category.get("name") or category.get("displayName"),
+                            "names": (category.get("names") or [])[:20],
+                            "stats_count": len(category.get("stats") or category.get("statistics") or []),
+                        }
+                        for category in raw_categories[:12]
+                        if isinstance(category, dict)
+                    ] if isinstance(raw_categories, list) else type(raw_categories).__name__
+                    parsed_trace = [
+                        {
+                            "name": item.get("name"),
+                            "label": item.get("label"),
+                            "category": item.get("category"),
+                            "value": item.get("value"),
+                            "display_value": item.get("display_value"),
+                        }
+                        for item in (parsed_postseason.get("statistics") or [])[:30]
+                        if isinstance(item, dict)
+                    ]
+                    _LOGGER.warning(
+                        "NBA_CENTER_PLAYOFF_TRACE player=%s requested_season=%s raw_keys=%s "
+                        "raw_season=%s raw_season_type=%s categories=%s parsed_season=%s "
+                        "parsed_season_type=%s parsed_stats=%s",
+                        player_id, season_year, sorted(postseason_raw.keys()),
+                        postseason_raw.get("season"), postseason_raw.get("seasonType"),
+                        category_trace, parsed_postseason.get("season"),
+                        parsed_postseason.get("season_type_id"), parsed_trace,
+                    )
+                    if (parsed_postseason.get("season_type_id") == "3"
+                            and season_matches_espn_year(str(parsed_postseason.get("season") or ""), season_year)
+                            and parsed_postseason.get("statistics")):
+                        postseason_stats = parsed_postseason
+                except Exception as err:  # noqa: BLE001 - Core v2 reste le fallback historique
+                    _LOGGER.debug(
+                        "Web v3 playoffs indisponible pour le joueur %s / saison %s: %s",
+                        player_id, season_year, err,
+                    )
+
+                # Core v2 ne sert que de repli si le Web v3 ne fournit pas le split
+                # playoffs demandé. Ses valeurs sont conservées telles que renvoyées.
+                if not postseason_stats:
+                    core_url = (
+                        "https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/"
+                        f"seasons/{season_year}/types/3/athletes/{player_id}/statistics/"
+                    )
+                    try:
+                        core_raw = await self._get(core_url)
+                        postseason_stats = parse_core_postseason_stats(core_raw, season_year)
+                        if not postseason_stats.get("statistics"):
+                            postseason_stats = {}
+                    except Exception as core_err:  # noqa: BLE001 - les playoffs ne bloquent jamais le profil régulier
+                        _LOGGER.debug(
+                            "Core v2 playoffs indisponible pour le joueur %s / saison %s: %s",
+                            player_id, season_year, core_err,
+                        )
+
+            postseason_gamelog: dict[str, Any] = {"games": [], "count": 0, "boxscore_count": 0}
+            if postseason_stats and season_year:
+                try:
+                    raw_postseason_log = await self._get(
+                        PLAYER_DATA_URL.format(player_id=player_id, resource="gamelog"),
+                        params={"season": season_year, "seasontype": 3},
+                    )
+                    postseason_gamelog = parse_player_gamelog(raw_postseason_log)
+                except Exception as err:  # noqa: BLE001 - les playoffs ne bloquent jamais le profil
+                    _LOGGER.debug("Journal playoffs ESPN indisponible pour le joueur %s: %s", player_id, err)
+
+            # Les gamelogs ESPN fournissent parfois uniquement les métadonnées.
+            # Les cinq rencontres récentes sont enrichies via les box scores normalisés.
+            async def enrich_recent_games(log: dict[str, Any], label: str) -> None:
+                boxscore_count = 0
+                for game in log["games"][:5]:
+                    game_id = game.get("id")
+                    if not game_id:
+                        continue
+                    try:
+                        summary = await self.async_get_game_details(game_id)
+                    except Exception as err:  # noqa: BLE001 - le profil reste utilisable sans box score
+                        _LOGGER.debug("Box score %s joueur %s / match %s indisponible: %s", label, player_id, game_id, err)
+                        continue
+                    found = next(
+                        (
+                            player
+                            for team in summary.get("player_stats", [])
+                            for player in team.get("players", [])
+                            if str(player.get("id") or "") == player_id
+                        ),
+                        None,
+                    )
+                    if found and apply_boxscore_player(game, found):
+                        boxscore_count += 1
+                log["boxscore_count"] = boxscore_count
+
+            await enrich_recent_games(gamelog, "saison régulière")
+            await enrich_recent_games(postseason_gamelog, "playoffs")
+            result = {
+                "player_id": player_id,
+                "bio": bio,
+                "overview": overview,
+                "stats": stats,
+                "postseason_stats": postseason_stats,
+                "gamelog": gamelog,
+                "postseason_gamelog": postseason_gamelog,
+                "errors": errors,
+                # Les données playoffs sont une ressource indépendante :
+                # un profil avec uniquement des statistiques postseason valides
+                # reste exploitable même si les endpoints réguliers sont vides.
+                "available": bool(
+                    overview["statistics"] or stats["statistics"] or gamelog["games"]
+                    or postseason_stats.get("statistics") or postseason_gamelog.get("games")
+                ),
+                "fetched_at": now.isoformat(),
+            }
+            if not result["available"]:
+                _LOGGER.warning(
+                    "Aucune donnée exploitable pour le joueur %s. Réponses ESPN: overview=%s stats=%s gamelog=%s; erreurs=%s",
+                    player_id,
+                    sorted(resources.get("overview", {}).keys()) if isinstance(resources.get("overview"), dict) else type(resources.get("overview")).__name__,
+                    sorted(resources.get("stats", {}).keys()) if isinstance(resources.get("stats"), dict) else type(resources.get("stats")).__name__,
+                    sorted(resources.get("gamelog", {}).keys()) if isinstance(resources.get("gamelog"), dict) else type(resources.get("gamelog")).__name__,
+                    errors,
+                )
+                _LOGGER.warning(
+                    "Structure ESPN joueur %s: overview.statistics=%s; stats.categories[0]=%s; "
+                    "gamelog.events[0]=%s; gamelog.names=%s; gamelog.labels=%s",
+                    player_id,
+                    (
+                        {"type": type(resources.get("overview", {}).get("statistics")).__name__,
+                         "keys": sorted(resources.get("overview", {}).get("statistics", {}).keys())}
+                        if isinstance(resources.get("overview", {}).get("statistics"), dict)
+                        else type(resources.get("overview", {}).get("statistics")).__name__
+                    ),
+                    (
+                        sorted(resources.get("stats", {}).get("categories", [{}])[0].keys())
+                        if resources.get("stats", {}).get("categories") and isinstance(resources.get("stats", {}).get("categories")[0], dict)
+                        else type(resources.get("stats", {}).get("categories")).__name__
+                    ),
+                    (
+                        sorted(resources.get("gamelog", {}).get("events", [{}])[0].keys())
+                        if resources.get("gamelog", {}).get("events") and isinstance(resources.get("gamelog", {}).get("events")[0], dict)
+                        else type(resources.get("gamelog", {}).get("events")).__name__
+                    ),
+                    resources.get("gamelog", {}).get("names", [])[:8],
+                    resources.get("gamelog", {}).get("labels", [])[:8],
+                )
+                raise RuntimeError("ESPN n'a renvoyé aucune donnée exploitable pour ce joueur")
+            self._player_data_cache[cache_key] = (now, result)
+            return result
+
+
+    async def async_get_historical_standings(self, season_year: int) -> dict[str, Any]:
+        """Charge les classements de saison régulière pour une année ESPN donnée."""
+        if isinstance(season_year, bool) or not isinstance(season_year, int) or not 2000 <= season_year <= 2100:
+            raise ValueError("Saison NBA invalide")
+        now = dt_util.utcnow()
+        current_season = now.year + (1 if now.month >= 10 else 0)
+        cache_ttl = 900 if season_year == current_season else 7 * 86400
+        cached = self._standings_cache.get(season_year)
+        if cached and (now - cached[0]).total_seconds() < cache_ttl:
+            return cached[1]
+
+        lock = self._standings_locks.setdefault(season_year, asyncio.Lock())
+        async with lock:
+            now = dt_util.utcnow()
+            cached = self._standings_cache.get(season_year)
+            if cached and (now - cached[0]).total_seconds() < cache_ttl:
+                return cached[1]
+            raw = await self._get(STANDINGS_URL, params={"season": season_year})
+            standings = self._parse_standings(raw)
+            if not standings or not any(standings.values()):
+                raise RuntimeError(f"ESPN n'a renvoyé aucun classement pour la saison {season_year}")
+            result = {
+                "season_year": season_year,
+                "standings": standings,
+                "fetched_at": now.isoformat(),
+            }
+            self._standings_cache[season_year] = (now, result)
+            return result
+
+    async def async_get_playoff_bracket(self, season_year: int) -> dict[str, Any]:
+        """Charge à la demande le bracket d'une saison, sans requêtes au démarrage.
+
+        ESPN attend l'année de fin de saison (ex. 2025 pour 2024-25).
+        Seules les 16 équipes disposant d'un seed 1..8 validé sont interrogées.
+        """
+        if isinstance(season_year, bool) or not isinstance(season_year, int) or not 2000 <= season_year <= 2100:
+            raise ValueError("Saison NBA invalide")
+        now = dt_util.utcnow()
+        current_season = now.year + (1 if now.month >= 10 else 0)
+        cache_ttl = 1800 if season_year == current_season else 7 * 86400
+        cached = self._playoff_cache.get(season_year)
+        if cached and (now - cached[0]).total_seconds() < cache_ttl:
+            return cached[1]
+
+        lock = self._playoff_locks.setdefault(season_year, asyncio.Lock())
+        async with lock:
+            now = dt_util.utcnow()
+            cached = self._playoff_cache.get(season_year)
+            if cached and (now - cached[0]).total_seconds() < cache_ttl:
+                return cached[1]
+
+            raw_standings = await self._get(STANDINGS_URL, params={"season": season_year})
+            parsed_standings = parse_playoff_standings(raw_standings)
+            validated = validate_playoff_seeds(parsed_standings)
+            season_label = next(
+                (item.get("season") for item in parsed_standings if item.get("season")),
+                None,
+            )
+            season_data = validated.get("seasons", {}).get(season_label, {}).get("conferences", {})
+            team_ids: list[str] = []
+            seed_errors: dict[str, list[str]] = {}
+            for conference in ("East", "West"):
+                info = season_data.get(conference, {})
+                if info.get("valid"):
+                    team_ids.extend(str(team_id) for team_id in info.get("seeds", {}).values())
+                else:
+                    seed_errors[conference] = info.get("errors", ["standings_unavailable"])
+
+            semaphore = asyncio.Semaphore(12)
+
+            async def load_team_schedule(team_id: str) -> tuple[str, dict[str, Any] | None, str | None]:
+                async with semaphore:
+                    try:
+                        payload = await self._get(
+                            TEAM_SCHEDULE_URL.format(team_id=team_id),
+                            params={"season": season_year, "seasontype": 3},
+                        )
+                        return team_id, payload, None
+                    except Exception as err:  # noqa: BLE001 - un calendrier manquant ne bloque pas les autres
+                        _LOGGER.debug("Calendrier playoffs ESPN indisponible pour %s/%s: %s", season_year, team_id, err)
+                        return team_id, None, str(err)
+
+            loaded = await asyncio.gather(*(load_team_schedule(team_id) for team_id in dict.fromkeys(team_ids)))
+            games = []
+            schedule_errors = {}
+            for team_id, payload, error in loaded:
+                if payload is not None:
+                    games.extend(parse_playoff_payload(payload))
+                elif error:
+                    schedule_errors[team_id] = error
+
+            # ESPN's team-schedule endpoint becomes incomplete for older NBA
+            # postseasons (notably before 2018-19). Recover the full postseason
+            # from the scoreboard, month by month, when team schedules return
+            # fewer than a plausible number of playoff games.
+            unique_games = {str(game.get("id")): game for game in games if game.get("id")}
+            if len(unique_games) < 40:
+                async def load_postseason_month(month: int) -> list[dict[str, Any]]:
+                    last_day = 30 if month in (4, 6) else 31
+                    try:
+                        payload = await self._get(
+                            SCOREBOARD_URL,
+                            params={
+                                "dates": f"{season_year}{month:02d}01-{season_year}{month:02d}{last_day:02d}",
+                                "seasontype": 3,
+                                "limit": 1000,
+                            },
+                        )
+                        return parse_playoff_payload(payload)
+                    except Exception as err:  # noqa: BLE001 - les autres mois restent exploitables
+                        _LOGGER.debug(
+                            "Scoreboard postseason ESPN indisponible pour %s/%02d: %s",
+                            season_year, month, err,
+                        )
+                        return []
+
+                monthly_games = await asyncio.gather(
+                    *(load_postseason_month(month) for month in (4, 5, 6))
+                )
+                for month_games in monthly_games:
+                    for game in month_games:
+                        if game.get("id"):
+                            unique_games[str(game["id"])] = game
+                games = list(unique_games.values())
+
+            series = build_playoff_series(games)
+            brackets = build_playoff_bracket(series)
+            bracket = next((item for item in brackets if item.get("season_year") == season_year), None)
+            if bracket is None:
+                bracket = {
+                    "season_year": season_year,
+                    "conferences": {"East": [], "West": []},
+                    "finals": [],
+                    "unplaced": [],
+                }
+            annotated = annotate_playoff_bracket(bracket, validated) or bracket
+            result = {
+                **annotated,
+                "available": bool(games),
+                "games_count": len({game.get("id") for game in games if game.get("id")}),
+                "series_count": len(series),
+                "seed_errors": seed_errors,
+                "schedule_errors": schedule_errors,
+                "fetched_at": now.isoformat(),
+            }
+            self._playoff_cache[season_year] = (now, result)
+            return result
+
+    async def async_get_scoreboard_for_local_date(self, local_date: str) -> dict[str, Any]:
+        """Return games for a calendar day in the Home Assistant timezone."""
+        timezone = dt_util.now().tzinfo
+        return await async_load_scoreboard(
+            local_date,
+            now_factory=dt_util.utcnow,
+            local_timezone=timezone,
+            fetch_scoreboard=lambda day: self._get(SCOREBOARD_URL, params={"dates": day}),
+            parse_event=self._parse_game,
+            cache=self._scoreboard_cache,
+            lock=self._scoreboard_lock,
+            update_failed=UpdateFailed,
+        )
+
+    async def async_get_game_details(self, game_id: str, force: bool = False) -> dict[str, Any]:
+        """Charge les détails d'un match (quart-temps, meilleurs joueurs).
+
+        Les matchs terminés sont mis en cache (leurs détails ne changent plus).
+        Ne lève jamais d'exception : en cas de problème, renvoie un dictionnaire
+        avec une clé 'error'.
+        """
+        game_id = str(game_id).strip()
+        if not game_id.isdigit() or len(game_id) > 20:
+            return {"game_id": game_id, "error": "Identifiant de match ESPN invalide", "teams": []}
+        if force:
+            self._details_cache.pop(game_id, None)
+        if game_id in self._details_cache:
+            return self._details_cache[game_id]
+        try:
+            raw = await self._get(SUMMARY_URL, params={"event": game_id})
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.warning("Détails du match %s indisponibles: %s", game_id, err)
+            return {"game_id": game_id, "error": str(err), "teams": []}
+
+        try:
+            details = self._parse_summary(game_id, raw)
+        except Exception as err:  # noqa: BLE001 - une réponse ESPN mal formée ne doit pas casser le websocket
+            _LOGGER.warning("Résumé ESPN mal formé pour le match %s: %s", game_id, err)
+            return {"game_id": game_id, "error": f"Réponse ESPN invalide: {err}", "teams": []}
+        if not isinstance(details, dict):
+            return {"game_id": game_id, "error": "Réponse ESPN invalide: résumé inattendu", "teams": []}
+        if details.get("final"):
+            self._details_cache[game_id] = details
+        return details
+
+    @staticmethod
+    def _parse_summary(game_id: str, raw: dict) -> dict[str, Any]:
+        """Extrait scores par quart-temps et meilleurs joueurs (tolérant aux manques)."""
+        result: dict[str, Any] = {"game_id": game_id, "teams": [], "final": False, "plays": parse_plays(raw), "live_state": parse_game_state(raw), **parse_boxscore(raw)}
+        try:
+            comp = (raw.get("header", {}).get("competitions") or [{}])[0]
+            result["final"] = bool((comp.get("status", {}).get("type") or {}).get("completed"))
+            lines: dict[str, dict] = {}
+            for c in comp.get("competitors", []):
+                tid = str(c.get("id") or (c.get("team") or {}).get("id", ""))
+                lines[tid] = {
+                    "abbr": (c.get("team") or {}).get("abbreviation"),
+                    "name": (c.get("team") or {}).get("displayName"),
+                    "logo": (c.get("team") or {}).get("logos", [{}])[0].get("href")
+                    if (c.get("team") or {}).get("logos") else (c.get("team") or {}).get("logo"),
+                    "score": parse_score(c.get("score")),
+                    "winner": c.get("winner", False),
+                    "home_away": c.get("homeAway"),
+                    "quarters": [_to_int(ls) for ls in (c.get("linescores") or [])],
+                }
+        except (KeyError, IndexError, TypeError, AttributeError) as err:
+            _LOGGER.debug("Résumé %s : en-tête inattendu (%s)", game_id, err)
+            lines = {}
+
+        # Meilleurs joueurs : une entrée ESPN invalide ne doit pas masquer
+        # les catégories suivantes ni les leaders de l'autre équipe.
+        leaders = raw.get("leaders")
+        if isinstance(leaders, list):
+            for block in leaders:
+                if not isinstance(block, dict):
+                    continue
+                team = block.get("team") if isinstance(block.get("team"), dict) else {}
+                tid = str(team.get("id", ""))
+                entry = lines.setdefault(tid, {
+                    "abbr": team.get("abbreviation"),
+                    "quarters": [],
+                })
+                top: list[dict] = []
+                categories = block.get("leaders")
+                if isinstance(categories, list):
+                    for cat in categories:
+                        if not isinstance(cat, dict):
+                            continue
+                        category_leaders = cat.get("leaders")
+                        if not isinstance(category_leaders, list):
+                            continue
+                        leader = next(
+                            (item for item in category_leaders if isinstance(item, dict)),
+                            None,
+                        )
+                        if leader is None:
+                            continue
+                        athlete = leader.get("athlete")
+                        if not isinstance(athlete, dict) or not athlete:
+                            continue
+                        headshot = athlete.get("headshot")
+                        top.append({
+                            "category": cat.get("displayName") or cat.get("name"),
+                            "player": athlete.get("displayName"),
+                            "headshot": headshot.get("href") if isinstance(headshot, dict) else headshot,
+                            "value": leader.get("displayValue"),
+                        })
+                entry["top_players"] = top
+
+        result["teams"] = list(lines.values())
+        return result
+
+    def _fire_events(self, games: list[dict]) -> None:
+        """Envoie des événements HA quand un match de vos équipes démarre ou se termine."""
+        for g in games:
+            ids = {g["home"].get("id"), g["away"].get("id")}
+            if not ids & set(self.teams):
+                continue
+            old = self._last_state.get(g["id"])
+            new = g["state"]
+            if old is not None and old != new:
+                payload = {
+                    "game_id": g["id"],
+                    "home": g["home"].get("name"),
+                    "away": g["away"].get("name"),
+                    "home_score": g["home"].get("score"),
+                    "away_score": g["away"].get("score"),
+                    "favorite_team_ids": sorted(ids & set(self.teams)),
+                }
+                if new == "in" and self.entry.options.get(CONF_NOTIFY_START, True):
+                    self.hass.bus.async_fire(EVENT_GAME_START, payload)
+                elif new == "post" and self.entry.options.get(CONF_NOTIFY_END, True):
+                    self.hass.bus.async_fire(EVENT_GAME_END, payload)
+            self._last_state[g["id"]] = new
