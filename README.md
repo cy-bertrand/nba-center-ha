@@ -46,7 +46,20 @@ Les données sportives sont récupérées automatiquement depuis ESPN, sans clé
 <p align="center"><img src="docs/images/teams.png" alt="Teams Center" width="48%"> <img src="docs/images/player-profile.png" alt="Profil joueur" width="48%"></p>
 <p align="center"><img src="docs/images/players.png" alt="Statistiques joueurs" width="48%"> <img src="docs/images/standings.png" alt="Classements NBA" width="48%"></p>
 
-## 🚀 Installation avec HACS
+## 🚀 Installation
+
+### Home Assistant 2026.11 et versions ultérieures — Marketplace
+
+1. Ouvrez **Paramètres → Marketplace**.
+2. Si NBA Center n'apparaît pas encore dans le catalogue, ouvrez **⋮ → Ajouter depuis un lien** (*Add from link*).
+3. Saisissez `https://github.com/cy-bertrand/nba-center-ha`, puis validez.
+4. Ouvrez **NBA Center HomeAssistant** et sélectionnez **Installer**.
+5. Redémarrez Home Assistant si cela vous est demandé.
+6. Dans **Paramètres → Appareils et services**, ajoutez **NBA Center HomeAssistant**.
+
+Une fois le dépôt publié dans le catalogue officiel, vous pourrez simplement rechercher **NBA Center HomeAssistant** dans le Marketplace.
+
+### Versions antérieures à 2026.11 — HACS
 
 1. Ouvrez **HACS → Intégrations**.
 2. Ouvrez **⋮ → Dépôts personnalisés**.
@@ -126,7 +139,20 @@ Basketball data is retrieved automatically from ESPN. No API key is required.
 <p align="center"><img src="docs/images/teams.png" alt="Teams Center" width="48%"> <img src="docs/images/player-profile.png" alt="Player profile" width="48%"></p>
 <p align="center"><img src="docs/images/players.png" alt="Player statistics" width="48%"> <img src="docs/images/standings.png" alt="NBA standings" width="48%"></p>
 
-## 🚀 Installation with HACS
+## 🚀 Installation
+
+### Home Assistant 2026.11 and later — Marketplace
+
+1. Open **Settings → Marketplace**.
+2. If NBA Center is not yet listed in the catalog, open **⋮ → Add from link**.
+3. Enter `https://github.com/cy-bertrand/nba-center-ha` and confirm.
+4. Open **NBA Center HomeAssistant** and select **Install**.
+5. Restart Home Assistant if prompted.
+6. Go to **Settings → Devices & services → Add integration** and search for **NBA Center HomeAssistant**.
+
+Once the repository is published in the official catalog, you will be able to find it by searching for **NBA Center HomeAssistant** in the Marketplace.
+
+### Earlier versions — HACS
 
 1. Open **HACS → Integrations**.
 2. Open **⋮ → Custom repositories**.
