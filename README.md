@@ -14,7 +14,7 @@ NBA Center HomeAssistant est une intégration Home Assistant avec un centre NBA 
 ## Installation
 Le dépôt est conçu pour être installé avec HACS comme intégration personnalisée. Recherchez **NBA Center HomeAssistant** dans HACS ou ajoutez ce dépôt comme dépôt personnalisé de type **Integration**.
 
-Après installation, redémarrez Home Assistant puis ajoutez l'intégration NBA depuis **Paramètres → Appareils et services**.
+Après installation, redémarrez Home Assistant puis ajoutez **NBA Center HomeAssistant** depuis **Paramètres → Appareils et services**.
 
 La carte Lovelace est enregistrée automatiquement par l'intégration. Les exemples de configuration se trouvent dans [lovelace/](lovelace/) et les instructions complémentaires dans [docs/FRONTEND-INSTALLATION.md](docs/FRONTEND-INSTALLATION.md).
 
