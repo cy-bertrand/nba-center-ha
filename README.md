@@ -95,6 +95,28 @@ type: custom:nba-center-ha-card
 
 Pour les installations Lovelace en mode YAML ou pour les options avancées, consultez [le guide d'installation frontend](docs/FRONTEND-INSTALLATION.md) et les exemples dans [lovelace/](lovelace/).
 
+
+### 🔔 Notifications automatiques des matchs
+
+NBA Center fournit également un **blueprint Home Assistant** pour recevoir des notifications lors des matchs de vos équipes favorites.
+
+Le blueprint permet de choisir :
+
+- les téléphones ou appareils à notifier ;
+- si vous souhaitez être averti au **début du match**, à sa **fin**, ou aux deux moments ;
+- toutes vos équipes favorites ou une franchise NBA précise.
+
+La notification de début annonce les équipes et l'heure locale. À la fin du match, elle indique le score final et, lorsque le score le permet, l'équipe gagnante.
+
+**Installation du blueprint :**
+
+1. Téléchargez le fichier [NBA Center – Notification de match](custom_components/nba_center/blueprints/automation/nba_game_notification.yaml).
+2. Copiez-le dans le dossier `config/blueprints/automation/` de Home Assistant.
+3. Dans Home Assistant, ouvrez **Paramètres → Automatisations et scènes → Blueprints**, puis actualisez les blueprints si nécessaire.
+4. Créez une automatisation à partir de **NBA Center – Notification de match** et choisissez vos appareils et équipes.
+
+Le blueprint s'appuie sur les événements `nba_center_game_start` et `nba_center_game_end` émis par l'intégration.
+
 ## ☕ Soutenir le projet
 
 NBA Center HomeAssistant est développé et maintenu avec passion. Si le projet vous plaît et que vous souhaitez encourager son développement, vous pouvez offrir un café :
