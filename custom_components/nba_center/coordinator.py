@@ -144,10 +144,16 @@ class NBACoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # puis conserve les matchs en direct et ceux à venir dans les 24 h.
             local_now = dt_util.as_local(dt_util.now())
             local_end = local_now + timedelta(hours=24)
-            dates = (
+            dates = [
                 local_now.strftime("%Y%m%d"),
                 local_end.strftime("%Y%m%d"),
-            )
+            ]
+            # Après minuit, les matchs de la veille peuvent encore être en
+            # cours. On ne demande cette date supplémentaire que pendant
+            # les premières heures de la journée pour éviter un appel ESPN
+            # supplémentaire inutile le reste du temps.
+            if local_now.hour < 8:
+                dates.insert(0, (local_now - timedelta(days=1)).strftime("%Y%m%d"))
             requested_dates = tuple(dict.fromkeys(dates))
             scoreboard_results = await asyncio.gather(
                 *(self._get(SCOREBOARD_URL, params={"dates": day}) for day in requested_dates),
