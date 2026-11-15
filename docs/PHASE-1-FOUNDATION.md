@@ -1,56 +1,44 @@
-# Phase 1 — Foundation NBA Center
+# Phase 1 — Socle frontend NBA Center
 
-**Branche :** `phase-1-foundation`  
-**Statut :** validée par l'utilisateur — installation, chargement et cinq vues confirmés sur Home Assistant réel
+**Statut dans le nouveau dépôt :** repris et adapté au domaine `nba_center` ; validation Home Assistant réelle à refaire.
 
-## Réalisé
+## Socle repris
 
-- Enregistrement idempotent de la ressource JavaScript par Home Assistant.
-- Compatibilité minimale alignée sur Home Assistant 2024.7 (API `StaticPathConfig` et `async_register_static_paths`).
-- Bundle Lit autonome généré avec esbuild et livré dans `custom_components/nba_center/www/`.
+- Carte Lovelace Lit autonome, compilée et livrée dans `custom_components/nba_center/www/`.
+- Enregistrement de la ressource par l'intégration.
 - Interface NBA Dark responsive avec cinq vues.
-- Consommation des entités et attributs Home Assistant existants : scoreboard, classements, leaders et capteurs des équipes favorites.
-- Filtres de scores par état et recherche textuelle par équipe.
-- Fiches des équipes favorites et tableaux de classements.
-- Validation de la configuration YAML et surcharge facultative des entity_id.
-- Aucun appel ESPN depuis le navigateur ; les données restent centralisées dans le coordinateur Python.
-- Documentation d'installation et de configuration.
+- Utilisation des entités Home Assistant et des données fournies par le backend.
+- Aucun appel ESPN direct depuis le navigateur.
+- Ressource et élément Lovelace isolés de l'ancienne intégration : `/nba-center-ha/nba-center-card.js` et `custom:nba-center-ha-card`.
 
-## Fonctionnalités présentes par vue
+## Fonctionnalités présentes
 
-- **HOME** : matchs live, prochaines rencontres, équipes favorites, leader points.
-- **SCORES** : scoreboard disponible, filtres Tous / Live / À venir / Terminés, recherche équipe.
-- **TEAMS** : équipe favorite, dernier match, prochain match et forme récente sur cinq rencontres.
-- **PLAYERS** : cinq catégories de leaders existantes.
-- **STATS** : classements Est/Ouest et leaders par catégorie.
+- **HOME** : matchs live, prochaines rencontres, équipes favorites et leader points.
+- **SCORES** : scoreboard, filtres par état et recherche par équipe.
+- **TEAMS** : équipes favorites, dernier match, prochain match et forme récente.
+- **PLAYERS** : catégories de leaders.
+- **STATS** : classements Est/Ouest et leaders statistiques.
 
 ## Limites connues
 
-- Le scoreboard actuel ne propose pas de sélection de date ; cela relève de Phase 2.
-- Les données joueurs se limitent aux leaders actuels ; les profils et comparaisons relèvent de Phase 5.
-- Les box scores complets et les détails de match relèvent de Phase 3.
-- L'utilisateur a confirmé que la carte se charge et fonctionne dans son instance Home Assistant ; les cinq vues ont été partagées en captures.
-- Aucun test navigateur / Playwright ni test d'intégration Home Assistant n'a été exécuté.
-- Les anciens dashboards Lovelace restent inchangés et doivent être conservés pendant la validation.
+- Le socle frontend a été validé dans une instance Home Assistant avant la séparation du domaine.
+- Cette validation antérieure ne prouve pas que la nouvelle intégration `nba_center` s'installe et fonctionne correctement.
+- Aucun test d'intégration Home Assistant ni test de coexistence avec l'ancienne intégration n'est encore déclaré pour le nouveau domaine.
+- Les dashboards et ressources de l'ancienne intégration doivent rester inchangés pendant les essais.
 
-## CI et contrôles
+## CI
 
-Dernier workflow validé : [run 43304380955](https://github.com/cy-bertrand/ha-nba-center/actions/runs/43304186808) — succès.\n\nLe workflow GitHub Actions exécute :
-- `python -m compileall -q custom_components/nba_center`
-- `npm ci`
-- `npm run build`
-- `npm test` (bundle Lit, cinq vues, contrôles des fonctionnalités et absence d'appels ESPN dans le frontend).
+Dernier workflow vérifié sur le nouveau dépôt : [run 43740025284](https://github.com/cy-bertrand/nba-center-ha/actions/runs/43740025284) — succès.
 
-Les résultats sont consultables dans l'onglet Actions du dépôt. Les tests statiques ne remplacent pas le test en instance HA.
+Il exécute la compilation Python, les tests unitaires Python, la vérification syntaxique JavaScript, le build Lit et les tests du bundle. Ces contrôles ne remplacent pas un test sur une instance Home Assistant réelle.
 
-## Installation
+## Étape de validation restante
 
-Voir `docs/FRONTEND-INSTALLATION.md`.
+Sur une instance de test Home Assistant :
+1. Installer la nouvelle intégration sans désinstaller l'ancienne.
+2. Vérifier que les deux entrées d'intégration peuvent coexister.
+3. Contrôler les capteurs, services, événements et blueprint de la nouvelle intégration.
+4. Charger la carte NBA Center et vérifier ses cinq vues.
+5. Vérifier que l'ancienne carte, ses capteurs et ses automatisations fonctionnent toujours.
 
-## Critères de sortie
-
-- Installation et chargement de la ressource confirmés dans Home Assistant 2024.7+.
-- Les cinq vues affichent les données de l'intégration sans entités mal associées.
-- Vérification desktop et mobile.
-- Capteurs, service `nba_center.get_game_details`, événements et blueprint historiques non régressés.
-- Rapport final, puis validation explicite de l'utilisateur avant Phase 2.
+Aucune release ne doit être publiée avant cette validation.

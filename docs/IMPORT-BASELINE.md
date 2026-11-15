@@ -2,7 +2,8 @@
 
 **Dépôt source :** `cy-bertrand/ha-nba`  
 **Dépôt cible :** `cy-bertrand/nba-center-ha`  
-**Socle importé :** NBA Center v0.7.7c
+**Socle importé déclaré :** NBA Center v0.7.7c  
+**Version du manifeste dans le dépôt cible :** 0.5.3 (provenance à réconcilier avant release)
 
 ## Objectif
 
@@ -17,7 +18,7 @@ Le domaine `nba` de l'ancienne intégration n'est pas réutilisé ni remplacé p
 
 ## Isolation technique de la nouvelle intégration
 
-La migration conserve la logique métier du socle importé, mais isole les identifiants Home Assistant de la nouvelle intégration :
+La migration conserve la logique métier du socle importé, mais isole les identifiants Home Assistant de la nouvelle intégration. Attention : le numéro annoncé pour le socle importé (0.7.7c) ne correspond pas au champ `version` actuel du manifeste (0.5.3). Ce point doit être expliqué et le versionnement de release décidé avant de créer un tag. La version ne doit pas être modifiée au hasard :
 
 - domaine et entrée de configuration : `nba_center` ;
 - services : `nba_center.get_game_details` ;

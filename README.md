@@ -12,7 +12,7 @@ NBA Center HomeAssistant est une intégration Home Assistant avec un centre NBA 
 - Capteurs, services, événements et automatisations historiques conservés.
 
 ## Installation
-Le dépôt est conçu pour être installé avec HACS comme intégration personnalisée. Recherchez **NBA Center HomeAssistant** dans HACS ou ajoutez ce dépôt comme dépôt personnalisé de type **Integration**.
+Le dépôt est conçu pour être installé avec HACS comme intégration personnalisée. Tant qu'il n'est pas référencé dans le magasin HACS par défaut, ajoutez-le dans **HACS → Intégrations → ⋮ → Dépôts personnalisés**, avec l'URL `https://github.com/cy-bertrand/nba-center-ha` et le type **Integration**.
 
 Après installation, redémarrez Home Assistant puis ajoutez **NBA Center HomeAssistant** depuis **Paramètres → Appareils et services**.
 

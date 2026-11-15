@@ -36,12 +36,12 @@
 - Standings : playoffSeed absent ou nul, ordre ESPN conservé si tri non fiable.
 
 ### Compatibilité existante
-- IDs et noms d'entités historiques inchangés.
-- Attributs existants conservés.
-- Service `nba_center.get_game_details` conserve son schéma d'entrée et de sortie.
-- Événements `nba_game_start` et `nba_game_end` inchangés.
-- Blueprint existant et installation automatique conservés.
-- Capteurs et automatisations ne dépendent pas des nouveaux endpoints.
+- L'ancienne intégration `nba` doit rester inchangée et continuer à fonctionner si elle est installée.
+- La nouvelle intégration utilise son namespace isolé `nba_center` (entités, appareil, service et événements).
+- Service exposé : `nba_center.get_game_details` ; vérifier son schéma d'entrée et de sortie.
+- Événements exposés : `nba_center_game_start` et `nba_center_game_end`.
+- Blueprint distinct installé sous `blueprints/automation/nba_center/`.
+- Les deux cartes Lovelace doivent pouvoir coexister sans collision de nom d'élément, de ressource ou de commandes WebSocket.
 
 ## 3. Frontend Lit
 
@@ -89,4 +89,4 @@ Une phase n'est déclarée validée que si :
 - le diff est relu ;
 - le compte rendu de phase est fourni et approuvé.
 
-**Important :** aucun des tests listés dans ce document n'est déclaré exécuté à ce stade.
+**Important :** les tests unitaires Python et frontend exécutés par la CI sont distincts des tests d'intégration et de coexistence sur une instance Home Assistant réelle. Ces derniers restent à effectuer.
