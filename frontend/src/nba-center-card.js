@@ -1511,10 +1511,10 @@ class NBACenterCard extends LitElement {
   static getStubConfig() { return { title: "NBA CENTER HomeAssistant", subtitle: "Your league. Your teams. One center." }; }
 }
 
-if (!customElements.get("nba-center-card")) customElements.define("nba-center-card", NBACenterCard);
+if (!customElements.get("nba-center-ha-card")) customElements.define("nba-center-ha-card", NBACenterCard);
 window.customCards = window.customCards ?? [];
 console.info(`[NBA Center] JS build ${BUILD_VERSION}`);
-if (!window.customCards.some((card) => card.type === "nba-center-card")) {
-  window.customCards.push({ type: "nba-center-card", name: "NBA Center",
+if (!window.customCards.some((card) => card.type === "nba-center-ha-card")) {
+  window.customCards.push({ type: "nba-center-ha-card", name: "NBA Center",
     description: "NBA Dark dashboard — scores, teams, players and stats", preview: true });
 }

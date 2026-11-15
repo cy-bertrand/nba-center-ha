@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-const bundle = await readFile("custom_components/nba_center/www/nba-center-card.js", "utf8");
-const source = await readFile("frontend/src/nba-center-card.js", "utf8");
+const bundle = await readFile("custom_components/nba_center/www/nba-center-ha-card.js", "utf8");
+const source = await readFile("frontend/src/nba-center-ha-card.js", "utf8");
 
 console.log("BUNDLE LENGTH", bundle.length, "SOURCE LENGTH", source.length);
 assert.match(bundle, /CSSResult is not constructable|_$litType\\$|lit-html/, "Lit runtime must be bundled into the standalone card (not just the card source)");
-assert.match(bundle, /nba-center-card/, "custom card type must be present");
+assert.match(bundle, /nba-center-ha-card/, "custom card type must be present");
 assert.match(bundle, /customElements\.define/, "custom element must be registered");
 assert.match(bundle, /window\.customCards/, "Lovelace card metadata must be exposed");
 assert.match(bundle, /SCORES & CALENDRIER/, "scores view must be included");

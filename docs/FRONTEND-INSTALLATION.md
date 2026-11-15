@@ -11,12 +11,12 @@
 La ressource est servie par l'intégration à l'URL :
 
 ```text
-/nba-center/nba-center-card.js
+/nba-center-ha/nba-center-card.js
 ```
 
 Ajoute cette ressource une seule fois dans **Paramètres → Tableaux de bord → Ressources** :
 
-- URL : `/nba-center/nba-center-card.js`
+- URL : `/nba-center-ha/nba-center-card.js`
 - Type : **JavaScript module**
 
 En mode YAML :
@@ -25,7 +25,7 @@ En mode YAML :
 lovelace:
   mode: yaml
   resources:
-    - url: /nba-center/nba-center-card.js
+    - url: /nba-center-ha/nba-center-card.js
       type: module
 ```
 
@@ -34,7 +34,7 @@ Ne la déclare pas deux fois si elle est déjà enregistrée dans les ressources
 ## Carte minimale
 
 ```yaml
-type: custom:nba-center-card
+type: custom:nba-center-ha-card
 ```
 
 ## Configuration facultative
@@ -42,7 +42,7 @@ type: custom:nba-center-card
 Le titre, le sous-titre et les entity_id peuvent être surchargés si Home Assistant a généré des identifiants différents :
 
 ```yaml
-type: custom:nba-center-card
+type: custom:nba-center-ha-card
 title: NBA CENTER
 subtitle: Your league. Your teams. One center.
 entities:

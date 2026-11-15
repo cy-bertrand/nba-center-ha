@@ -6,7 +6,7 @@ from pathlib import Path
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant
 
-RESOURCE_URL = "/nba-center/nba-center-card.js"
+RESOURCE_URL = "/nba-center-ha/nba-center-card.js"
 
 
 async def async_register_frontend(hass: HomeAssistant) -> None:
