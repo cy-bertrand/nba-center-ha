@@ -117,7 +117,7 @@ assert.match(source, /2026\.11\.15\.38/, "build version must be bumped for lates
 
 assert.match(bundle, /player-table/, "responsive player statistics table must be included");
 assert.match(bundle, /type="date"/, "calendar date picker must be included");
-assert.match(bundle, /sensor\.nba_matchs_du_jour/, "existing NBA sensor default must be mapped");
+assert.match(bundle, /sensor\.nba_center_matchs_du_jour/, "existing NBA sensor default must be mapped");
 assert.doesNotMatch(bundle, /site\.api\.espn\.com|site\.web\.api\.espn\.com/, "browser bundle must not call ESPN");
 assert.doesNotMatch(bundle, /from\s*["']lit["']/, "Lit imports must be bundled, not external");
 assert.match(source, /config\.entities/, "custom entity mapping must be configurable");
