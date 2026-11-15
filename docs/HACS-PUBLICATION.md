@@ -20,14 +20,18 @@ Workflow frontend : https://github.com/cy-bertrand/nba-center-ha/actions/runs/43
 - Le dépôt a été ajouté comme dépôt personnalisé HACS de type Integration.
 - L'utilisateur a confirmé que l'intégration enregistre automatiquement la ressource Lovelace en mode stockage.
 - La carte `custom:nba-center-ha-card` se charge sur l'instance de test.
+- **Coexistence validée par l'utilisateur :** l'ancienne intégration `nba` et la nouvelle `nba_center` ont été installées simultanément et fonctionnent correctement.
+- **Fonctionnement autonome validé par l'utilisateur :** après désactivation de l'ancienne intégration `nba`, NBA Center HomeAssistant continue de fonctionner.
 
-Ces vérifications portent sur le dépôt et la carte. Elles ne remplacent pas encore un test complet de coexistence des deux intégrations.
+Le test de coexistence et le test sans l'ancienne intégration sont donc considérés comme validés sur l'instance réelle de l'utilisateur.
 
 ## Bloqueurs avant une première release
 
-### 1. Test complet dans Home Assistant
+### 1. Test complet dans Home Assistant — validé par l'utilisateur
 
-Sur une instance de test, installer `nba_center` sans désinstaller l'ancienne intégration `nba`, puis vérifier :
+L'utilisateur confirme avoir installé les deux intégrations en parallèle, puis désactivé l'ancienne intégration `nba`. NBA Center HomeAssistant continue de fonctionner. La coexistence et l'autonomie de la nouvelle intégration sont donc validées sur son instance.
+
+La liste ci-dessous constitue une trace de vérification détaillée complémentaire, si nécessaire :
 
 1. Les deux intégrations apparaissent et restent configurables simultanément.
 2. Les capteurs de la nouvelle intégration sont créés sous le namespace `nba_center`.
