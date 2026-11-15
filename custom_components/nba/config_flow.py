@@ -15,7 +15,14 @@ from homeassistant.helpers.selector import (
     SelectSelectorMode,
 )
 
-from .const import CONF_NOTIFY_END, CONF_NOTIFY_START, CONF_TEAMS, DOMAIN, TEAMS_URL
+from .const import (
+    CONF_NOTIFY_END,
+    CONF_NOTIFY_START,
+    CONF_TEAMS,
+    DOMAIN,
+    INTEGRATION_NAME,
+    TEAMS_URL,
+)
 from .teams_catalog import parse_teams_catalog
 
 
@@ -58,7 +65,9 @@ class NBAConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except Exception:
             return self.async_abort(reason="cannot_connect")
         if user_input is not None:
-            return self.async_create_entry(title="NBA", data={}, options=user_input)
+            return self.async_create_entry(
+                title=INTEGRATION_NAME, data={}, options=user_input
+            )
         return self.async_show_form(step_id="user", data_schema=_schema(options, {}), errors=errors)
 
     @staticmethod
