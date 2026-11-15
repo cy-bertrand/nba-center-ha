@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "NBA",
+        "title": "NBA Center HomeAssistant",
         "description": "Choose your favorite teams and notifications.",
         "data": {
           "teams": "Favorite teams",
@@ -19,7 +19,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "NBA options",
+        "title": "NBA Center HomeAssistant options",
         "data": {
           "teams": "Favorite teams",
           "notify_start": "Event when games start",
