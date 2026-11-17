@@ -1,28 +1,21 @@
 """Frontend resources for the NBA Center Lovelace card."""
 from __future__ import annotations
 
-import json
 import logging
 from pathlib import Path
 from urllib.parse import urlsplit
 
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant
+from homeassistant.loader import async_get_integration
+
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 RESOURCE_PATH = "/nba-center-ha/nba-center-card.js"
 RESOURCE_URL = RESOURCE_PATH
 
-
-def _integration_version() -> str:
-    """Return the installed integration version for frontend cache busting."""
-    manifest_path = Path(__file__).parent / "manifest.json"
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        return str(manifest.get("version") or "1")
-    except (OSError, ValueError, TypeError):
-        return "1"
 
 
 def _get_lovelace_resources(hass: HomeAssistant):
@@ -62,7 +55,8 @@ async def _async_register_lovelace_resource(hass: HomeAssistant) -> None:
         )
         return
 
-    versioned_url = f"{RESOURCE_PATH}?v={_integration_version()}"
+    integration = await async_get_integration(hass, DOMAIN)
+    versioned_url = f"{RESOURCE_PATH}?v={integration.version}"
 
     # async_get_info() ensures the storage collection is loaded before
     # async_items() is read. This prevents overwriting existing resources
