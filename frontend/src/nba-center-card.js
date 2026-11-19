@@ -61,7 +61,7 @@ class NBACenterCard extends LitElement {
     _showAllPlays: { state: true }, _scoringOnly: { state: true },
     _teamSearch: { state: true }, _teamConference: { state: true },
     _teamOverlay: { state: true }, _teamRoster: { state: true }, _teamPlayoffPath: { state: true }, _teamPlayoffLoading: { state: true }, _teamRosterLoading: { state: true }, _teamRosterError: { state: true }, _teamRequest: { state: true }, _teamSelectedSeason: { state: true },
-    _playerSearch: { state: true }, _playerOverlay: { state: true }, _playerData: { state: true }, _playerLoading: { state: true }, _playerError: { state: true }, _playerRequest: { state: true }, _playerSelectedSeason: { state: true }, _playerSelectedPlayoffSeason: { state: true }, _playerPlayoffLoading: { state: true },
+    _playerSearch: { state: true }, _playerOverlay: { state: true }, _expandedPlayerPhoto: { state: true }, _playerData: { state: true }, _playerLoading: { state: true }, _playerError: { state: true }, _playerRequest: { state: true }, _playerSelectedSeason: { state: true }, _playerSelectedPlayoffSeason: { state: true }, _playerPlayoffLoading: { state: true },
     _playoffData: { state: true }, _playoffLoading: { state: true }, _playoffError: { state: true }, _playoffSeason: { state: true }, _playoffRequest: { state: true },
     _playersSeason: { state: true }, _playersPhase: { state: true }, _playersLeaders: { state: true }, _playersLoading: { state: true }, _playersError: { state: true }, _playersRequest: { state: true },
     _standingSeason: { state: true }, _standingPhase: { state: true }, _seasonStandings: { state: true }, _seasonStandingsLoading: { state: true }, _seasonStandingsError: { state: true }, _seasonStandingsRequest: { state: true },
@@ -171,7 +171,7 @@ class NBACenterCard extends LitElement {
     .overlay-team img{width:54px;height:54px;object-fit:contain}.overlay-team strong{display:block;margin-top:7px;font-size:14.4px}
     .overlay-score{font-size:28.8px;font-weight:950;color:#f2c45f}.overlay-actions{display:flex;align-items:center;gap:7px}.overlay-refresh{min-width:0;padding:8px 10px;border:1px solid #34465f;color:#e8bb58;font-size:10.8px}.overlay-refresh:disabled{opacity:.55;cursor:wait}.overlay-close{min-width:38px;padding:8px;border:1px solid #34465f}
     .game-leaders-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.game-leader-card{padding:12px;min-width:0}.game-leader-card .panel-head{margin-bottom:7px}.game-leader-card .panel-head h3{font-size:14.4px;letter-spacing:.08em}.game-leader{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #ffffff12}.game-leader-category{color:#e8bb58;font-size:10.8px;font-weight:900;letter-spacing:.08em}.game-leader-name{font-size:13.2px;font-weight:750;overflow-wrap:anywhere}.game-leader-value{color:#f2c45f;font-size:15.6px;font-weight:950;font-variant-numeric:tabular-nums}.game-leaders-empty{color:#91a0b5;font-size:12px;padding:7px 0}@media(max-width:760px){.playoff-round .grid{grid-template-columns:1fr}}
-    .game .logo{width:32px;height:32px}.home-daily-player img,.home-daily-avatar{width:36px;height:36px}.leader-list .avatar{width:38px;height:38px}.player-profile-overlay .roster-headshot{width:64px;height:64px}.player-profile-overlay .player-team-logo{width:36px;height:36px}
+    .game .logo{width:32px;height:32px}.home-daily-player img,.home-daily-avatar{width:36px;height:36px}.leader-list .avatar{width:38px;height:38px}.player-profile-overlay .roster-headshot{width:64px;height:64px}.player-profile-overlay .player-team-logo{width:36px;height:36px}.player-photo-trigger{display:inline-flex;flex:0 0 auto;padding:0;border:0;border-radius:50%;background:transparent;cursor:zoom-in}.player-photo-trigger .roster-headshot{display:block;transition:transform .15s,box-shadow .15s}.player-photo-trigger:hover .roster-headshot{transform:scale(1.06);box-shadow:0 0 0 2px #f2c45f}.player-photo-trigger:focus-visible{outline:2px solid #f2c45f;outline-offset:4px}.player-photo-lightbox{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:24px;background:#03070ddd;cursor:zoom-out}.player-photo-lightbox img{display:block;max-width:min(88vw,680px);max-height:86vh;width:auto;height:auto;object-fit:contain;border-radius:14px;box-shadow:0 20px 70px #000b}.player-photo-lightbox button{position:absolute;top:18px;right:18px;width:44px;height:44px;padding:0;border:1px solid #ffffff44;border-radius:50%;background:#172338;color:#fff;font-size:22px;cursor:pointer}
     @media(max-width:620px){.home-heading h2{font-size:22.8px}.home-grid{grid-template-columns:1fr}.home-leaders-grid{grid-template-columns:1fr}.home-daily-grid{grid-template-columns:1fr}.home-daily-panel{padding:12px}.home-leaders-grid .panel{padding:12px}.home-leaders-grid .leader{grid-template-columns:24px 34px minmax(0,1fr) auto}.home-leaders-grid .avatar{width:32px;height:32px}.home-leaders-grid .player{font-size:13.2px}.home-leaders-grid .stat{font-size:15.6px}.home-live .game{grid-template-columns:1fr;gap:5px}.home-live .status{text-align:left}
 .playoff-game-row{grid-template-columns:62px minmax(0,1fr) minmax(0,1fr) 10px;gap:5px;padding:9px}.playoff-game-team{grid-template-columns:20px minmax(0,1fr) auto;gap:4px}.playoff-game-team img{width:19px;height:19px}.playoff-game-team strong{font-size:10.8px}.game-leaders-grid{grid-template-columns:1fr;gap:8px}.game-leader-card{padding:10px}.game-leader{padding:6px 0}}
     .quarter-score-panel{margin-top:12px}.quarter-score-panel table{width:100%;border-collapse:collapse;font-size:12px}.quarter-score-panel th,.quarter-score-panel td{padding:9px 8px;text-align:center;border-bottom:1px solid #ffffff10;font-variant-numeric:tabular-nums}.quarter-score-panel th:first-child,.quarter-score-panel td:first-child{text-align:left}.quarter-score-panel td:last-child{color:#f2c45f;font-weight:900}
@@ -207,7 +207,7 @@ class NBACenterCard extends LitElement {
     this._teamRosterError = "";
     this._teamRequest = 0;
     this._selectedPlayer = null;
-    this._playerSearch = ""; this._playerOverlay = null; this._playerData = null; this._playerLoading = false; this._playerError = ""; this._playerSelectedSeason = ""; this._playerSelectedPlayoffSeason = ""; this._playerPlayoffLoading = false; this._playerPlayoffRequest += 1; this._playerPlayoffRequest = 0; this._playerRequest = 0;
+    this._playerSearch = ""; this._playerOverlay = null; this._expandedPlayerPhoto = null; this._playerData = null; this._playerLoading = false; this._playerError = ""; this._playerSelectedSeason = ""; this._playerSelectedPlayoffSeason = ""; this._playerPlayoffLoading = false; this._playerPlayoffRequest += 1; this._playerPlayoffRequest = 0; this._playerRequest = 0;
     this._selectedDate = localDateISO();
     this._calendarGames = []; this._calendarLoading = false; this._calendarError = ""; this._calendarStale = false; this._calendarStaleError = ""; this._calendarRequest = 0; this._calendarInitialized = false;
     this._overlayGame = null; this._overlayDetails = null; this._overlayRequest = 0;
@@ -488,7 +488,7 @@ class NBACenterCard extends LitElement {
   _closePlayer() {
     this._playerRequest += 1;
     this._playerPlayoffRequest += 1;
-    this._playerOverlay = null; this._playerData = null; this._playerLoading = false; this._playerError = "";
+    this._playerOverlay = null; this._expandedPlayerPhoto = null; this._playerData = null; this._playerLoading = false; this._playerError = "";
   }
 
   _playerProfilePanel() {
@@ -630,7 +630,7 @@ class NBACenterCard extends LitElement {
     const statLabel = (item) => item?.display_value ?? (item?.value == null ? "—" : item.value);
     return html`<div class="overlay player-overlay" @click=${(event) => { if (event.target === event.currentTarget) this._closePlayer(); }}>
       <section class="overlay-panel player-profile-overlay" role="dialog" aria-modal="true" aria-label="Profil joueur">
-        <header class="overlay-head"><div class="team-roster-heading">${player.headshot ? html`<img class="roster-headshot" src=${player.headshot} alt="">` : ""}${(currentTeam?.logo ?? player.team_logo) ? html`<img class="player-team-logo" src=${currentTeam?.logo ?? player.team_logo} alt="">` : ""}<div><h2>${value(overview.athlete?.name, player.name)}</h2><div class="muted">${[player.team, player.nationality, player.birth_place].filter(Boolean).join(" · ")}</div></div></div>
+        <header class="overlay-head"><div class="team-roster-heading">${player.headshot ? html`<button class="player-photo-trigger" type="button" aria-label="Afficher la photo de ${value(player.name)} en grand" title="Afficher la photo en grand" @click=${() => { this._expandedPlayerPhoto = player.headshot; }}><img class="roster-headshot" src=${player.headshot} alt="Photo de ${value(player.name)}"></button>` : ""}${(currentTeam?.logo ?? player.team_logo) ? html`<img class="player-team-logo" src=${currentTeam?.logo ?? player.team_logo} alt="">` : ""}<div><h2>${value(overview.athlete?.name, player.name)}</h2><div class="muted">${[player.team, player.nationality, player.birth_place].filter(Boolean).join(" · ")}</div></div></div>
           <button class="overlay-close" aria-label="Fermer le profil joueur" @click=${() => this._closePlayer()}>✕</button></header>
         <div class="overlay-body">
           ${this._playerLoading ? html`<section class="empty">Chargement des statistiques du joueur…</section>` : ""}
@@ -689,6 +689,10 @@ class NBACenterCard extends LitElement {
           ` : ""}
         </div>
       </section>
+      ${this._expandedPlayerPhoto ? html`<div class="player-photo-lightbox" role="dialog" aria-modal="true" aria-label="Photo du joueur en grand" @click=${() => { this._expandedPlayerPhoto = null; }}>
+        <button type="button" aria-label="Fermer la photo" @click=${() => { this._expandedPlayerPhoto = null; }}>✕</button>
+        <img src=${this._expandedPlayerPhoto} alt="Photo de ${value(player.name)}" @click=${(event) => event.stopPropagation()} />
+      </div>` : ""}
     </div>`;
   }
 
