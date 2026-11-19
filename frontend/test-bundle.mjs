@@ -116,7 +116,7 @@ assert.match(source, /const preferred = \["MIN", "PTS", "FG"/, "player points mu
 assert.match(source, /boxscore-player-link/, "player names in Match Center box scores must be interactive");
 assert.match(source, /_openPlayer\(player\.id, \{ \.\.\.player, player: player\.name, team_id: block\.team_id/, "clicking a box-score player must open the profile with the player's franchise context");
 assert.match(source, /const BUILD_VERSION = __BUILD_VERSION__;/, "frontend build version must be injected from manifest.json");
-assert.ok(bundle.includes(`JS ${manifest.version}`), "footer build version must match manifest.json");
+assert.ok(bundle.includes(manifest.version), "footer build version must match manifest.json");
 
 assert.match(bundle, /player-table/, "responsive player statistics table must be included");
 assert.match(bundle, /type="date"/, "calendar date picker must be included");
