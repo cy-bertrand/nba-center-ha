@@ -6,7 +6,7 @@
 - Dépôt : `cy-bertrand/nba-center-ha`
 - Domaine Home Assistant : `nba_center`
 - Carte Lovelace : `custom:nba-center-ha-card`
-- Version stable initiale visée : `1.0.0`
+- Version stable initiale : `1.0.0`
 - Licence : MIT
 
 ## Architecture
@@ -25,10 +25,9 @@ Le projet est une intégration Home Assistant autonome :
 - Préserver la compatibilité des entités, services, événements et automatisations publiés.
 - Centraliser les appels externes dans le backend et utiliser le cache pour limiter les requêtes.
 - Respecter le fuseau horaire configuré dans Home Assistant.
-- Ne jamais inventer de statistiques ou de données manquantes.
-- Fiabiliser les données et leur parsing avant d'ajouter de la complexité au frontend.
 - Maintenir les tests backend, frontend et les contrôles HACS/Hassfest.
 - Documenter les changements incompatibles et les migrations avant toute release.
+-  Pour la release au format tag x.y.z, bien penser à mettre à jour le numéro de release dans le manifest pour assurer le refresh du frontend.
 
 ## Build frontend
 
