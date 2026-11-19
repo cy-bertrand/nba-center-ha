@@ -64,10 +64,8 @@ def _team_rows(raw: dict[str, Any]) -> list[dict[str, Any]]:
 
 def parse_teams_catalog(raw: dict[str, Any]) -> dict[str, Any]:
     """Normalise les franchises et signale explicitement un catalogue incomplet.
-
-    Ne fabrique jamais une franchise pour atteindre 30 entrées. Les métadonnées
-    de conférence/division sont facultatives car ESPN ne les fournit pas toujours
-    dans la réponse du catalogue.
+    Les métadonnées de conférence/division sont facultatives car ESPN ne
+    les fournit pas toujours dans la réponse du catalogue.
     """
     teams: list[dict[str, Any]] = []
     seen: set[str] = set()
