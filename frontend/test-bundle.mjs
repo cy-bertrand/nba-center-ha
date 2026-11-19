@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 
 const bundle = await readFile("custom_components/nba_center/www/nba-center-card.js", "utf8");
 const source = await readFile("frontend/src/nba-center-card.js", "utf8");
+const manifest = JSON.parse(await readFile("custom_components/nba_center/manifest.json", "utf8"));
 
 console.log("BUNDLE LENGTH", bundle.length, "SOURCE LENGTH", source.length);
 assert.match(bundle, /CSSResult is not constructable|_$litType\\$|lit-html/, "Lit runtime must be bundled into the standalone card (not just the card source)");
@@ -29,7 +30,8 @@ assert.match(source, /winnerSide === "away" \? html/, "playoff game winner must 
 assert.match(source, /this\._standingPhase === "playoffs" \? 2008 : 2002/, "regular standings must retain history back to 2002-03");
 assert.match(source, /this\._standingPhase === "playoffs" \? 2008 : 2002/, "playoff season selector must start at 2007-08 while regular standings start at 2002-03");
 assert.match(source, /this\._standingSeason < 2008/, "switching to playoffs from an earlier regular season must select the first supported playoff season");
-assert.match(source, /2026\.11\.15\.38/, "build version must be bumped for latest frontend changes");
+assert.match(source, /const BUILD_VERSION = __BUILD_VERSION__;/, "frontend build version must be injected from manifest.json");
+assert.ok(bundle.includes(`JS ${manifest.version}`), "footer build version must match manifest.json");
 assert.match(source, /home-daily-player-button/, "daily performance leaders must open their related match");
 assert.match(source, /home-next-date/, "favorite next game date must be visually emphasized");
 assert.match(source, /team\.live\?\.state === "in"/, "favorite teams must show LIVE only when the explicit game state is in");
@@ -113,7 +115,8 @@ assert.match(source, /player\.ejected/, "player ejection metadata must be render
 assert.match(source, /const preferred = \["MIN", "PTS", "FG"/, "player points must appear immediately after minutes in the box score");
 assert.match(source, /boxscore-player-link/, "player names in Match Center box scores must be interactive");
 assert.match(source, /_openPlayer\(player\.id, \{ \.\.\.player, player: player\.name, team_id: block\.team_id/, "clicking a box-score player must open the profile with the player's franchise context");
-assert.match(source, /2026\.11\.15\.38/, "build version must be bumped for latest frontend changes");
+assert.match(source, /const BUILD_VERSION = __BUILD_VERSION__;/, "frontend build version must be injected from manifest.json");
+assert.ok(bundle.includes(`JS ${manifest.version}`), "footer build version must match manifest.json");
 
 assert.match(bundle, /player-table/, "responsive player statistics table must be included");
 assert.match(bundle, /type="date"/, "calendar date picker must be included");
@@ -149,7 +152,8 @@ console.log("NBA Center frontend bundle and feature checks passed.");
 
 assert.match(source, /filtered\.slice\(-12\)/, "Match Center must show the latest 12 plays in chronological order");
 assert.doesNotMatch(source, /const ordered = \[\.\.\.filtered\]\.reverse\(\)/, "Match Center must not reverse chronological plays");
-assert.match(source, /2026\.11\.15\.38/, "frontend build version must be bumped for latest frontend changes");
+assert.match(source, /const BUILD_VERSION = __BUILD_VERSION__;/, "frontend build version must be injected from manifest.json");
+assert.ok(bundle.includes(`JS ${manifest.version}`), "footer build version must match manifest.json");
 assert.match(source, /\["avgMinutes","avgPoints","avgRebounds","avgAssists","avgBlocks","avgSteals"\]/, "career averages must not include career games played as an average tile");
 assert.match(source, /career_statistics\?\.find\(\(row\) => row\.name === "gamesPlayed"\)/, "career games played must be displayed beside NBA experience");
 assert.match(source, /player-game-header/, "recent games must use a compact column header");
