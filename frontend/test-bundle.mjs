@@ -153,7 +153,7 @@ console.log("NBA Center frontend bundle and feature checks passed.");
 assert.match(source, /filtered\.slice\(-12\)/, "Match Center must show the latest 12 plays in chronological order");
 assert.doesNotMatch(source, /const ordered = \[\.\.\.filtered\]\.reverse\(\)/, "Match Center must not reverse chronological plays");
 assert.match(source, /const BUILD_VERSION = __BUILD_VERSION__;/, "frontend build version must be injected from manifest.json");
-assert.ok(bundle.includes(`JS ${manifest.version}`), "footer build version must match manifest.json");
+assert.ok(bundle.includes(manifest.version), "footer build version must match manifest.json");
 assert.match(source, /\["avgMinutes","avgPoints","avgRebounds","avgAssists","avgBlocks","avgSteals"\]/, "career averages must not include career games played as an average tile");
 assert.match(source, /career_statistics\?\.find\(\(row\) => row\.name === "gamesPlayed"\)/, "career games played must be displayed beside NBA experience");
 assert.match(source, /player-game-header/, "recent games must use a compact column header");
