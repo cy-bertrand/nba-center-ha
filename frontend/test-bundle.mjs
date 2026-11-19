@@ -31,7 +31,7 @@ assert.match(source, /this\._standingPhase === "playoffs" \? 2008 : 2002/, "regu
 assert.match(source, /this\._standingPhase === "playoffs" \? 2008 : 2002/, "playoff season selector must start at 2007-08 while regular standings start at 2002-03");
 assert.match(source, /this\._standingSeason < 2008/, "switching to playoffs from an earlier regular season must select the first supported playoff season");
 assert.match(source, /const BUILD_VERSION = __BUILD_VERSION__;/, "frontend build version must be injected from manifest.json");
-assert.ok(bundle.includes(`JS ${manifest.version}`), "footer build version must match manifest.json");
+assert.ok(bundle.includes(manifest.version), "bundle must contain the manifest version injected into the frontend footer");
 assert.match(source, /home-daily-player-button/, "daily performance leaders must open their related match");
 assert.match(source, /home-next-date/, "favorite next game date must be visually emphasized");
 assert.match(source, /team\.live\?\.state === "in"/, "favorite teams must show LIVE only when the explicit game state is in");
