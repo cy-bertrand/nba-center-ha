@@ -1,7 +1,7 @@
 // NBA Center Lovelace card — reads only Home Assistant entity state. Lit is bundled locally.
 import { LitElement, css, html } from "lit";
 
-// Release marker: clickable daily leaders, corrected rebound category and upcoming game cards.
+// Takes the build version directly from manifest.json
 const BUILD_VERSION = __BUILD_VERSION__;
 
 const VIEWS = [
