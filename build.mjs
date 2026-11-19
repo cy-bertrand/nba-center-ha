@@ -1,4 +1,8 @@
+import { readFile } from "node:fs/promises";
 import { build } from "esbuild";
+
+const manifest = JSON.parse(await readFile("custom_components/nba_center/manifest.json", "utf8"));
+if (!manifest.version) throw new Error("manifest.json must define an integration version");
 
 const result = await build({
   entryPoints: ["frontend/src/nba-center-card.js"],
@@ -8,6 +12,7 @@ const result = await build({
   metafile: true,
   format: "esm",
   target: ["es2022"],
+  define: { __BUILD_VERSION__: JSON.stringify(manifest.version) },
   minify: true,
   sourcemap: false,
   legalComments: "none",
