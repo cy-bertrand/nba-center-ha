@@ -1541,7 +1541,7 @@ class NBACenterCard extends LitElement {
             ${!this._overlayLoading && !this._overlayError && !this._overlayDetails?.error && !this._overlayDetails?.teams?.length && !this._overlayDetails?.has_boxscore ? html`<section class="empty"><p>Le résumé détaillé n’est pas encore disponible pour cette rencontre.</p></section>` : ""}            </div></section></div>` : ""}
         ${this._teamOverlay ? this._teamRosterPanel() : ""}
         ${this._playerOverlay ? this._playerProfilePanel() : ""}
-        <footer class="footer"><span>NBA CENTER · ${active.label}</span><span>JS ${BUILD_VERSION}</span></footer>
+        <footer class="footer"><span>NBA CENTER · ${active.label}</span><span>${BUILD_VERSION}</span></footer>
       </ha-card>`;
   }
 
@@ -1550,7 +1550,7 @@ class NBACenterCard extends LitElement {
 
 if (!customElements.get("nba-center-ha-card")) customElements.define("nba-center-ha-card", NBACenterCard);
 window.customCards = window.customCards ?? [];
-console.info(`[NBA Center] JS build ${BUILD_VERSION}`);
+console.info(`[NBA Center] ${BUILD_VERSION}`);
 if (!window.customCards.some((card) => card.type === "nba-center-ha-card")) {
   window.customCards.push({ type: "nba-center-ha-card", name: "NBA Center",
     description: "NBA Dark dashboard — scores, teams, players and stats", preview: true });
