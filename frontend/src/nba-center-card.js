@@ -1293,10 +1293,7 @@ class NBACenterCard extends LitElement {
     const daily = this._dataStatus()?.attributes?.daily_performances ?? {};
     const dailyCategories = [{ key: "points", label: "MARQUEURS", unit: "PTS" }, { key: "rebounds", label: "REBONDEURS", unit: "REB" }, { key: "assists", label: "PASSEURS", unit: "AST" }];
     return html`
-      <div class="home-heading">
-        <div><h2>NBA TODAY</h2><p>Le meilleur de la NBA, en un coup d'œil.</p></div>
-        <span class="pill">TABLEAU DE BORD</span>
-      </div>
+      <div class="head"><h2>NBA TODAY</h2><span class="pill">TABLEAU DE BORD</span></div>
       <section class="home-live panel">
         <div class="panel-head"><div><span class="home-kicker">SUIVI EN TEMPS RÉEL</span><h3>NBA LIVE</h3></div>
           <span class="home-live-count ${live.length ? "is-live" : ""}">${live.length ? `● ${live.length} EN DIRECT` : "AUCUN MATCH LIVE"}</span></div>
