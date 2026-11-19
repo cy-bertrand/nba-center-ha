@@ -18,7 +18,7 @@ Les trois versions doivent toujours être identiques :
 
 - `custom_components/nba_center/manifest.json` → `version`
 - Tag GitHub → `vX.Y.Z`
-- Version affichée dans le pied de page de la carte → `JS X.Y.Z`
+- Version affichée dans le pied de page de la carte → `vX.Y.Z`
 
 Le numéro du frontend est généré au build depuis le manifeste : aucune mise à jour manuelle du code source n'est nécessaire.
 
@@ -40,6 +40,6 @@ These three versions must always match:
 
 - `custom_components/nba_center/manifest.json` → `version`
 - GitHub tag → `vX.Y.Z`
-- Version displayed in the card footer → `JS X.Y.Z`
+- Version displayed in the card footer → `vX.Y.Z`
 
 The frontend version is generated at build time from the manifest; no manual source-code update is required.
