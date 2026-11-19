@@ -39,6 +39,21 @@ NBA Center HomeAssistant transforme votre Home Assistant en véritable centre de
 
 Les données sportives sont récupérées automatiquement depuis ESPN, sans clé API à configurer.
 
+### Entités, capteurs et service Home Assistant
+
+Après la configuration, l'intégration crée l'appareil **NBA Center** et ses capteurs. Les capteurs principaux sont :
+
+- `sensor.nba_center_matchs_du_jour` — nombre de matchs du jour, avec les rencontres et les équipes favorites dans ses attributs.
+- `sensor.nba_center_catalogue_des_equipes` — catalogue des 30 franchises NBA.
+- `sensor.nba_center_etat_du_flux_principal` — état des données ESPN, erreurs éventuelles et date de dernière vérification.
+- `sensor.nba_center_classement_est` et `sensor.nba_center_classement_ouest` — classements des deux conférences.
+- `sensor.nba_center_meilleurs_marqueurs`, `sensor.nba_center_meilleurs_rebondeurs`, `sensor.nba_center_meilleurs_passeurs`, `sensor.nba_center_meilleurs_intercepteurs` et `sensor.nba_center_meilleurs_contreurs` — leaders de la saison régulière.
+- Les cinq capteurs correspondants suffixés `_playoffs` — leaders des playoffs.
+
+Pour chaque équipe favorite sélectionnée dans la configuration, quatre capteurs supplémentaires sont créés : **Dernier match**, **Prochain match**, **Match en cours** et **Derniers matchs**. Leurs identifiants incluent le nom de la franchise.
+
+L'intégration expose également le service **`nba_center.get_game_details`**. Il accepte le champ `game_id` et renvoie les détails disponibles d'une rencontre. Les événements **`nba_center_game_start`** et **`nba_center_game_end`** sont émis au début et à la fin des matchs et peuvent déclencher vos propres automatisations.
+
 ## 📸 Aperçu de l'interface
 
 <p align="center"><img src="docs/images/home.png" alt="Accueil NBA Center" width="48%"> <img src="docs/images/scores.png" alt="Scores et calendrier NBA" width="48%"></p>
@@ -99,6 +114,8 @@ npm test
 
 Le code source se trouve dans `frontend/src/nba-center-card.js` et le bundle distribué dans `custom_components/nba_center/www/`.
 
+Guide de publication et de versionnement : [RELEASING.md](docs/RELEASING.md).
+
 Documentation : [Architecture](docs/ARCHITECTURE.md) · [Installation de la carte](docs/FRONTEND-INSTALLATION.md) · [Plan de tests](docs/TEST-PLAN.md) · [Exemples Lovelace](lovelace/).
 
 ## ☕ Soutenir le projet
@@ -131,6 +148,21 @@ NBA Center HomeAssistant turns your Home Assistant instance into an NBA hub. Fol
 - **Automations** — entities, services and events available to your Home Assistant dashboards and automations.
 
 Basketball data is retrieved automatically from ESPN. No API key is required.
+
+### Home Assistant entities, sensors and service
+
+After setup, the integration creates the **NBA Center** device and its sensors. The main sensors are:
+
+- `sensor.nba_center_matchs_du_jour` — number of games today, with game and favorite-team data in its attributes.
+- `sensor.nba_center_catalogue_des_equipes` — catalog of all 30 NBA franchises.
+- `sensor.nba_center_etat_du_flux_principal` — ESPN data status, any errors and last check time.
+- `sensor.nba_center_classement_est` and `sensor.nba_center_classement_ouest` — Eastern and Western Conference standings.
+- `sensor.nba_center_meilleurs_marqueurs`, `sensor.nba_center_meilleurs_rebondeurs`, `sensor.nba_center_meilleurs_passeurs`, `sensor.nba_center_meilleurs_intercepteurs` and `sensor.nba_center_meilleurs_contreurs` — regular-season leaders.
+- The five corresponding sensors suffixed with `_playoffs` — playoff leaders.
+
+Four additional sensors are created for every favorite team selected in the integration options: **Last game**, **Next game**, **Live game** and **Recent games**. Their entity IDs include the franchise name.
+
+The integration also provides the **`nba_center.get_game_details`** service. It accepts a `game_id` field and returns the available details for a game. The **`nba_center_game_start`** and **`nba_center_game_end`** events are fired when games start and finish, and can trigger your own automations.
 
 ## 📸 Interface preview
 
@@ -191,6 +223,8 @@ npm test
 ```
 
 Source code is in `frontend/src/nba-center-card.js`; the distributed bundle is in `custom_components/nba_center/www/`.
+
+Release and versioning guide: [RELEASING.md](docs/RELEASING.md).
 
 Documentation: [Architecture](docs/en/ARCHITECTURE.md) · [Card installation](docs/en/FRONTEND-INSTALLATION.md) · [Test plan](docs/en/TEST-PLAN.md) · [Lovelace examples](lovelace/).
 
