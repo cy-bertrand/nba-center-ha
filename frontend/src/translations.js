@@ -115,7 +115,7 @@ const EN = {
   "Statistiques des leaders indisponibles.": "Leader statistics unavailable.",
   "FULL GAME BREAKDOWN": "FULL GAME BREAKDOWN",
   "BOX SCORE · JOUEURS": "BOX SCORE · PLAYERS",
-  "Le résumé détaillé n’est pas encore disponible pour cette rencontre.": "The detailed summary is not available for this game yet."
+  "Le résumé détaillé n’est pas encore disponible pour cette rencontre.": "The detailed summary is not available for this game yet.",
   "Date à confirmer": "Date to be confirmed",
   "Effectif de l'équipe": "Team roster",
   "Effectif NBA": "NBA roster",
