@@ -155,6 +155,22 @@ class TranslationTests(unittest.TestCase):
         self.assertIn('_formatDate(raw, fallback = "", empty = this._t("Date à confirmer"))', frontend)
         self.assertIn('detail: this._t("TERMINÉ")', frontend)
 
+    def test_player_profile_accessibility_and_error_fallbacks_are_localized(self):
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
+        keys = (
+            "Statistiques playoffs indisponibles.",
+            "Fermer le profil joueur",
+            "Afficher la photo de",
+            "Afficher la photo en grand",
+            "Fermer la photo",
+            "Photo de",
+            "Certaines sources ESPN sont indisponibles :",
+        )
+        for key in keys:
+            self.assertIn(f'"{key}"', translations)
+            self.assertIn(f'this._t("{key}")', frontend)
+
     def test_frontend_visible_labels_use_translation_helper(self):
         frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
