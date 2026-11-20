@@ -293,6 +293,7 @@ const EN = {
   "Voir le match": "View game",
   "Effectif indisponible.": "Roster unavailable.",
   "Impossible de charger le classement de cette saison.": "Unable to load this season standings.",
+  "Impossible de charger les classements de cette saison.": "Unable to load this season\u2019s player rankings.",
   "Photo du joueur en grand": "Enlarged player photo",
   "Joueur NBA": "NBA player",
 };
