@@ -272,7 +272,7 @@ assert.doesNotMatch(source.slice(source.indexOf("_playerProfilePanel()"), source
 
 assert.match(source, /_openMatchTeam\(team\)/, "Match Center team logos must open the corresponding franchise profile");
 assert.match(source, /match-team-logo-button/, "Match Center team logos must be accessible clickable controls");
-assert.match(source, /aria-label=\$\{\x60Ouvrir la fiche/, "Match Center logo buttons must have descriptive accessible labels");
+assert.match(source, /this\._t\("Ouvrir la fiche"\)/, "Match Center logo buttons must have localized descriptive accessible labels");
 assert.match(source, /this\._t\("Ouvrir la fiche"\)/, "Match Center team logo accessible labels must use localization");
 assert.match(translations, /"Ouvrir la fiche": "Open profile for"/, "Match Center team logo accessible labels must have an English translation");
 assert.match(source, /this\._closeOverlay\(\);[\s\S]*?this\._openTeam\(selectedTeam\)/, "opening a team from Match Center must close the Match Center first");
