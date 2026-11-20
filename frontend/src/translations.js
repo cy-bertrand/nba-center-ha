@@ -268,6 +268,7 @@ const EN = {
   "Actualiser les détails du match": "Refresh game details",
   "équipe visiteuse": "away team",
   "Ouvrir la fiche équipe": "Open team profile",
+  "Ouvrir la fiche": "Open profile for",
   "équipe à domicile": "home team",
   "Détails du match indisponibles.": "Game details unavailable.",
   "Certaines sources ESPN sont indisponibles. Les dernières données valides sont conservées. Consultez l'attribut": "Some ESPN feeds are unavailable. The last valid data is being retained. See the sensor",
