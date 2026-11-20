@@ -77,6 +77,18 @@
       },
       "data_status": {
         "name": "État du flux principal"
+      },
+      "team_last": {
+        "name": "{team_name} Dernier match"
+      },
+      "team_next": {
+        "name": "{team_name} Prochain match"
+      },
+      "team_live": {
+        "name": "{team_name} Match en cours"
+      },
+      "team_recent_games": {
+        "name": "{team_name} Derniers matchs"
       }
     }
   }
