@@ -1360,7 +1360,7 @@ class NBACenterCard extends LitElement {
       ${this._calendarLoading ? html`<section class="empty">${this._t("Chargement du calendrier…")}</section>` : ""}
       ${this._calendarError ? html`<section class="empty"><strong>${this._t("Calendrier indisponible")}</strong><p>${this._calendarError}</p><button @click=${() => this._loadCalendar(this._selectedDate)}>${this._t("RÉESSAYER")}</button></section>` : ""}
       ${!this._calendarLoading && !this._calendarError && filtered.length ? html`<div class="game-list">${filtered.map((g) => this._gameCard(g))}</div>` : ""}
-      ${!this._calendarLoading && !this._calendarError && !filtered.length ? html`<section class="empty"><strong>${rows.length ? this._t("Aucun match correspondant") : this._t("Aucun match programmé")}</strong><p>${rows.length ? this._t("Modifie les filtres ou la recherche.") : this._t("Aucune rencontre n\'est prévue pour cette date dans le fuseau horaire de Home Assistant.")}</p></section>` : ""}
+      ${!this._calendarLoading && !this._calendarError && !filtered.length ? html`<section class="empty"><strong>${rows.length ? this._t("Aucun match correspondant") : this._t("Aucun match programmé")}</strong><p>${rows.length ? this._t("Modifie les filtres ou la recherche.") : this._t("Aucune rencontre n'est prévue pour cette date dans le fuseau horaire de Home Assistant.")}</p></section>` : ""}
     `;
   }
   _teamCatalogCard(team) {
