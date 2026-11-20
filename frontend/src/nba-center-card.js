@@ -9,7 +9,7 @@ const VIEWS = [
   { id: "home", label: "HOME" },
   { id: "scores", label: "SCORES" },
   { id: "teams", label: "TEAMS" },
-  { id: "players", label: "JOUEURS" },
+  { id: "players", label: "PLAYERS" },
   { id: "stats", label: "STANDINGS" },
 ];
 const LEADERS = {
