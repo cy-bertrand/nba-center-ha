@@ -240,7 +240,7 @@ class NBACenterCard extends LitElement {
   _state(id) { return id ? this._states[id] : undefined; }
   _find(predicate) { return Object.values(this._states).find(predicate); }
 
-  _formatDate(raw, fallback = "", empty = "Date à confirmer") {
+  _formatDate(raw, fallback = "", empty = this._t("Date à confirmer")) {
     if (!raw) return fallback || empty;
     const date = new Date(raw);
     if (Number.isNaN(date.getTime())) return fallback || value(raw, empty);
@@ -479,7 +479,7 @@ class NBACenterCard extends LitElement {
       }
     } catch (err) {
       if (request !== this._playerRequest) return;
-      this._playerError = err?.message ?? "Données du joueur indisponibles.";
+      this._playerError = err?.message ?? this._t("Données du joueur indisponibles.");
     } finally {
       if (request === this._playerRequest) this._playerLoading = false;
     }
@@ -847,7 +847,7 @@ class NBACenterCard extends LitElement {
     const clubFor = (team) => catalog.find((club) => String(club.id) === String(team.id));
     return html`<div class="overlay playoff-series-overlay" @click=${(event) => { if (event.target === event.currentTarget) this._closePlayoffSeries(); }}>
       <section class="overlay-panel" role="dialog" aria-modal="true" aria-label=${this._t("Matchs de la série")}>
-        <header class="overlay-head"><div><div class="section-kicker">${value(series.round_label, "PLAYOFFS")}</div><h2>${teams.map((team) => value(team.abbreviation, team.name)).join(" · ")}</h2></div><button class="overlay-close" aria-label="Fermer la série" @click=${this._closePlayoffSeries}>✕</button></header>
+        <header class="overlay-head"><div><div class="section-kicker">${value(series.round_label, "PLAYOFFS")}</div><h2>${teams.map((team) => value(team.abbreviation, team.name)).join(" · ")}</h2></div><button class="overlay-close" aria-label=${this._t("Fermer la série")} @click=${this._closePlayoffSeries}>✕</button></header>
         <div class="overlay-body">
           <div class="playoff-series-detail-summary"><span class="pill">${series.status === "completed" ? this._t("SÉRIE TERMINÉE") : series.status === "inconsistent" ? this._t("DONNÉES À VÉRIFIER") : this._t("SÉRIE EN COURS")}</span><strong>${teams.map((team) => Number.isInteger(team.wins) ? team.wins : "—").join(" – ")}</strong><span class="muted">${series.completed_games ?? 0} ${this._t("matchs terminés")} · ${series.games_played ?? 0} ${this._t("recensés")}</span></div>
           <div class="playoff-game-list">
@@ -895,7 +895,7 @@ class NBACenterCard extends LitElement {
       ${this._playoffLoading ? html`<section class="empty">${this._t("Chargement du tableau")} ${this._playoffSeason - 1}-${String(this._playoffSeason).slice(-2)}…</section>` : ""}
       ${this._playoffError ? html`<section class="empty"><strong>${this._t("Tableau indisponible")}</strong><p>${this._playoffError}</p><button @click=${() => this._loadPlayoffBracket()}>${this._t("RÉESSAYER")}</button></section>` : ""}
       ${!this._playoffLoading && data ? html`<div class="playoff-summary"><span>${data.games_count ?? 0} ${this._t("MATCHS")}</span><span>${data.series_count ?? 0} ${this._t("SÉRIES")}</span><span>${data.available ? this._t("DONNÉES REÇUES") : this._t("AUCUN MATCH PLAYOFF")}</span></div>
-        ${Object.entries(data.conferences ?? {}).map(([conference, rounds]) => html`<section class="playoff-conference"><div class="playoff-conference-title"><h2>${conference.toUpperCase()}ERN CONFERENCE</h2><span class="pill">${(rounds ?? []).reduce((n, round) => n + (round.series?.length ?? 0), 0)} ${this._t("SÉRIES")}</span></div>${(rounds ?? []).length ? rounds.map((round) => this._playoffRound(round)) : html`<section class="empty"><strong>Tableau ${conference} indisponible</strong><p>${this._t("Les données ESPN ne permettent pas de reconstituer les séries de cette conférence.")}</p></section>`}</section>`)}
+        ${Object.entries(data.conferences ?? {}).map(([conference, rounds]) => html`<section class="playoff-conference"><div class="playoff-conference-title"><h2>${this._t(conference === "east" ? "EASTERN CONFERENCE" : conference === "west" ? "WESTERN CONFERENCE" : `${conference.toUpperCase()}ERN CONFERENCE`)}</h2><span class="pill">${(rounds ?? []).reduce((n, round) => n + (round.series?.length ?? 0), 0)} ${this._t("SÉRIES")}</span></div>${(rounds ?? []).length ? rounds.map((round) => this._playoffRound(round)) : html`<section class="empty"><strong>${this._t("Tableau de conférence indisponible")} · ${conference.toUpperCase()}</strong><p>${this._t("Les données ESPN ne permettent pas de reconstituer les séries de cette conférence.")}</p></section>`}</section>`)}
         <section class="playoff-conference"><div class="playoff-conference-title"><h2>NBA FINALS</h2></div>${(data.finals ?? []).length ? html`<div class="grid">${data.finals.map((series) => this._playoffSeriesCard(series))}</div>` : html`<section class="empty"><strong>${this._t("Finales NBA non disponibles")}</strong><p>${this._t("Aucune série des Finales n'a été identifiée pour cette saison.")}</p></section>`}</section>
         ${(data.unplaced ?? []).length ? html`<section class="playoff-conference"><div class="playoff-conference-title"><h2>${this._t("SÉRIES NON CLASSÉES")}</h2></div><div class="grid">${data.unplaced.map((series) => this._playoffSeriesCard(series))}</div></section>` : ""}
         ${Object.keys(data.seed_errors ?? {}).length ? html`<section class="empty playoff-warning"><strong>${this._t("Têtes de série non validées")}</strong><p>${Object.entries(data.seed_errors).map(([conference, errors]) => `${conference} : ${errors.join(", ")}`).join(" · ")}</p>${this._t("Les positions de tableau ne sont pas inventées.")}</section>` : ""}
@@ -969,7 +969,7 @@ class NBACenterCard extends LitElement {
       id: game.id,
       date_text: game.date_text,
       state: "post",
-      detail: "TERMINÉ",
+      detail: this._t("TERMINÉ"),
       away: currentTeamIsAway ? currentTeam : opponent,
       home: currentTeamIsAway ? opponent : currentTeam,
     });
@@ -1002,7 +1002,7 @@ class NBACenterCard extends LitElement {
       this._syncOverlayGame(details);
     } catch (err) {
       if (request !== this._overlayRequest) return;
-      this._overlayError = err?.message ?? "Résumé du match indisponible.";
+      this._overlayError = err?.message ?? this._t("Résumé du match indisponible.");
     } finally {
       if (request === this._overlayRequest) {
         this._overlayLoading = false;
@@ -1107,7 +1107,7 @@ class NBACenterCard extends LitElement {
           <thead><tr><th>${this._t("JOUEUR")}</th>${columns.map((key) => html`<th>${key}</th>`)}</tr></thead>
           <tbody>${rows.map((player) => html`
             <tr class="${player.starter ? "starter" : ""} ${player.did_not_play ? "dnp" : ""}">
-              <td><span class="player-cell">${player.headshot ? html`<img src=${player.headshot} alt="" loading="lazy">` : ""}<span>${player.id ? html`<button type="button" class="boxscore-player-link" aria-label="Ouvrir le profil de ${value(player.name)}" @click=${() => this._openPlayer(player.id, { ...player, player: player.name, team_id: block.team_id, team_abbreviation: block.abbr, team: block.abbr ?? block.team, team_logo: team?.logo })}>${value(player.name)}</button>` : html`<strong>${value(player.name)}</strong>`}<small>${[player.jersey ? `#${player.jersey}` : "", player.position || "", player.ejected ? this._t("ÉJECTÉ") : player.did_not_play ? `DNP · ${value(player.reason, this._t("NON PRIS EN JEU"))}` : player.starter ? this._t("TITULAIRE") : player.active ? this._t("ACTIF") : ""].filter(Boolean).join(" · ")}</small></span></span></td>
+              <td><span class="player-cell">${player.headshot ? html`<img src=${player.headshot} alt="" loading="lazy">` : ""}<span>${player.id ? html`<button type="button" class="boxscore-player-link" aria-label=${`${this._t("Ouvrir le profil de")} ${value(player.name)}`} @click=${() => this._openPlayer(player.id, { ...player, player: player.name, team_id: block.team_id, team_abbreviation: block.abbr, team: block.abbr ?? block.team, team_logo: team?.logo })}>${value(player.name)}</button>` : html`<strong>${value(player.name)}</strong>`}<small>${[player.jersey ? `#${player.jersey}` : "", player.position || "", player.ejected ? this._t("ÉJECTÉ") : player.did_not_play ? `DNP · ${value(player.reason, this._t("NON PRIS EN JEU"))}` : player.starter ? this._t("TITULAIRE") : player.active ? this._t("ACTIF") : ""].filter(Boolean).join(" · ")}</small></span></span></td>
               ${columns.map((key) => html`<td>${value(player.stats?.[key])}</td>`)}
             </tr>`)}
           </tbody>
