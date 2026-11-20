@@ -231,6 +231,14 @@ const EN = {
   "CONTRES": "BLOCKS",
   "ans": "years",
   "m": "g",
+  "FAVORIS": "FAVORITES",
+  "VOIR LES": "VIEW",
+  "Données en cache": "Cached data",
+  "actualisation ESPN indisponible": "ESPN refresh unavailable",
+  "RÉSULTAT": "RESULT",
+  "JOUR": "DAY",
+  "AUCUN MATCH EN DIRECT": "NO LIVE GAMES",
+  "VS": "VS",
 };
 export function translate(key, language = "fr") {
   const locale = String(language || "fr").toLowerCase().replace("_", "-");
