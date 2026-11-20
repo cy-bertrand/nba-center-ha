@@ -1533,7 +1533,7 @@ class NBACenterCard extends LitElement {
         </header>
         <nav aria-label=${this._t("Navigation NBA Center")}>${VIEWS.map((v) => html`
           <button type="button" data-view=${v.id} aria-selected=${v.id===this._active}
-            @click=${() => this._selectView(v.id)} >${v.label}</button>`)}</nav>
+            @click=${() => this._selectView(v.id)}>${v.label}</button>`)}</nav>
         <main>${this.hass ? view[active.id]() : html`
           <section class="empty"><strong>${this._t("Connexion à Home Assistant…")}</strong><p>${this._t("La carte attend les états de l'intégration NBA.")}</p></section>`}</main>
         ${this._seriesOverlay && !this._overlayGame ? this._playoffSeriesOverlay() : ""}
