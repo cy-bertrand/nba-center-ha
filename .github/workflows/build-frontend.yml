@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -49,11 +51,10 @@ jobs:
           node --check frontend/src/nba-center-card.js
           npm run build
           npm test
-      - name: Verify generated bundle is committed
-        if: github.event_name == 'pull_request'
-        run: git diff --exit-code -- custom_components/nba_center/www/nba-center-card.js
       - name: Commit generated frontend bundle
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+        env:
+          TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           if git diff --quiet -- custom_components/nba_center/www/nba-center-card.js; then
             echo "Frontend bundle is already up to date."
@@ -63,4 +64,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add custom_components/nba_center/www/nba-center-card.js
           git commit -m "build(frontend): bundle NBA Center Lit card"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git push origin "HEAD:${TARGET_BRANCH}"
+      - name: Verify generated bundle for fork pull requests
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: git diff --exit-code -- custom_components/nba_center/www/nba-center-card.js
