@@ -171,7 +171,7 @@ class NBATeamSensor(NBABaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         info = self.coordinator.data["teams"][self._team_id]
-        attrs: dict[str, Any] = {"team_logo": info.get("logo"), "team_id": self._team_id}
+        attrs: dict[str, Any] = {"team_logo": info.get("logo"), "team_id": self._team_id, "team_name": info.get("name"), "team_sensor_type": self._kind}
         if self._game:
             attrs.update(self._game)
         return attrs
@@ -206,7 +206,7 @@ class NBARecentGamesSensor(NBABaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         info = self.coordinator.data["teams"][self._team_id]
-        return {"games": self._recent(), "team_logo": info.get("logo"), "team_id": self._team_id}
+        return {"games": self._recent(), "team_logo": info.get("logo"), "team_id": self._team_id, "team_name": info.get("name"), "team_sensor_type": "recent"}
 
 
 class NBATeamsCatalogSensor(NBABaseSensor):
