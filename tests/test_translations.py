@@ -111,6 +111,45 @@ class TranslationTests(unittest.TestCase):
             set(source["services"]["get_game_details"]),
         )
 
+    def test_frontend_visible_labels_use_translation_helper(self):
+        frontend = (COMPONENT / "www" / "nba-center-card.js").read_text(encoding="utf-8")
+        expected = {
+            '"EN DIRECT":"LIVE"',
+            '"AUCUN MATCH LIVE":"NO LIVE GAMES"',
+            '"MATCHS":"GAMES"',
+            '"FRANCHISES":"FRANCHISES"',
+            '"Modifie la recherche ou le filtre de conférence.":"Change the search or conference filter."',
+            '"SÉRIES":"SERIES"',
+            '"Fermer":"Close"',
+            '"Profil joueur":"Player profile"',
+            '"ÉJECTÉ":"EJECTED"',
+            '"NON PRIS EN JEU":"DID NOT PLAY"',
+        }
+        for entry in expected:
+            self.assertIn(entry, frontend)
+
+        for expression in (
+            'this._t("EN DIRECT")',
+            'this._t("AUCUN MATCH LIVE")',
+            'this._t("MATCHS")',
+            'this._t("FRANCHISES")',
+            'this._t("Modifie la recherche ou le filtre de conférence.")',
+            'this._t("SÉRIES")',
+            'this._t("Fermer")',
+            'this._t("Profil joueur")',
+            'this._t("\\xC9JECT\\xC9")',
+            'this._t("NON PRIS EN JEU")',
+        ):
+            self.assertIn(expression, frontend)
+
+        for untranslated in (
+            '0} MATCHS</span>',
+            '0}/30 FRANCHISES</span>',
+            'aria-label="Fermer"',
+            'aria-label="Profil joueur"',
+        ):
+            self.assertNotIn(untranslated, frontend)
+
 
 if __name__ == "__main__":
     unittest.main()
