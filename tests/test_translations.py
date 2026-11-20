@@ -1,4 +1,4 @@
-"""Tests for Home Assistant entity translations."""
+"""Tests for Home Assistant entity and service translations."""
 import json
 import unittest
 from pathlib import Path
@@ -7,28 +7,56 @@ ROOT = Path(__file__).parents[1]
 COMPONENT = ROOT / "custom_components" / "nba_center"
 
 
-class EntityTranslationTests(unittest.TestCase):
-    def test_translation_files_define_the_same_sensor_keys(self):
-        files = {
-            language: json.loads((COMPONENT / "translations" / f"{language}.json").read_text(encoding="utf-8"))
+class TranslationTests(unittest.TestCase):
+    def _translations(self):
+        return {
+            language: json.loads(
+                (COMPONENT / "translations" / f"{language}.json").read_text(encoding="utf-8")
+            )
             for language in ("en", "fr")
         }
+
+    def test_translation_files_define_the_same_sensor_keys(self):
+        files = self._translations()
         keys = set(files["en"]["entity"]["sensor"])
         self.assertEqual(keys, set(files["fr"]["entity"]["sensor"]))
-        self.assertEqual(keys, set(json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))["entity"]["sensor"]))
+        self.assertEqual(
+            keys,
+            set(json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))["entity"]["sensor"]),
+        )
 
     def test_dynamic_team_sensor_names_have_team_name_placeholder(self):
-        for language in ("en", "fr"):
-            sensors = json.loads((COMPONENT / "translations" / f"{language}.json").read_text(encoding="utf-8"))["entity"]["sensor"]
+        for language, translations in self._translations().items():
+            sensors = translations["entity"]["sensor"]
             for key in ("team_last", "team_next", "team_live", "team_recent_games"):
-                self.assertIn("{team_name}", sensors[key]["name"])
+                self.assertIn("{team_name}", sensors[key]["name"], f"{language}: {key}")
 
     def test_sensor_uses_translation_keys_for_all_entity_names(self):
         source = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
         for key in ("today_games", "teams_catalog", "data_status", '"team_recent_games"'):
             self.assertIn(key, source)
-        for pattern in ('f"{slug}_standings"', 'f"leaders_{key}"', 'f"playoff_leaders_{key}"', 'f"team_{kind}"'):
+        for pattern in (
+            'f"{slug}_standings"',
+            'f"leaders_{key}"',
+            'f"playoff_leaders_{key}"',
+            'f"team_{kind}"',
+        ):
             self.assertIn(pattern, source)
+
+    def test_game_details_service_is_translated_in_all_languages(self):
+        files = self._translations()
+        source = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
+        expected_keys = {"name", "description", "fields"}
+        for language, translations in files.items():
+            service = translations["services"]["get_game_details"]
+            self.assertEqual(set(service), expected_keys, language)
+            self.assertIn("game_id", service["fields"], language)
+            self.assertTrue(service["name"], language)
+            self.assertTrue(service["description"], language)
+        self.assertEqual(
+            set(files["en"]["services"]["get_game_details"]),
+            set(source["services"]["get_game_details"]),
+        )
 
 
 if __name__ == "__main__":
