@@ -294,6 +294,8 @@ const EN = {
   "Effectif indisponible.": "Roster unavailable.",
   "Impossible de charger le classement de cette saison.": "Unable to load this season standings.",
   "Impossible de charger les classements de cette saison.": "Unable to load this season\u2019s player rankings.",
+  "Impossible de charger le tableau des playoffs.": "Unable to load the playoff bracket.",
+  "Impossible de charger le calendrier NBA.": "Unable to load the NBA schedule.",
   "Photo du joueur en grand": "Enlarged player photo",
   "Joueur NBA": "NBA player",
 };
