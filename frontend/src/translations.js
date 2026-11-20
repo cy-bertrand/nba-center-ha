@@ -291,6 +291,8 @@ const EN = {
   "Certaines sources ESPN sont indisponibles :": "Some ESPN feeds are unavailable:",
   "N° —": "No. —",
   "Voir le match": "View game",
+  "Voir le match de": "View the game for",
+  "Actualisation du match impossible.": "Unable to refresh game details.",
   "Effectif indisponible.": "Roster unavailable.",
   "Impossible de charger le classement de cette saison.": "Unable to load this season standings.",
   "Impossible de charger les classements de cette saison.": "Unable to load this season\u2019s player rankings.",
