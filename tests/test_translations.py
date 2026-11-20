@@ -222,6 +222,8 @@ class TranslationTests(unittest.TestCase):
             'this._t("Chargement du classement")',
             'this._t("Effectif indisponible.")',
             'this._t("Date indisponible")',
+            'this._t("Impossible de charger les classements de cette saison.")',
+            'this._t("Calendrier indisponible")',
         ):
             self.assertIn(expression, frontend)
 
