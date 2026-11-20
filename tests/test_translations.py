@@ -171,6 +171,15 @@ class TranslationTests(unittest.TestCase):
             self.assertIn(f'"{key}"', translations)
             self.assertIn(f'this._t("{key}")', frontend)
 
+    def test_team_roster_accessibility_labels_are_localized(self):
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
+        for key in ("N° —", "Voir le match"):
+            self.assertIn(f'"{key}"', translations)
+            self.assertIn(f'this._t("{key}")', frontend)
+        self.assertIn('this._t("ans")', frontend)
+        self.assertNotIn('this._selectedPlayer.experience_years} ans', frontend)
+
     def test_frontend_visible_labels_use_translation_helper(self):
         frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
