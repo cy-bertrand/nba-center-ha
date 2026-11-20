@@ -28,9 +28,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         entities.append(NBAPostseasonLeadersSensor(coordinator, key))
     for team_id in coordinator.teams:
         entities += [
-            NBATeamSensor(coordinator, team_id, "last", "Dernier match"),
-            NBATeamSensor(coordinator, team_id, "next", "Prochain match"),
-            NBATeamSensor(coordinator, team_id, "live", "Match en cours"),
+            NBATeamSensor(coordinator, team_id, "last"),
+            NBATeamSensor(coordinator, team_id, "next"),
+            NBATeamSensor(coordinator, team_id, "live"),
             NBARecentGamesSensor(coordinator, team_id),
         ]
     async_add_entities(entities)
@@ -143,12 +143,13 @@ class NBAPostseasonLeadersSensor(NBABaseSensor):
 
 
 class NBATeamSensor(NBABaseSensor):
-    def __init__(self, coordinator: NBACoordinator, team_id: str, kind: str, label: str) -> None:
+    def __init__(self, coordinator: NBACoordinator, team_id: str, kind: str) -> None:
         super().__init__(coordinator)
         self._team_id = team_id
         self._kind = kind
         info = coordinator.data["teams"][team_id]
-        self._attr_name = f"{info['name']} {label}"
+        self._attr_translation_key = f"team_{kind}"
+        self._attr_translation_placeholders = {"team_name": info["name"]}
         self._attr_unique_id = f"{DOMAIN}_{team_id}_{kind}"
         self._attr_icon = {"last": "mdi:history", "next": "mdi:calendar-clock", "live": "mdi:basketball-hoop"}[kind]
 
@@ -183,7 +184,8 @@ class NBARecentGamesSensor(NBABaseSensor):
         super().__init__(coordinator)
         self._team_id = team_id
         info = coordinator.data["teams"][team_id]
-        self._attr_name = f"{info['name']} Derniers matchs"
+        self._attr_translation_key = "team_recent_games"
+        self._attr_translation_placeholders = {"team_name": info["name"]}
         self._attr_unique_id = f"{DOMAIN}_{team_id}_recent"
 
     def _recent(self) -> list[dict]:
