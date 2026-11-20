@@ -347,7 +347,7 @@ class NBACenterCard extends LitElement {
       this._teamRoster = roster;
     } catch (err) {
       if (request !== this._teamRequest || String(this._teamOverlay?.id) !== String(team.id)) return;
-      this._teamRosterError = err?.message ?? "Effectif indisponible.";
+      this._teamRosterError = err?.message ?? this._t("Effectif indisponible.");
     } finally {
       if (request === this._teamRequest) this._teamRosterLoading = false;
     }
@@ -462,7 +462,7 @@ class NBACenterCard extends LitElement {
   async _openPlayer(playerId, source = {}) {
     if (!playerId) return;
     const request = ++this._playerRequest;
-    this._playerOverlay = { ...source, id: String(playerId), name: source.player ?? source.name ?? "Joueur NBA" };
+    this._playerOverlay = { ...source, id: String(playerId), name: source.player ?? source.name ?? this._t("Joueur NBA") };
     this._playerData = null; this._playerError = ""; this._playerLoading = true; this._playerSelectedSeason = ""; this._playerSelectedPlayoffSeason = ""; this._playerPlayoffLoading = false;
     try {
       const result = await this.hass.callWS({ type: "nba_center/player_data", player_id: String(playerId) });
@@ -518,7 +518,7 @@ class NBACenterCard extends LitElement {
     const seasonHistory = this._playerData?.stats?.season_history ?? [];
     const selectedSeason = seasonHistory.find((item) => String(item.year) === String(this._playerSelectedSeason)) ?? seasonHistory[0];
     const stats = selectedSeason?.statistics ?? this._playerData?.stats?.statistics ?? [];
-    const seasonLabel = selectedSeason?.display_name ?? this._playerData?.stats?.season ?? "SAISON";
+    const seasonLabel = selectedSeason?.display_name ?? this._playerData?.stats?.season ?? this._t("SAISON");
     const postseason = this._playerData?.postseason_stats ?? {};
     const selectedPlayoffSeason = seasonHistory.find((item) => String(item.year) === String(this._playerSelectedPlayoffSeason)) ?? seasonHistory[0];
     const postseasonStats = postseason.statistics ?? [];
@@ -710,7 +710,7 @@ class NBACenterCard extends LitElement {
           ` : ""}
         </div>
       </section>
-      ${this._expandedPlayerPhoto ? html`<div class="player-photo-lightbox" role="dialog" aria-modal="true" aria-label="Photo du joueur en grand" @click=${() => { this._expandedPlayerPhoto = null; }}>
+      ${this._expandedPlayerPhoto ? html`<div class="player-photo-lightbox" role="dialog" aria-modal="true" aria-label=${this._t("Photo du joueur en grand")} @click=${() => { this._expandedPlayerPhoto = null; }}>
         <button type="button" aria-label=${this._t("Fermer la photo")} @click=${() => { this._expandedPlayerPhoto = null; }}>✕</button>
         <img src=${this._expandedPlayerPhoto} alt="Photo de ${value(player.name)}" @click=${(event) => event.stopPropagation()} />
       </div>` : ""}
@@ -784,7 +784,7 @@ class NBACenterCard extends LitElement {
       this._seasonStandings = result;
     } catch (err) {
       if (request !== this._seasonStandingsRequest) return;
-      this._seasonStandingsError = err?.message ?? "Impossible de charger le classement de cette saison.";
+      this._seasonStandingsError = err?.message ?? this._t("Impossible de charger le classement de cette saison.");
     } finally {
       if (request === this._seasonStandingsRequest) this._seasonStandingsLoading = false;
     }
@@ -864,7 +864,7 @@ class NBACenterCard extends LitElement {
                 ? (String(declaredWinners[0].id) === String(away.id) ? "away" : String(declaredWinners[0].id) === String(home.id) ? "home" : null)
                 : scoreWinner;
               const gameLabel = game.game_number ? `GAME ${game.game_number}` : this._t("MATCH");
-              const date = game.date ? new Date(game.date).toLocaleDateString(this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE", { day: "2-digit", month: "short", year: "numeric" }) : "Date indisponible";
+              const date = game.date ? new Date(game.date).toLocaleDateString(this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE", { day: "2-digit", month: "short", year: "numeric" }) : this._t("Date indisponible");
               return html`<button type="button" class="playoff-game-row ${winnerSide === "away" ? "winner-away" : winnerSide === "home" ? "winner-home" : ""}" ?disabled=${!game.id} @click=${() => {
                 if (!game.id) return;
                 this._closePlayoffSeries();
@@ -1218,7 +1218,7 @@ class NBACenterCard extends LitElement {
     return html`
       <article class="game ${gameClass}" role="button" tabindex="0" @click=${() => this._openGame(game)} @keydown=${(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); this._openGame(game); } }}>
         <div class="game-main">
-          <div class="game-date">${this._formatDate(game.date, game.date_text, fmtDate(game.date))}</div>
+          <div class="game-date">${this._formatDate(game.date, game.date_text, this._t("Date à confirmer"))}</div>
           <div class="matchup">
             <div class="side away ${away.winner ? "winner" : ""}"><span class="team-name">${value(away.abbr, away.name)}</span>
               ${away.logo ? html`<img class="logo" src=${away.logo} alt="" loading="lazy">` : ""}</div>
@@ -1505,7 +1505,7 @@ class NBACenterCard extends LitElement {
         <button class="chip" aria-pressed=${this._standingPhase === "playoffs"} @click=${() => this._setStandingsPhase("playoffs")}>${this._t("PLAYOFFS")}</button>
       </div>
       ${this._standingPhase === "regular" ? html`
-        ${this._seasonStandingsLoading ? html`<section class="empty">Chargement du classement ${this._standingSeason - 1}-${String(this._standingSeason).slice(-2)}…</section>` : ""}
+        ${this._seasonStandingsLoading ? html`<section class="empty">${this._t("Chargement du classement")} ${this._standingSeason - 1}-${String(this._standingSeason).slice(-2)}…</section>` : ""}
         ${this._seasonStandingsError ? html`<section class="empty"><strong>${this._t("Classement indisponible")}</strong><p>${this._seasonStandingsError}</p><button @click=${() => this._loadHistoricalStandings()}>${this._t("RÉESSAYER")}</button></section>` : ""}
         ${!this._seasonStandingsLoading && this._seasonStandings ? html`
           <div class="grid">
