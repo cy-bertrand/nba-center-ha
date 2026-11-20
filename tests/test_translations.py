@@ -48,9 +48,9 @@ class TranslationTests(unittest.TestCase):
         frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
         self.assertIn('"status_key": "degraded" if data.get("data_stale") or errors else "up_to_date"', sensor)
         self.assertIn('"scope_key": "main_data"', sensor)
-        self.assertIn('e.attributes?.scope_key==="main_data"', frontend)
+        self.assertIn('state.attributes?.scope_key === "main_data"', frontend)
         # Keep the legacy scope lookup while existing installations update.
-        self.assertIn('e.attributes?.scope==="scoreboard, standings, calendriers favoris, classements et catalogue des équipes"', frontend)
+        self.assertIn('!state.attributes?.scope_key && state.attributes?.scope === "scoreboard, standings, calendriers favoris, classements et catalogue des équipes"', frontend)
 
     def test_leader_sensors_expose_stable_category_identifiers(self):
         sensor = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
@@ -58,24 +58,24 @@ class TranslationTests(unittest.TestCase):
         self.assertIn('"category_key": self._key', sensor)
         self.assertIn('"category_scope": "season"', sensor)
         self.assertIn('"category_scope": "playoffs"', sensor)
-        self.assertIn('i.attributes?.category_key===e', frontend)
-        self.assertIn('i.attributes?.category_scope===(t?"playoffs":"season")', frontend)
+        self.assertIn('attrs.category_key === key', frontend)
+        self.assertIn('attrs.category_scope === (postseason ? "playoffs" : "season")', frontend)
         # Legacy category labels remain a fallback for already installed sensors.
-        self.assertIn('i.attributes?.category_key==null&&r.includes(s)', frontend)
-        self.assertIn('r.startsWith("playoffs ")', frontend)
+        self.assertIn('attrs.category_key == null && category.includes(fragment)', frontend)
+        self.assertIn('category.startsWith("playoffs ")', frontend)
 
     def test_team_sensors_expose_stable_metadata_for_frontend_lookup(self):
         sensor = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
-        frontend = (COMPONENT / "www" / "nba-center-card.js").read_text(encoding="utf-8")
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
         self.assertIn('"team_sensor_type": self._kind', sensor)
         self.assertIn('"team_sensor_type": "recent"', sensor)
         self.assertIn('"team_name": info.get("name")', sensor)
-        self.assertIn('s.team_sensor_type', frontend)
-        self.assertIn('s.team_name??', frontend)
+        self.assertIn('attrs.team_sensor_type', frontend)
+        self.assertIn('attrs.team_name ??', frontend)
         # Preserve the legacy French friendly-name matching during migration.
-        self.assertIn('i.includes("dernier match")', frontend)
-        self.assertIn('i.includes("prochain match")', frontend)
-        self.assertIn('i.includes("match en cours")', frontend)
+        self.assertIn('friendly.includes("dernier match")', frontend)
+        self.assertIn('friendly.includes("prochain match")', frontend)
+        self.assertIn('friendly.includes("match en cours")', frontend)
 
     def test_game_notification_blueprint_supports_both_message_languages(self):
         blueprint = (
@@ -112,7 +112,7 @@ class TranslationTests(unittest.TestCase):
         )
 
     def test_frontend_visible_labels_use_translation_helper(self):
-        frontend = (COMPONENT / "www" / "nba-center-card.js").read_text(encoding="utf-8")
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
         expected = {
             '"EN DIRECT": "LIVE"',
