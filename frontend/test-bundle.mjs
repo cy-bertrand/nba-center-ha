@@ -152,6 +152,13 @@ assert.match(source, /_setPlayersSeason/, "Players Center must expose a season s
 assert.match(source, /_setPlayersPhase/, "Players Center must separate regular season and playoffs");
 assert.match(source, /_playersLeadersCache/, "Players Center must cache leaderboards by season and phase");
 
+
+const translationKeys = new Set([...translations.matchAll(/^\\s*"((?:[^"\\\\]|\\\\.)+)"\\s*:/gm)].map((match) => match[1]));
+for (const [, key] of source.matchAll(/this\\._t\\("((?:[^"\\\\]|\\\\.)+)"\\)/g)) {
+  assert.ok(translationKeys.has(key), `Missing English translation for Lovelace label: ${key}`);
+}
+assert.match(source, /this\\.hass\\?\\.locale\\?\\.language/, "Lovelace translations must follow the Home Assistant UI language");
+
 console.log("NBA Center frontend bundle and feature checks passed.");
 
 assert.match(source, /filtered\.slice\(-12\)/, "Match Center must show the latest 12 plays in chronological order");
