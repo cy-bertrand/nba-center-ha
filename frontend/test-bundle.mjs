@@ -43,7 +43,7 @@ assert.match(source, /_teamSelectedSeason/, "team profile must retain its select
 assert.match(source, /type: "nba_center\/team_roster", team_id: String\(team\.id\), season_year: this\._teamSelectedSeason/, "team roster requests must include the selected season");
 assert.match(source, /_selectTeamSeason\(year\)/, "team profile must reload when its season changes");
 assert.match(source, /team-season-picker/, "team profile must expose a season selector");
-assert.match(source, /<h3>5 DERNIERS MATCHS<\/h3>/, "player game log heading must stay concise");
+assert.match(source, /this\._t\("5 DERNIERS MATCHS"\)/, "player game log heading must stay concise and translatable");
 assert.doesNotMatch(source, /5 DERNIERS MATCHS · STATS INDIVIDUELLES/, "player game log heading must not include extra subtitle");
 assert.match(source, /averageQuick\.map/, "season primary stats must show averages only, not games played or started");
 assert.doesNotMatch(source, /player-participation/, "games played and starts must not be rendered as separate tiles");
@@ -201,7 +201,7 @@ assert.match(source, /postseason_year: seasonYear/, "postseason selector must re
 assert.match(source, /const selectedPlayoffSeason = seasonHistory\.find/, "playoff selector must resolve its own selected season");
 assert.match(source, /this\._playerSelectedPlayoffSeason \|\| seasonHistory\[0\]\?\.year/, "playoff selector must not inherit the regular-season selection");
 assert.match(source, /selectedPlayoffSeason\?\.display_name/, "playoff season heading must use the actual NBA season label");
-assert.ok(source.includes("ÉTAT MÉDICAL</small>"), "player medical status must occupy a profile grid cell");
+assert.ok(source.includes("this._t(\"ÉTAT MÉDICAL\")"), "player medical status must occupy a translatable profile grid cell");
 assert.doesNotMatch(source, /5 DERNIERS MATCHS · PLAYOFFS/, "player profile must not duplicate the recent game log for playoffs");
 
 assert.match(source, /playoff_\$\{key\}/, "Players Center must resolve dedicated playoff leaderboard entities");
