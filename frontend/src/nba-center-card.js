@@ -686,7 +686,7 @@ class NBACenterCard extends LitElement {
               ${postseasonStats.length ? html`
                 <div class="player-stat-grid player-season-highlights">${postseasonAverageQuick.map(([label,item]) => html`<div><small>${label} / MATCH</small><strong>${value(item)}</strong></div>`)}</div>
                 ${postseasonDetailed.length ? html`<div class="table-wrap"><table><thead><tr><th>${this._t("STATISTIQUE")}</th><th>${this._t("VALEUR")}</th></tr></thead><tbody>${postseasonDetailed.map((item) => html`<tr><td>${value(translateStat(item),item.name)}</td><td>${value(item.display_value ?? item.value)}</td></tr>`)}</tbody></table></div>` : ""}
-              ` : html`<p class="muted">${this._t("Les statistiques des playoffs sont récupérées séparément. Elles apparaîtront ici dès qu\'ESPN publiera les données de postseason pour cette saison.")}</p>`}
+              ` : html`<p class="muted">${this._t("Les statistiques des playoffs sont récupérées séparément. Elles apparaîtront ici dès qu'ESPN publiera les données de postseason pour cette saison.")}</p>`}
             </section>
             ${Object.keys(this._playerData.errors ?? {}).length ? html`<p class="muted">Certaines sources ESPN sont indisponibles : ${Object.keys(this._playerData.errors).join(" · ")}</p>` : ""}
           ` : ""}
@@ -1511,11 +1511,11 @@ class NBACenterCard extends LitElement {
           <div class="meta"><span class="dot"></span><span>NBA DATA</span><span>·</span>
             <span>${this.hass ? this._t("CONNECTED TO ESPN API") : this._t("WAITING FOR ESPN API")}</span>
             ${dataStatus ? html`<span class="data-health ${degraded ? "degraded" : "healthy"}">${degraded ? this._t("Données partielles") : this._t("FLUX À JOUR")}</span>` : ""}</div>
-          ${degraded ? html`<div class="data-warning">${this._t("Certaines sources ESPN sont indisponibles. Les dernières données valides sont conservées. Consultez l\'attribut")} <strong>errors</strong> ${this._t("du capteur d\'état pour le détail.")}</div>` : ""}
+          ${degraded ? html`<div class="data-warning">${this._t("Certaines sources ESPN sont indisponibles. Les dernières données valides sont conservées. Consultez l'attribut")} <strong>errors</strong> ${this._t("du capteur d'état pour le détail.")}</div>` : ""}
         </header>
         <nav aria-label="NBA Center navigation">${VIEWS.map((v) => html`
           <button type="button" data-view=${v.id} aria-selected=${v.id===this._active}
-            @click=${() => this._selectView(v.id)}>${v.label}</button>`)}</nav>
+            @click=${() => this._selectView(v.id)}>${this._t(v.label)}</button>`)}</nav>
         <main>${this.hass ? view[active.id]() : html`
           <section class="empty"><strong>${this._t("Connexion à Home Assistant…")}</strong><p>${this._t("La carte attend les états de l'intégration NBA.")}</p></section>`}</main>
         ${this._seriesOverlay && !this._overlayGame ? this._playoffSeriesOverlay() : ""}
