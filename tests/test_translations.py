@@ -16,6 +16,30 @@ class TranslationTests(unittest.TestCase):
             for language in ("en", "fr")
         }
 
+    def test_config_and_options_translations_have_matching_keys(self):
+        files = self._translations()
+        source = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
+
+        def leaf_paths(value, prefix=""):
+            if isinstance(value, dict):
+                return {
+                    path
+                    for key, child in value.items()
+                    for path in leaf_paths(child, f"{prefix}.{key}" if prefix else key)
+                }
+            return {prefix}
+
+        for section in ("config", "options"):
+            expected = leaf_paths(source[section])
+            for language, translations in files.items():
+                actual = leaf_paths(translations[section])
+                self.assertEqual(actual, expected, f"{language}: {section}")
+                for path in expected:
+                    value = translations[section]
+                    for part in path.split("."):
+                        value = value[part]
+                    self.assertTrue(value, f"{language}: {section}.{path}")
+
     def test_translation_files_define_the_same_sensor_keys(self):
         files = self._translations()
         keys = set(files["en"]["entity"]["sensor"])
