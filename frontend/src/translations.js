@@ -239,6 +239,19 @@ const EN = {
   "JOUR": "DAY",
   "AUCUN MATCH EN DIRECT": "NO LIVE GAMES",
   "VS": "VS",
+  "CONNECTED TO ESPN API": "CONNECTED TO ESPN API",
+  "WAITING FOR ESPN API": "WAITING FOR ESPN API",
+  "Détails du match": "Game details",
+  "Actualiser les détails du match": "Refresh game details",
+  "ACTUALISER": "REFRESH",
+  "équipe visiteuse": "away team",
+  "Ouvrir la fiche équipe": "Open team profile",
+  "équipe à domicile": "home team",
+  "Détails du match indisponibles.": "Game details unavailable.",
+  "Certaines sources ESPN sont indisponibles. Les dernières données valides sont conservées. Consultez l'attribut": "Some ESPN feeds are unavailable. The last valid data is being retained. See the sensor",
+  "du capteur d'état pour le détail.": "attribute for details.",
+  "Les statistiques des playoffs sont récupérées séparément. Elles apparaîtront ici dès qu'ESPN publiera les données de postseason pour cette saison.": "Playoff statistics are retrieved separately. They will appear here once ESPN publishes postseason data for this season.",
+  "CAREER": "CAREER",
 };
 export function translate(key, language = "fr") {
   const locale = String(language || "fr").toLowerCase().replace("_", "-");
