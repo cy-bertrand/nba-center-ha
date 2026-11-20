@@ -158,6 +158,12 @@ for (const [, key] of source.matchAll(/this\._t\("((?:[^"\\]|\\.)+)"\)/g)) {
   assert.ok(translationKeys.has(key), "Missing English translation for Lovelace label: " + key);
 }
 assert.match(source, /this\.hass\?\.locale\?\.language/, "Lovelace translations must follow the Home Assistant UI language");
+assert.match(source, /aria-label=\$\{`\$\{this\._t\("Voir le match de"\)\} \$\{player\.player\}`\}/, "daily performance game links must have a localized accessible label");
+assert.match(source, /this\._t\("Actualisation du match impossible\."\)/, "Match Center refresh fallback must use localization");
+assert.match(translations, /"Voir le match de": "View the game for"/, "daily performance accessible label must have an English translation");
+assert.match(translations, /"Actualisation du match impossible\.": "Unable to refresh game details\."/ , "Match Center refresh fallback must have an English translation");
+assert.match(source, /const statusKey = dataStatus\?\.attributes\?\.status_key/, "data health must prefer the locale-independent status key");
+assert.match(source, /statusKey \? statusKey !== "up_to_date" : dataStatus\?\.state !== "À jour"/, "legacy data health sensors must keep their French-state fallback");
 
 console.log("NBA Center frontend bundle and feature checks passed.");
 
@@ -241,6 +247,8 @@ assert.match(bundle, /this\._teamOverlay\?this\._teamRosterPanel\(\):""/, "bundl
 assert.match(source, /Le bilan et le calendrier restent affichés/, "missing roster must not hide team season results");
 
 assert.ok(["HOME", "SCORES", "TEAMS", "PLAYERS", "STANDINGS"].every((label) => source.includes(`label: "${label}"`)), "main navigation labels must remain English regardless of locale");
+assert.match(source, /\$\{v\.label\}/, "navigation labels must not be translated");
+assert.match(source, /\$\{active\.label\}/, "footer navigation label must remain English");
 assert.ok(source.includes("_formatDate(raw, fallback ="), "backend ISO dates must be formatted with the Home Assistant frontend locale");
 assert.ok(source.includes("this._formatDate(this._overlayGame.date"), "Match Center dates must use the frontend locale");
 assert.match((await readFile(new URL("./src/translations.js", import.meta.url), "utf8")), /"m": "G"/, "French match abbreviation must map to English games abbreviation");
@@ -264,7 +272,9 @@ assert.doesNotMatch(source.slice(source.indexOf("_playerProfilePanel()"), source
 
 assert.match(source, /_openMatchTeam\(team\)/, "Match Center team logos must open the corresponding franchise profile");
 assert.match(source, /match-team-logo-button/, "Match Center team logos must be accessible clickable controls");
-assert.match(source, /aria-label=\$\{\x60Ouvrir la fiche/, "Match Center logo buttons must have descriptive accessible labels");
+assert.match(source, /this\._t\("Ouvrir la fiche"\)/, "Match Center logo buttons must have localized descriptive accessible labels");
+assert.match(source, /this\._t\("Ouvrir la fiche"\)/, "Match Center team logo accessible labels must use localization");
+assert.match(translations, /"Ouvrir la fiche": "Open profile for"/, "Match Center team logo accessible labels must have an English translation");
 assert.match(source, /this\._closeOverlay\(\);[\s\S]*?this\._openTeam\(selectedTeam\)/, "opening a team from Match Center must close the Match Center first");
 assert.match(bundle, /match-team-logo-button/, "bundled Match Center team logos must be clickable");
 assert.match(bundle, /this\._teamOverlay\?this\._teamRosterPanel\(\):""/, "bundled team profile must overlay Match Center");

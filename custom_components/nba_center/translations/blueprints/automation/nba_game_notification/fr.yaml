@@ -1,0 +1,19 @@
+blueprint:
+  name: NBA Center - Notification de match
+  description: >
+    Envoie une notification au début et/ou à la fin d'un match de vos équipes
+    favorites. Le message affiche le score et l'heure locale.
+  input:
+    notify_targets:
+      name: Appareils à notifier
+      description: Choisissez un ou plusieurs téléphones ou appareils.
+    notify_start:
+      name: Notifier le début du match
+    notify_end:
+      name: Notifier la fin du match
+    team_filter:
+      name: Équipe à suivre
+      description: Toutes les équipes favorites, ou une seule équipe précise.
+    notification_language:
+      name: Langue des notifications
+      description: Langue utilisée pour le titre et le message des notifications.

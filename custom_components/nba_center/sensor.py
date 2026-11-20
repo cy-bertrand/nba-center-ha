@@ -114,7 +114,7 @@ class NBALeadersSensor(NBABaseSensor):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        return {"leaders": self._rows(), "category": LEADER_CATEGORIES[self._key][0]}
+        return {"leaders": self._rows(), "category": LEADER_CATEGORIES[self._key][0], "category_key": self._key, "category_scope": "season"}
 
 
 class NBAPostseasonLeadersSensor(NBABaseSensor):
@@ -139,7 +139,9 @@ class NBAPostseasonLeadersSensor(NBABaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {"leaders": self._rows(),
-                "category": f"Playoffs {LEADER_CATEGORIES[self._key][0]}"}
+                "category": f"Playoffs {LEADER_CATEGORIES[self._key][0]}",
+                "category_key": self._key,
+                "category_scope": "playoffs"}
 
 
 class NBATeamSensor(NBABaseSensor):
@@ -169,7 +171,7 @@ class NBATeamSensor(NBABaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         info = self.coordinator.data["teams"][self._team_id]
-        attrs: dict[str, Any] = {"team_logo": info.get("logo"), "team_id": self._team_id}
+        attrs: dict[str, Any] = {"team_logo": info.get("logo"), "team_id": self._team_id, "team_name": info.get("name"), "team_sensor_type": self._kind}
         if self._game:
             attrs.update(self._game)
         return attrs
@@ -204,7 +206,7 @@ class NBARecentGamesSensor(NBABaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         info = self.coordinator.data["teams"][self._team_id]
-        return {"games": self._recent(), "team_logo": info.get("logo"), "team_id": self._team_id}
+        return {"games": self._recent(), "team_logo": info.get("logo"), "team_id": self._team_id, "team_name": info.get("name"), "team_sensor_type": "recent"}
 
 
 class NBATeamsCatalogSensor(NBABaseSensor):
@@ -254,6 +256,9 @@ class NBADataStatusSensor(NBABaseSensor):
         errors = data.get("data_errors") or []
         return {
             "stale": bool(data.get("data_stale")),
+            # Stable machine-readable identifiers; keep legacy labels for compatibility.
+            "status_key": "degraded" if data.get("data_stale") or errors else "up_to_date",
+            "scope_key": "main_data",
             "scope": "scoreboard, standings, calendriers favoris, classements et catalogue des équipes",
             "errors": errors,
             "error_count": len(errors),

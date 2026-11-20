@@ -1,0 +1,19 @@
+blueprint:
+  name: NBA Center - Game notification
+  description: >
+    Send a notification when a favorite team's game starts and/or ends.
+    The message includes the score and local time.
+  input:
+    notify_targets:
+      name: Devices to notify
+      description: Choose one or more phones or devices.
+    notify_start:
+      name: Notify when a game starts
+    notify_end:
+      name: Notify when a game ends
+    team_filter:
+      name: Team to follow
+      description: All favorite teams, or one specific team.
+    notification_language:
+      name: Notification language
+      description: Language used for notification titles and messages.
