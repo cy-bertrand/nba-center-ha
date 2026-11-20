@@ -23,4 +23,4 @@ Do not translate ESPN payload values, team/player names, entity IDs, unique IDs,
 
 ## Current scope
 
-The first localization step covers the config flow and the main Lovelace card sections, including player/team profiles, standings, playoffs and Match Center labels. Sensor names, sensor state text, the automation blueprint and all remaining card labels are not yet fully localized; they can be migrated incrementally without changing stable entity IDs or data contracts.
+The Lovelace card uses the Home Assistant UI locale through `this._t(...)`. All user-facing labels, accessibility text, placeholders, empty/error states, dates and statistic names should be localized rather than embedded directly in templates. French remains the fallback. The frontend localization is being expanded incrementally; stable entity IDs, ESPN values, player/team names and websocket contracts must remain unchanged.

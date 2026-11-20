@@ -39,7 +39,7 @@ assert.match(source, /team\.live\?\.state === "in"/, "favorite teams must show L
 assert.doesNotMatch(source, /\$\{team\.live \? html/, "favorite teams must not treat any live object as an active game");
 assert.match(source, /@media\(max-width:390px\)/, "NBA Center must include a compact narrow-phone layout");
 assert.match(source, /\.date-picker-control\{min-width:112px/, "score date picker must remain usable on narrow phones");
-assert.match(source, /return \{ label: "À VENIR", live: false, className: "scheduled" \}/, "upcoming game card must not duplicate its time in the footer");
+assert.match(source, /return \{ label: this\._t\("À VENIR"\), live: false, className: "scheduled" \}/, "upcoming game card must not duplicate its time in the footer");
 assert.match(source, /_teamSelectedSeason/, "team profile must retain its selected NBA season");
 assert.match(source, /type: "nba_center\/team_roster", team_id: String\(team\.id\), season_year: this\._teamSelectedSeason/, "team roster requests must include the selected season");
 assert.match(source, /_selectTeamSeason\(year\)/, "team profile must reload when its season changes");
@@ -70,7 +70,7 @@ assert.match(source, /@media\(max-width:760px\)\{\.playoff-round \.grid\{grid-te
 assert.match(source, /series\.unknown_results \? "≥" : ""/, "playoff wins must be marked as minimum counts when results are unconfirmed");
 assert.match(source, /_dataStatus\(\)/, "card must read the diagnostic sensor");
 assert.match(source, /dataStatus\?\.state !== "À jour"/, "unknown diagnostic states must be treated as degraded");
-assert.match(source, /DONNÉES PARTIELLES/, "card must warn when core NBA feeds are degraded");
+assert.match(source, /this\._t\("Données partielles"\)/, "card must warn when core NBA feeds are degraded");
 assert.match(source, /series\.unknown_results \? "≥" : ""/, "playoff wins must be marked as minimum counts when results are unconfirmed");
 assert.match(source, /TÊTES DE SÉRIE NON VALIDÉES|Têtes de série non validées/, "unvalidated playoff seeds must be disclosed");
 assert.match(bundle, /TABLEAU DES PLAYOFFS/, "bundled card must include the playoff bracket inside standings center");
@@ -100,7 +100,7 @@ assert.match(source, /Rechercher une équipe/, "Teams Center must include franch
 assert.match(source, /EAST/, "Teams Center must include conference filtering");
 assert.match(source, /WEST/, "Teams Center must include conference filtering");
 assert.match(bundle, /EASTERN CONFERENCE/, "standings view must be included");
-assert.match(bundle, /Filtrer une équipe/, "interactive team search must be included");
+assert.match(bundle, /Filter teams/, "interactive team search must be included");
 assert.match(bundle, /nba_center\/scoreboard/, "date-based scoreboard websocket command must be used");
 assert.match(bundle, /nba_center\/game_details/, "game details websocket command must be used");
 assert.match(bundle, /MATCH CENTER/, "interactive match overlay must be included");
@@ -152,6 +152,13 @@ assert.match(source, /_setPlayersSeason/, "Players Center must expose a season s
 assert.match(source, /_setPlayersPhase/, "Players Center must separate regular season and playoffs");
 assert.match(source, /_playersLeadersCache/, "Players Center must cache leaderboards by season and phase");
 
+
+const translationKeys = new Set([...translations.matchAll(/^\s*"((?:[^"\\]|\\.)+)"\s*:/gm)].map((match) => match[1]));
+for (const [, key] of source.matchAll(/this\._t\("((?:[^"\\]|\\.)+)"\)/g)) {
+  assert.ok(translationKeys.has(key), "Missing English translation for Lovelace label: " + key);
+}
+assert.match(source, /this\.hass\?\.locale\?\.language/, "Lovelace translations must follow the Home Assistant UI language");
+
 console.log("NBA Center frontend bundle and feature checks passed.");
 
 assert.match(source, /filtered\.slice\(-12\)/, "Match Center must show the latest 12 plays in chronological order");
@@ -176,7 +183,7 @@ if (!source.includes("_playByPlayPanel") || !source.includes("POINTS SEULEMENT")
   throw new Error("Play-by-play UI is missing from source or bundle");
 }
 
-if (!source.includes("aria-label=\"Actualiser les détails du match\"") || !translations.includes('"RÉESSAYER": "RETRY"')) {
+if (!source.includes('this._t("Actualiser les détails du match")') || !translations.includes('"Actualiser les détails du match": "Refresh game details"')) {
   throw new Error("Match detail refresh/error state is missing");
 }
 
@@ -232,6 +239,11 @@ assert.match(bundle, /_openRecentTeamGame/, "bundled recent team game adapter mu
 assert.match(bundle, /this\._teamOverlay\?this\._teamRosterPanel\(\):""/, "bundled team profile must render above Match Center");
 
 assert.match(source, /Le bilan et le calendrier restent affichés/, "missing roster must not hide team season results");
+
+assert.ok(["HOME", "SCORES", "TEAMS", "PLAYERS", "STANDINGS"].every((label) => source.includes(`label: "${label}"`)), "main navigation labels must remain English regardless of locale");
+assert.ok(source.includes("_formatDate(raw, fallback ="), "backend ISO dates must be formatted with the Home Assistant frontend locale");
+assert.ok(source.includes("this._formatDate(this._overlayGame.date"), "Match Center dates must use the frontend locale");
+assert.match((await readFile(new URL("./src/translations.js", import.meta.url), "utf8")), /"m": "G"/, "French match abbreviation must map to English games abbreviation");
 
 assert.match(source, /Le bilan et le calendrier restent affichés/, "team summary must remain visible without a roster");
 
