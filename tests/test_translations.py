@@ -135,6 +135,23 @@ class TranslationTests(unittest.TestCase):
             set(source["services"]["get_game_details"]),
         )
 
+    def test_remaining_frontend_fallbacks_are_localized(self):
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
+        for key in (
+            "Fermer la série",
+            "EASTERN CONFERENCE",
+            "WESTERN CONFERENCE",
+            "Tableau de conférence indisponible",
+            "Données du joueur indisponibles.",
+            "Résumé du match indisponible.",
+            "Ouvrir le profil de",
+        ):
+            self.assertIn(f'"{key}"', translations)
+            self.assertIn(f'this._t("{key}")', frontend)
+        self.assertIn('this._formatDate(raw, fallback = "", empty = this._t("Date à confirmer"))', frontend)
+        self.assertIn('detail: this._t("TERMINÉ")', frontend)
+
     def test_frontend_visible_labels_use_translation_helper(self):
         frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
