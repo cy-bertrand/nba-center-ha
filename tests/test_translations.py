@@ -64,6 +64,19 @@ class TranslationTests(unittest.TestCase):
         self.assertIn('i.attributes?.category_key==null&&r.includes(s)', frontend)
         self.assertIn('r.startsWith("playoffs ")', frontend)
 
+    def test_team_sensors_expose_stable_metadata_for_frontend_lookup(self):
+        sensor = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
+        frontend = (COMPONENT / "www" / "nba-center-card.js").read_text(encoding="utf-8")
+        self.assertIn('"team_sensor_type": self._kind', sensor)
+        self.assertIn('"team_sensor_type": "recent"', sensor)
+        self.assertIn('"team_name": info.get("name")', sensor)
+        self.assertIn('s.team_sensor_type', frontend)
+        self.assertIn('s.team_name??', frontend)
+        # Preserve the legacy French friendly-name matching during migration.
+        self.assertIn('i.includes("dernier match")', frontend)
+        self.assertIn('i.includes("prochain match")', frontend)
+        self.assertIn('i.includes("match en cours")', frontend)
+
     def test_game_notification_blueprint_supports_both_message_languages(self):
         blueprint = (
             COMPONENT / "blueprints" / "automation" / "nba_game_notification.yaml"
