@@ -52,6 +52,18 @@ class TranslationTests(unittest.TestCase):
         # Keep the legacy scope lookup while existing installations update.
         self.assertIn('e.attributes?.scope==="scoreboard, standings, calendriers favoris, classements et catalogue des équipes"', frontend)
 
+    def test_leader_sensors_expose_stable_category_identifiers(self):
+        sensor = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
+        frontend = (COMPONENT / "www" / "nba-center-card.js").read_text(encoding="utf-8")
+        self.assertIn('"category_key": self._key', sensor)
+        self.assertIn('"category_scope": "season"', sensor)
+        self.assertIn('"category_scope": "playoffs"', sensor)
+        self.assertIn('i.attributes?.category_key===e', frontend)
+        self.assertIn('i.attributes?.category_scope===(t?"playoffs":"season")', frontend)
+        # Legacy category labels remain a fallback for already installed sensors.
+        self.assertIn('i.attributes?.category_key==null&&r.includes(s)', frontend)
+        self.assertIn('r.startsWith("playoffs ")', frontend)
+
     def test_game_notification_blueprint_supports_both_message_languages(self):
         blueprint = (
             COMPONENT / "blueprints" / "automation" / "nba_game_notification.yaml"
