@@ -5,6 +5,16 @@
  * before using them in the card, then provide the corresponding locale value.
  */
 const EN = {
+  "EN DIRECT": "LIVE",
+  "AUCUN MATCH LIVE": "NO LIVE GAMES",
+  "MATCHS": "GAMES",
+  "FRANCHISES": "FRANCHISES",
+  "Modifie la recherche ou le filtre de conférence.": "Change the search or conference filter.",
+  "SÉRIES": "SERIES",
+  "Fermer": "Close",
+  "Profil joueur": "Player profile",
+  "ÉJECTÉ": "EJECTED",
+  "NON PRIS EN JEU": "DID NOT PLAY",
   "FICHE JOUEUR": "PLAYER PROFILE",
   "RETOUR À L'EFFECTIF": "BACK TO ROSTER",
   "ÂGE": "AGE",
