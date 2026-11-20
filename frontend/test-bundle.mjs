@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 
 const bundle = await readFile("custom_components/nba_center/www/nba-center-card.js", "utf8");
 const source = await readFile("frontend/src/nba-center-card.js", "utf8");
+const translations = await readFile("frontend/src/translations.js", "utf8");
 const manifest = JSON.parse(await readFile("custom_components/nba_center/manifest.json", "utf8"));
 
 console.log("BUNDLE LENGTH", bundle.length, "SOURCE LENGTH", source.length);
@@ -103,11 +104,14 @@ assert.match(bundle, /Filtrer une équipe/, "interactive team search must be inc
 assert.match(bundle, /nba_center\/scoreboard/, "date-based scoreboard websocket command must be used");
 assert.match(bundle, /nba_center\/game_details/, "game details websocket command must be used");
 assert.match(bundle, /MATCH CENTER/, "interactive match overlay must be included");
-assert.match(bundle, /BOX SCORE · PLAYERS/, "full player box score view must be included in English");
+assert.match(source, /this\._t\("BOX SCORE · JOUEURS"\)/, "player box score label must use localization");
+assert.match(translations, /"BOX SCORE · JOUEURS": "BOX SCORE · PLAYERS"/, "player box score must have an English translation");
 assert.match(source, /game-leaders-grid/, "compact team leaders layout must be present");
 assert.match(source, /game-leader-value/, "team leader values must be visually highlighted");
-assert.match(bundle, /TEAM COMPARISON/, "team statistics comparison must be included in English");
-assert.match(bundle, /SCORING BY PERIOD/, "quarter-by-quarter scoreboard must be included in English");
+assert.match(source, /this\._t\("COMPARAISON DES ÉQUIPES"\)/, "team comparison label must use localization");
+assert.match(translations, /"COMPARAISON DES ÉQUIPES": "TEAM COMPARISON"/, "team comparison must have an English translation");
+assert.match(source, /this\._t\("SCORE PAR PÉRIODE"\)/, "quarter score label must use localization");
+assert.match(translations, /"SCORE PAR PÉRIODE": "SCORING BY PERIOD"/, "quarter score must have an English translation");
 assert.match(source, /ÉJECTÉ/, "player ejection status must be included");
 assert.match(bundle, /period_display/, "ESPN period display labels must be used in play-by-play");
 assert.match(source, /_quarterScorePanel\(\)/, "quarter score panel renderer must be present");
@@ -168,7 +172,7 @@ assert.match(source, /force: true/, "manual Match Center refresh must bypass cac
 assert.match(source, /ACTUALISER/, "Match Center play-by-play must expose a manual refresh button");
 assert.match(source, /const statPriority = \[[\s\S]*?"fieldGoalsMade-fieldGoalsAttempted"[\s\S]*?"totalRebounds"[\s\S]*?"assists"[\s\S]*?"steals"[\s\S]*?"blocks"[\s\S]*?"turnovers"[\s\S]*?"fouls"/, "team statistics must follow a stable basketball priority order");
 assert.match(source, /const priorityIndex = new Map\(statPriority\.map/, "unknown ESPN team statistics must remain supported after prioritized statistics");
-if (!source.includes("_playByPlayPanel") || !source.includes("POINTS SEULEMENT") || !bundle.includes("PLAY-BY-PLAY")) {
+if (!source.includes("_playByPlayPanel") || !source.includes("POINTS SEULEMENT") || !translations.includes('"FIL DU MATCH": "PLAY-BY-PLAY"')) {
   throw new Error("Play-by-play UI is missing from source or bundle");
 }
 
