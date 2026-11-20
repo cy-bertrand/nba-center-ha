@@ -39,7 +39,7 @@ assert.match(source, /team\.live\?\.state === "in"/, "favorite teams must show L
 assert.doesNotMatch(source, /\$\{team\.live \? html/, "favorite teams must not treat any live object as an active game");
 assert.match(source, /@media\(max-width:390px\)/, "NBA Center must include a compact narrow-phone layout");
 assert.match(source, /\.date-picker-control\{min-width:112px/, "score date picker must remain usable on narrow phones");
-assert.match(source, /return \{ label: "À VENIR", live: false, className: "scheduled" \}/, "upcoming game card must not duplicate its time in the footer");
+assert.match(source, /return \{ label: this\._t\("À VENIR"\), live: false, className: "scheduled" \}/, "upcoming game card must not duplicate its time in the footer");
 assert.match(source, /_teamSelectedSeason/, "team profile must retain its selected NBA season");
 assert.match(source, /type: "nba_center\/team_roster", team_id: String\(team\.id\), season_year: this\._teamSelectedSeason/, "team roster requests must include the selected season");
 assert.match(source, /_selectTeamSeason\(year\)/, "team profile must reload when its season changes");
