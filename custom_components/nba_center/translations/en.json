@@ -91,5 +91,17 @@
         "name": "{team_name} Recent games"
       }
     }
+  },
+  "services": {
+    "get_game_details": {
+      "name": "Game details",
+      "description": "Returns period scores and top players for an NBA game.",
+      "fields": {
+        "game_id": {
+          "name": "Game ID",
+          "description": "ESPN game ID (the id attribute of a recent game)."
+        }
+      }
+    }
   }
 }
