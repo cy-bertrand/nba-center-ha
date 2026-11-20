@@ -39,6 +39,10 @@ NBA Center HomeAssistant transforme votre Home Assistant en véritable centre de
 
 Les données sportives sont récupérées automatiquement depuis ESPN, sans clé API à configurer.
 
+### Langues et traductions
+
+L'interface de configuration Home Assistant et les principaux écrans de la carte Lovelace prennent en charge le français et l'anglais. La langue de la carte suit la langue de l'interface Home Assistant, avec le français comme langue de repli. Pour ajouter une langue ou traduire de nouveaux libellés, consultez le [guide des traductions](docs/TRANSLATIONS.md).
+
 ### Entités, capteurs et service Home Assistant
 
 Après la configuration, l'intégration crée l'appareil **NBA Center** et ses capteurs. Les capteurs principaux sont :

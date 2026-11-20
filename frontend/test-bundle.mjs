@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 
 const bundle = await readFile("custom_components/nba_center/www/nba-center-card.js", "utf8");
 const source = await readFile("frontend/src/nba-center-card.js", "utf8");
+const translations = await readFile("frontend/src/translations.js", "utf8");
 const manifest = JSON.parse(await readFile("custom_components/nba_center/manifest.json", "utf8"));
 
 console.log("BUNDLE LENGTH", bundle.length, "SOURCE LENGTH", source.length);
@@ -43,7 +44,7 @@ assert.match(source, /_teamSelectedSeason/, "team profile must retain its select
 assert.match(source, /type: "nba_center\/team_roster", team_id: String\(team\.id\), season_year: this\._teamSelectedSeason/, "team roster requests must include the selected season");
 assert.match(source, /_selectTeamSeason\(year\)/, "team profile must reload when its season changes");
 assert.match(source, /team-season-picker/, "team profile must expose a season selector");
-assert.match(source, /<h3>5 DERNIERS MATCHS<\/h3>/, "player game log heading must stay concise");
+assert.match(source, /this\._t\("5 DERNIERS MATCHS"\)/, "player game log heading must stay concise and translatable");
 assert.doesNotMatch(source, /5 DERNIERS MATCHS · STATS INDIVIDUELLES/, "player game log heading must not include extra subtitle");
 assert.match(source, /averageQuick\.map/, "season primary stats must show averages only, not games played or started");
 assert.doesNotMatch(source, /player-participation/, "games played and starts must not be rendered as separate tiles");
@@ -74,7 +75,7 @@ assert.match(source, /series\.unknown_results \? "≥" : ""/, "playoff wins must
 assert.match(source, /TÊTES DE SÉRIE NON VALIDÉES|Têtes de série non validées/, "unvalidated playoff seeds must be disclosed");
 assert.match(bundle, /TABLEAU DES PLAYOFFS/, "bundled card must include the playoff bracket inside standings center");
 assert.match(bundle, /NBA FINALS/, "bundled card must include NBA Finals");
-assert.match(bundle, /FORME RÉCENTE/, "favorite team recent form must be included");
+assert.match(bundle, /RECENT FORM/, "favorite team recent form must be included in English");
 assert.match(source, /_teamsCatalog\(\)/, "Teams Center must read the global franchise catalog sensor");
 assert.match(source, /_teamCatalogCard\(team\)/, "Teams Center must render lightweight franchise cards");
 assert.match(source, /nba_center\/team_roster/, "franchise detail must load its roster through Home Assistant websocket");
@@ -103,11 +104,14 @@ assert.match(bundle, /Filtrer une équipe/, "interactive team search must be inc
 assert.match(bundle, /nba_center\/scoreboard/, "date-based scoreboard websocket command must be used");
 assert.match(bundle, /nba_center\/game_details/, "game details websocket command must be used");
 assert.match(bundle, /MATCH CENTER/, "interactive match overlay must be included");
-assert.match(bundle, /BOX SCORE · JOUEURS/, "full player box score view must be included");
+assert.match(source, /this\._t\("BOX SCORE · JOUEURS"\)/, "player box score label must use localization");
+assert.match(translations, /"BOX SCORE · JOUEURS": "BOX SCORE · PLAYERS"/, "player box score must have an English translation");
 assert.match(source, /game-leaders-grid/, "compact team leaders layout must be present");
 assert.match(source, /game-leader-value/, "team leader values must be visually highlighted");
-assert.match(bundle, /COMPARAISON DES ÉQUIPES/, "team statistics comparison must be included");
-assert.match(bundle, /SCORE PAR PÉRIODE/, "quarter-by-quarter scoreboard must be included");
+assert.match(source, /this\._t\("COMPARAISON DES ÉQUIPES"\)/, "team comparison label must use localization");
+assert.match(translations, /"COMPARAISON DES ÉQUIPES": "TEAM COMPARISON"/, "team comparison must have an English translation");
+assert.match(source, /this\._t\("SCORE PAR PÉRIODE"\)/, "quarter score label must use localization");
+assert.match(translations, /"SCORE PAR PÉRIODE": "SCORING BY PERIOD"/, "quarter score must have an English translation");
 assert.match(source, /ÉJECTÉ/, "player ejection status must be included");
 assert.match(bundle, /period_display/, "ESPN period display labels must be used in play-by-play");
 assert.match(source, /_quarterScorePanel\(\)/, "quarter score panel renderer must be present");
@@ -168,11 +172,11 @@ assert.match(source, /force: true/, "manual Match Center refresh must bypass cac
 assert.match(source, /ACTUALISER/, "Match Center play-by-play must expose a manual refresh button");
 assert.match(source, /const statPriority = \[[\s\S]*?"fieldGoalsMade-fieldGoalsAttempted"[\s\S]*?"totalRebounds"[\s\S]*?"assists"[\s\S]*?"steals"[\s\S]*?"blocks"[\s\S]*?"turnovers"[\s\S]*?"fouls"/, "team statistics must follow a stable basketball priority order");
 assert.match(source, /const priorityIndex = new Map\(statPriority\.map/, "unknown ESPN team statistics must remain supported after prioritized statistics");
-if (!source.includes("_playByPlayPanel") || !source.includes("POINTS SEULEMENT") || !bundle.includes("FIL DU MATCH")) {
+if (!source.includes("_playByPlayPanel") || !source.includes("POINTS SEULEMENT") || !translations.includes('"FIL DU MATCH": "PLAY-BY-PLAY"')) {
   throw new Error("Play-by-play UI is missing from source or bundle");
 }
 
-if (!source.includes("aria-label=\"Actualiser les détails du match\"") || !bundle.includes("RÉESSAYER")) {
+if (!source.includes("aria-label=\"Actualiser les détails du match\"") || !translations.includes('"RÉESSAYER": "RETRY"')) {
   throw new Error("Match detail refresh/error state is missing");
 }
 
@@ -201,7 +205,7 @@ assert.match(source, /postseason_year: seasonYear/, "postseason selector must re
 assert.match(source, /const selectedPlayoffSeason = seasonHistory\.find/, "playoff selector must resolve its own selected season");
 assert.match(source, /this\._playerSelectedPlayoffSeason \|\| seasonHistory\[0\]\?\.year/, "playoff selector must not inherit the regular-season selection");
 assert.match(source, /selectedPlayoffSeason\?\.display_name/, "playoff season heading must use the actual NBA season label");
-assert.ok(source.includes("ÉTAT MÉDICAL</small>"), "player medical status must occupy a profile grid cell");
+assert.ok(source.includes("this._t(\"ÉTAT MÉDICAL\")"), "player medical status must occupy a translatable profile grid cell");
 assert.doesNotMatch(source, /5 DERNIERS MATCHS · PLAYOFFS/, "player profile must not duplicate the recent game log for playoffs");
 
 assert.match(source, /playoff_\$\{key\}/, "Players Center must resolve dedicated playoff leaderboard entities");
@@ -209,7 +213,7 @@ assert.match(source, /SAISON RÉGULIÈRE/, "Players Center must expose regular-s
 assert.match(source, /PLAYOFFS/, "Players Center must expose playoff leaderboards");
 assert.match(source, /_leaderPanel\(key,10,postseason,this\._playersLeaders\.leaders/, "Players Center must render top-ten leaders for the selected phase");
 assert.ok(source.includes(".standing-team-button img{display:block;width:28px;height:28px"), "standings team logos must be constrained to compact icons");
-assert.ok(source.includes("<th>SÉRIE</th>"), "standings table must include the streak column");
+assert.ok(source.includes("this._t(\"SÉRIE\")"), "standings streak heading must use localization");
 assert.ok(source.includes("value(r.streak)"), "standings streak column must use the ESPN streak value");
 assert.ok(source.includes("_standingsResultsCache = new Map()"), "standings seasons must be cached in the card");
 assert.ok(source.includes("_playoffResultsCache = new Map()"), "playoff seasons must be cached in the card");
