@@ -22,6 +22,18 @@ blueprint:
       default: true
       selector:
         boolean:
+    notification_language:
+      name: Langue des notifications
+      description: Langue utilisée pour le titre et le message des notifications.
+      default: fr
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: Français
+              value: fr
+            - label: English
+              value: en
     team_filter:
       name: Équipe à suivre
       description: Toutes les équipes favorites, ou une seule équipe précise.
@@ -97,6 +109,7 @@ trigger_variables:
   notify_start: !input notify_start
   notify_end: !input notify_end
   team_filter: !input team_filter
+  notification_language: !input notification_language
 
 trigger:
   - platform: event
@@ -120,23 +133,36 @@ action:
     target: !input notify_targets
     data:
       title: >
-        {% if trigger.id == 'start' %}
-          🏀 Match commencé : {{ trigger.event.data.away }} @ {{ trigger.event.data.home }}
+        {% if notification_language == 'en' %}
+          {% if trigger.id == 'start' %}
+            🏀 Game started: {{ trigger.event.data.away }} @ {{ trigger.event.data.home }}
+          {% else %}
+            🏁 Game ended: {{ trigger.event.data.away }} @ {{ trigger.event.data.home }}
+          {% endif %}
         {% else %}
-          🏁 Match terminé : {{ trigger.event.data.away }} @ {{ trigger.event.data.home }}
+          {% if trigger.id == 'start' %}
+            🏀 Match commencé : {{ trigger.event.data.away }} @ {{ trigger.event.data.home }}
+          {% else %}
+            🏁 Match terminé : {{ trigger.event.data.away }} @ {{ trigger.event.data.home }}
+          {% endif %}
         {% endif %}
       message: >
         {% set a = trigger.event.data.away_score | int(0) %}
         {% set h = trigger.event.data.home_score | int(0) %}
         {% if trigger.id == 'start' %}
-          Coup d'envoi ! {{ trigger.event.data.away }} - {{ trigger.event.data.home }}
-          ({{ now().strftime('%H:%M') }})
+          {% if notification_language == 'en' %}
+            Tip-off! {{ trigger.event.data.away }} - {{ trigger.event.data.home }}
+            ({{ now().strftime('%H:%M') }})
+          {% else %}
+            Coup d'envoi ! {{ trigger.event.data.away }} - {{ trigger.event.data.home }}
+            ({{ now().strftime('%H:%M') }})
+          {% endif %}
         {% else %}
           {{ trigger.event.data.away }} {{ a }} - {{ h }} {{ trigger.event.data.home }}
           {% if a > h %}
-            Victoire de {{ trigger.event.data.away }}
+            {% if notification_language == 'en' %}{{ trigger.event.data.away }} win{% else %}Victoire de {{ trigger.event.data.away }}{% endif %}
           {% elif h > a %}
-            Victoire de {{ trigger.event.data.home }}
+            {% if notification_language == 'en' %}{{ trigger.event.data.home }} win{% else %}Victoire de {{ trigger.event.data.home }}{% endif %}
           {% endif %}
         {% endif %}
 mode: queued
