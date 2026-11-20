@@ -230,7 +230,8 @@ const EN = {
   "INTERCEPTIONS": "STEALS",
   "CONTRES": "BLOCKS",
   "ans": "years",
-  "m": "g",
+  // Abbreviation: French "matchs" -> English "games".
+  "m": "G",
   "FAVORIS": "FAVORITES",
   "VOIR LES": "VIEW",
   "Données en cache": "Cached data",
