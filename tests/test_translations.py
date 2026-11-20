@@ -1,5 +1,6 @@
 """Tests for Home Assistant entity and service translations."""
 import json
+import re
 import unittest
 from pathlib import Path
 
