@@ -76,7 +76,7 @@ class NBACenterCard extends LitElement {
     .eyebrow{color:#e8b74e;font-size:12px;font-weight:800;letter-spacing:.24em}
     h1{margin:8px 0 4px;font-size:clamp(30px,4.8vw,43.2px);line-height:1;letter-spacing:-.045em;font-weight:950}
     .subtitle{color:#aab6ca;font-size:14.4px}
-    .meta{display:flex;gap:8px;align-items:center;margin-top:14px;color:#aab6ca;font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+    .meta{display:flex;gap:5px;align-items:center;margin-top:12px;color:#aab6ca;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
     .data-health{padding:4px 7px;border-radius:999px;font-size:10.8px;font-weight:900;letter-spacing:.06em}.data-health.healthy{color:#83d8a9;background:#83d8a91a}.data-health.degraded{color:#ffca70;background:#ffca701a}
     .data-warning{margin-top:12px;padding:9px 11px;border:1px solid #8b6838;border-radius:9px;background:#8b68381c;color:#f2d19a;font-size:12px;line-height:1.5}
     .dot{width:7px;height:7px;border-radius:50%;background:#e8b74e;box-shadow:0 0 0 4px #e8b74e22}
