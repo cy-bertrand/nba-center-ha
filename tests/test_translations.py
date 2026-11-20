@@ -43,9 +43,19 @@ class TranslationTests(unittest.TestCase):
         ):
             self.assertIn(pattern, source)
 
+    def test_game_notification_blueprint_supports_both_message_languages(self):
+        blueprint = (
+            COMPONENT / "blueprints" / "automation" / "nba_game_notification.yaml"
+        ).read_text(encoding="utf-8")
+        self.assertIn("notification_language: !input notification_language", blueprint)
+        self.assertIn("value: fr", blueprint)
+        self.assertIn("value: en", blueprint)
+        for phrase in ("Game started:", "Game ended:", "Tip-off!", "Match commencé", "Match terminé", "Coup d'envoi"):
+            self.assertIn(phrase, blueprint)
+
     def test_game_notification_blueprint_has_french_and_english_metadata(self):
         root = COMPONENT / "translations" / "blueprints" / "automation" / "nba_game_notification"
-        expected = ("notify_targets", "notify_start", "notify_end", "team_filter")
+        expected = ("notify_targets", "notify_start", "notify_end", "team_filter", "notification_language")
         for language in ("en", "fr"):
             source = (root / f"{language}.yaml").read_text(encoding="utf-8")
             self.assertIn("blueprint:", source)
