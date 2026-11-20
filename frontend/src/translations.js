@@ -273,6 +273,13 @@ const EN = {
   "Les statistiques des playoffs sont récupérées séparément. Elles apparaîtront ici dès qu'ESPN publiera les données de postseason pour cette saison.": "Playoff statistics are retrieved separately. They will appear here once ESPN publishes postseason data for this season.",
   "CAREER": "CAREER",
   "Voir le profil de": "View profile of",
+  "Ouvrir le profil de": "Open profile of",
+  "Fermer la série": "Close series",
+  "EASTERN CONFERENCE": "EASTERN CONFERENCE",
+  "WESTERN CONFERENCE": "WESTERN CONFERENCE",
+  "Tableau de conférence indisponible": "Conference bracket unavailable",
+  "Données du joueur indisponibles.": "Player data unavailable.",
+  "Résumé du match indisponible.": "Game summary unavailable.",
 };
 export function translate(key, language = "fr") {
   const locale = String(language || "fr").toLowerCase().replace("_", "-");
