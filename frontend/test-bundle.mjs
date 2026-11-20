@@ -100,7 +100,7 @@ assert.match(source, /Rechercher une équipe/, "Teams Center must include franch
 assert.match(source, /EAST/, "Teams Center must include conference filtering");
 assert.match(source, /WEST/, "Teams Center must include conference filtering");
 assert.match(bundle, /EASTERN CONFERENCE/, "standings view must be included");
-assert.match(bundle, /Filtrer une équipe/, "interactive team search must be included");
+assert.match(bundle, /Filter teams/, "interactive team search must be included");
 assert.match(bundle, /nba_center\/scoreboard/, "date-based scoreboard websocket command must be used");
 assert.match(bundle, /nba_center\/game_details/, "game details websocket command must be used");
 assert.match(bundle, /MATCH CENTER/, "interactive match overlay must be included");
