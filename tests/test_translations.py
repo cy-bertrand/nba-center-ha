@@ -181,6 +181,24 @@ class TranslationTests(unittest.TestCase):
         self.assertIn('this._t("ans")', frontend)
         self.assertNotIn('this._selectedPlayer.experience_years} ans', frontend)
 
+    def test_remaining_navigation_and_accessibility_labels_are_localized(self):
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
+        for key in ("Navigation NBA Center", "Choisir la saison", "Choisir la saison des playoffs",
+                    "Choisir la saison des classements joueurs", "Choisir la saison NBA",
+                    "Voir le match du", "contre", "NBA FINALS"):
+            self.assertIn(f'"{key}"', translations)
+        for expression in ('this._t(v.label)', 'this._t(active.label)', 'this._t("NBA FINALS")',
+                           'this._t("LIVE")', 'this._t("Navigation NBA Center")',
+                           'this._t("Choisir la saison")', 'this._t("Choisir la saison des playoffs")',
+                           'this._t("Choisir la saison des classements joueurs")',
+                           'this._t("Choisir la saison NBA")', 'this._t("MATCH")'):
+            self.assertIn(expression, frontend)
+        self.assertIn('"contre": "against"', translations)
+        self.assertIn('"Voir le match du": "View game on"', translations)
+        for key in ('ACCUEIL', 'SCORES', 'ÉQUIPES', 'JOUEURS', 'CLASSEMENT'):
+            self.assertIn(f'label: "{key}"', frontend)
+
     def test_frontend_translation_dictionary_has_no_duplicate_keys(self):
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
         keys = re.findall(r'^  ("(?:[^"\\\\]|\\\\.)*")\\s*:', translations, re.MULTILINE)
