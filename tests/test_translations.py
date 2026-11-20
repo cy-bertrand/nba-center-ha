@@ -43,6 +43,15 @@ class TranslationTests(unittest.TestCase):
         ):
             self.assertIn(pattern, source)
 
+    def test_game_notification_blueprint_has_french_and_english_metadata(self):
+        root = COMPONENT / "translations" / "blueprints" / "automation" / "nba_game_notification"
+        expected = ("notify_targets", "notify_start", "notify_end", "team_filter")
+        for language in ("en", "fr"):
+            source = (root / f"{language}.yaml").read_text(encoding="utf-8")
+            self.assertIn("blueprint:", source)
+            for key in expected:
+                self.assertIn(f"    {key}:", source, f"{language}: {key}")
+
     def test_game_details_service_is_translated_in_all_languages(self):
         files = self._translations()
         source = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
