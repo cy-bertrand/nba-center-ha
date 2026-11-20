@@ -396,7 +396,7 @@ class NBACenterCard extends LitElement {
               </section>` : ""}
             ${!this._selectedPlayer && this._teamRoster?.standing ? html`
               <section class="panel team-season-summary">
-                <div class="panel-head"><h3>${this._t("SAISON RÉGULIÈRE")}</h3><span class="pill">${value(this._teamRoster.standing.rank, "—")} ${this._t("PLACE")}</span></div>
+                <div class="panel-head"><h3>${this._t("SAISON RÉGULIÈRE")}</h3><span class="pill">#${value(this._teamRoster.standing.rank, "—")}</span></div>
                 <div class="team-standing-grid ${this._teamSelectedSeason === (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) ? "current" : "historical"}">
                   <div><small>${this._t("BILAN")}</small><strong>${value(this._teamRoster.standing.wins)}–${value(this._teamRoster.standing.losses)}</strong></div>
                   <div><small>${this._t("% VICTOIRES")}</small><strong>${value(this._teamRoster.standing.pct)}</strong></div>
