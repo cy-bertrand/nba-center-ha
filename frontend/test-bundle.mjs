@@ -153,8 +153,8 @@ assert.match(source, /_setPlayersPhase/, "Players Center must separate regular s
 assert.match(source, /_playersLeadersCache/, "Players Center must cache leaderboards by season and phase");
 
 
-const translationKeys = new Set([...translations.matchAll(/^\\s*"((?:[^"\\\\]|\\\\.)+)"\\s*:/gm)].map((match) => match[1]));
-for (const [, key] of source.matchAll(/this\\._t\\("((?:[^"\\\\]|\\\\.)+)"\\)/g)) {
+const translationKeys = new Set([...translations.matchAll(/^\\s*"((?:[^"\\\\]|\\.)+)"\\s*:/gm)].map((match) => match[1]));
+for (const [, key] of source.matchAll(/this\\._t\\("((?:[^"\\\\]|\\.)+)"\\)/g)) {
   assert.ok(translationKeys.has(key), `Missing English translation for Lovelace label: ${key}`);
 }
 assert.match(source, /this\\.hass\\?\\.locale\\?\\.language/, "Lovelace translations must follow the Home Assistant UI language");
