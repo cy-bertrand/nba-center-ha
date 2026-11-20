@@ -103,11 +103,11 @@ assert.match(bundle, /Filtrer une équipe/, "interactive team search must be inc
 assert.match(bundle, /nba_center\/scoreboard/, "date-based scoreboard websocket command must be used");
 assert.match(bundle, /nba_center\/game_details/, "game details websocket command must be used");
 assert.match(bundle, /MATCH CENTER/, "interactive match overlay must be included");
-assert.match(bundle, /BOX SCORE · JOUEURS/, "full player box score view must be included");
+assert.match(bundle, /BOX SCORE · PLAYERS/, "full player box score view must be included in English");
 assert.match(source, /game-leaders-grid/, "compact team leaders layout must be present");
 assert.match(source, /game-leader-value/, "team leader values must be visually highlighted");
-assert.match(bundle, /COMPARAISON DES ÉQUIPES/, "team statistics comparison must be included");
-assert.match(bundle, /SCORE PAR PÉRIODE/, "quarter-by-quarter scoreboard must be included");
+assert.match(bundle, /TEAM COMPARISON/, "team statistics comparison must be included in English");
+assert.match(bundle, /SCORING BY PERIOD/, "quarter-by-quarter scoreboard must be included in English");
 assert.match(source, /ÉJECTÉ/, "player ejection status must be included");
 assert.match(bundle, /period_display/, "ESPN period display labels must be used in play-by-play");
 assert.match(source, /_quarterScorePanel\(\)/, "quarter score panel renderer must be present");
@@ -168,7 +168,7 @@ assert.match(source, /force: true/, "manual Match Center refresh must bypass cac
 assert.match(source, /ACTUALISER/, "Match Center play-by-play must expose a manual refresh button");
 assert.match(source, /const statPriority = \[[\s\S]*?"fieldGoalsMade-fieldGoalsAttempted"[\s\S]*?"totalRebounds"[\s\S]*?"assists"[\s\S]*?"steals"[\s\S]*?"blocks"[\s\S]*?"turnovers"[\s\S]*?"fouls"/, "team statistics must follow a stable basketball priority order");
 assert.match(source, /const priorityIndex = new Map\(statPriority\.map/, "unknown ESPN team statistics must remain supported after prioritized statistics");
-if (!source.includes("_playByPlayPanel") || !source.includes("POINTS SEULEMENT") || !bundle.includes("FIL DU MATCH")) {
+if (!source.includes("_playByPlayPanel") || !source.includes("POINTS SEULEMENT") || !bundle.includes("PLAY-BY-PLAY")) {
   throw new Error("Play-by-play UI is missing from source or bundle");
 }
 
