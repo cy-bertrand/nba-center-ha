@@ -287,6 +287,8 @@ const EN = {
   "Fermer la photo": "Close photo",
   "Photo de": "Photo of",
   "Certaines sources ESPN sont indisponibles :": "Some ESPN feeds are unavailable:",
+  "N° —": "No. —",
+  "Voir le match": "View game",
 };
 export function translate(key, language = "fr") {
   const locale = String(language || "fr").toLowerCase().replace("_", "-");
