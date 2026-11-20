@@ -13,7 +13,7 @@ assert.match(bundle, /customElements\.define/, "custom element must be registere
 assert.match(bundle, /window\.customCards/, "Lovelace card metadata must be exposed");
 assert.match(bundle, /SCORES & CALENDRIER/, "scores view must be included");
 assert.match(bundle, /PLAYERS CENTER/, "players view must be included");
-assert.match(source, /\{ id: "stats", label: "STANDINGS" \}/, "standings must be the unified navigation destination");
+assert.match(source, /\{ id: "stats", label: "CLASSEMENT" \}/, "standings must be the unified navigation destination");
 assert.doesNotMatch(source, /\{ id: "playoffs", label: "PLAYOFFS" \}/, "standalone PLAYOFFS navigation tab must be removed");
 assert.match(source, /nba_center\/standings/, "historical regular-season standings must load through websocket");
 assert.match(source, /_loadHistoricalStandings/, "season selector must load historical standings");
