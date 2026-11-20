@@ -45,7 +45,7 @@ class TranslationTests(unittest.TestCase):
 
     def test_data_status_sensor_exposes_stable_machine_identifiers(self):
         sensor = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
-        frontend = (COMPONENT / "www" / "nba-center-card.js").read_text(encoding="utf-8")
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
         self.assertIn('"status_key": "degraded" if data.get("data_stale") or errors else "up_to_date"', sensor)
         self.assertIn('"scope_key": "main_data"', sensor)
         self.assertIn('e.attributes?.scope_key==="main_data"', frontend)
@@ -54,7 +54,7 @@ class TranslationTests(unittest.TestCase):
 
     def test_leader_sensors_expose_stable_category_identifiers(self):
         sensor = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
-        frontend = (COMPONENT / "www" / "nba-center-card.js").read_text(encoding="utf-8")
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
         self.assertIn('"category_key": self._key', sensor)
         self.assertIn('"category_scope": "season"', sensor)
         self.assertIn('"category_scope": "playoffs"', sensor)
@@ -113,20 +113,21 @@ class TranslationTests(unittest.TestCase):
 
     def test_frontend_visible_labels_use_translation_helper(self):
         frontend = (COMPONENT / "www" / "nba-center-card.js").read_text(encoding="utf-8")
+        translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
         expected = {
-            '"EN DIRECT":"LIVE"',
-            '"AUCUN MATCH LIVE":"NO LIVE GAMES"',
-            '"MATCHS":"GAMES"',
-            '"FRANCHISES":"FRANCHISES"',
-            '"Modifie la recherche ou le filtre de conférence.":"Change the search or conference filter."',
-            '"SÉRIES":"SERIES"',
-            '"Fermer":"Close"',
-            '"Profil joueur":"Player profile"',
-            '"ÉJECTÉ":"EJECTED"',
-            '"NON PRIS EN JEU":"DID NOT PLAY"',
+            '"EN DIRECT": "LIVE"',
+            '"AUCUN MATCH LIVE": "NO LIVE GAMES"',
+            '"MATCHS": "GAMES"',
+            '"FRANCHISES": "FRANCHISES"',
+            '"Modifie la recherche ou le filtre de conférence.": "Change the search or conference filter."',
+            '"SÉRIES": "SERIES"',
+            '"Fermer": "Close"',
+            '"Profil joueur": "Player profile"',
+            '"ÉJECTÉ": "EJECTED"',
+            '"NON PRIS EN JEU": "DID NOT PLAY"',
         }
         for entry in expected:
-            self.assertIn(entry, frontend)
+            self.assertIn(entry, translations)
 
         for expression in (
             'this._t("EN DIRECT")',
@@ -137,16 +138,16 @@ class TranslationTests(unittest.TestCase):
             'this._t("SÉRIES")',
             'this._t("Fermer")',
             'this._t("Profil joueur")',
-            'this._t("\\xC9JECT\\xC9")',
+            'this._t("ÉJECTÉ")',
             'this._t("NON PRIS EN JEU")',
         ):
             self.assertIn(expression, frontend)
 
         for untranslated in (
-            '0} MATCHS</span>',
-            '0}/30 FRANCHISES</span>',
-            'aria-label="Fermer"',
-            'aria-label="Profil joueur"',
+            '${next.length} MATCHS',
+            '${catalog.count}/30 FRANCHISES',
+            '"ÉJECTÉ"',
+            '"NON PRIS EN JEU"',
         ):
             self.assertNotIn(untranslated, frontend)
 
