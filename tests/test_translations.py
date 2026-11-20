@@ -43,6 +43,15 @@ class TranslationTests(unittest.TestCase):
         ):
             self.assertIn(pattern, source)
 
+    def test_data_status_sensor_exposes_stable_machine_identifiers(self):
+        sensor = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
+        frontend = (COMPONENT / "www" / "nba-center-card.js").read_text(encoding="utf-8")
+        self.assertIn('"status_key": "degraded" if data.get("data_stale") or errors else "up_to_date"', sensor)
+        self.assertIn('"scope_key": "main_data"', sensor)
+        self.assertIn('e.attributes?.scope_key==="main_data"', frontend)
+        # Keep the legacy scope lookup while existing installations update.
+        self.assertIn('e.attributes?.scope==="scoreboard, standings, calendriers favoris, classements et catalogue des équipes"', frontend)
+
     def test_game_notification_blueprint_supports_both_message_languages(self):
         blueprint = (
             COMPONENT / "blueprints" / "automation" / "nba_game_notification.yaml"
