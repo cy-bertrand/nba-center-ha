@@ -291,6 +291,10 @@ const EN = {
   "Certaines sources ESPN sont indisponibles :": "Some ESPN feeds are unavailable:",
   "N° —": "No. —",
   "Voir le match": "View game",
+  "Effectif indisponible.": "Roster unavailable.",
+  "Impossible de charger le classement de cette saison.": "Unable to load this season standings.",
+  "Photo du joueur en grand": "Enlarged player photo",
+  "Joueur NBA": "NBA player",
 };
 export function translate(key, language = "fr") {
   const locale = String(language || "fr").toLowerCase().replace("_", "-");
