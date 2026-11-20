@@ -158,6 +158,8 @@ for (const [, key] of source.matchAll(/this\._t\("((?:[^"\\]|\\.)+)"\)/g)) {
   assert.ok(translationKeys.has(key), "Missing English translation for Lovelace label: " + key);
 }
 assert.match(source, /this\.hass\?\.locale\?\.language/, "Lovelace translations must follow the Home Assistant UI language");
+assert.match(source, /const statusKey = dataStatus\?\.attributes\?\.status_key/, "data health must prefer the locale-independent status key");
+assert.match(source, /statusKey \? statusKey !== "up_to_date" : dataStatus\?\.state !== "À jour"/, "legacy data health sensors must keep their French-state fallback");
 
 console.log("NBA Center frontend bundle and feature checks passed.");
 
