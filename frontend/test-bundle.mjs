@@ -213,7 +213,7 @@ assert.match(source, /SAISON RÉGULIÈRE/, "Players Center must expose regular-s
 assert.match(source, /PLAYOFFS/, "Players Center must expose playoff leaderboards");
 assert.match(source, /_leaderPanel\(key,10,postseason,this\._playersLeaders\.leaders/, "Players Center must render top-ten leaders for the selected phase");
 assert.ok(source.includes(".standing-team-button img{display:block;width:28px;height:28px"), "standings team logos must be constrained to compact icons");
-assert.ok(source.includes("<th>SÉRIE</th>"), "standings table must include the streak column");
+assert.ok(source.includes("this._t(\"SÉRIE\")"), "standings streak heading must use localization");
 assert.ok(source.includes("value(r.streak)"), "standings streak column must use the ESPN streak value");
 assert.ok(source.includes("_standingsResultsCache = new Map()"), "standings seasons must be cached in the card");
 assert.ok(source.includes("_playoffResultsCache = new Map()"), "playoff seasons must be cached in the card");
