@@ -148,7 +148,10 @@ class TranslationTests(unittest.TestCase):
             "Ouvrir le profil de",
         ):
             self.assertIn(f'"{key}"', translations)
-            self.assertIn(f'this._t("{key}")', frontend)
+            if key in ("EASTERN CONFERENCE", "WESTERN CONFERENCE"):
+                self.assertIn(`this._t(conference === "east" ? "EASTERN CONFERENCE" : conference === "west" ? "WESTERN CONFERENCE"`, frontend)
+            else:
+                self.assertIn(f'this._t("{key}")', frontend)
         self.assertIn('this._formatDate(raw, fallback = "", empty = this._t("Date à confirmer"))', frontend)
         self.assertIn('detail: this._t("TERMINÉ")', frontend)
 
