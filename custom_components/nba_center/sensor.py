@@ -254,6 +254,9 @@ class NBADataStatusSensor(NBABaseSensor):
         errors = data.get("data_errors") or []
         return {
             "stale": bool(data.get("data_stale")),
+            # Stable machine-readable identifiers; keep legacy labels for compatibility.
+            "status_key": "degraded" if data.get("data_stale") or errors else "up_to_date",
+            "scope_key": "main_data",
             "scope": "scoreboard, standings, calendriers favoris, classements et catalogue des équipes",
             "errors": errors,
             "error_count": len(errors),
