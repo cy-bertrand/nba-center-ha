@@ -30,5 +30,66 @@
     "error": {
       "cannot_connect": "Unable to reach ESPN; saved or cached teams are shown."
     }
+  },
+  "entity": {
+    "sensor": {
+      "today_games": {
+        "name": "Today's games"
+      },
+      "east_standings": {
+        "name": "Eastern Conference standings"
+      },
+      "west_standings": {
+        "name": "Western Conference standings"
+      },
+      "leaders_points": {
+        "name": "Scoring leaders"
+      },
+      "leaders_rebounds": {
+        "name": "Rebounding leaders"
+      },
+      "leaders_assists": {
+        "name": "Assist leaders"
+      },
+      "leaders_steals": {
+        "name": "Steals leaders"
+      },
+      "leaders_blocks": {
+        "name": "Blocks leaders"
+      },
+      "playoff_leaders_points": {
+        "name": "Playoff scoring leaders"
+      },
+      "playoff_leaders_rebounds": {
+        "name": "Playoff rebounding leaders"
+      },
+      "playoff_leaders_assists": {
+        "name": "Playoff assist leaders"
+      },
+      "playoff_leaders_steals": {
+        "name": "Playoff steals leaders"
+      },
+      "playoff_leaders_blocks": {
+        "name": "Playoff blocks leaders"
+      },
+      "teams_catalog": {
+        "name": "Teams catalog"
+      },
+      "data_status": {
+        "name": "Main data status"
+      },
+      "team_last": {
+        "name": "{team_name} Last game"
+      },
+      "team_next": {
+        "name": "{team_name} Next game"
+      },
+      "team_live": {
+        "name": "{team_name} Live game"
+      },
+      "team_recent_games": {
+        "name": "{team_name} Recent games"
+      }
+    }
   }
 }

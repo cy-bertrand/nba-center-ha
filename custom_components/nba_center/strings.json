@@ -30,5 +30,66 @@
     "error": {
       "cannot_connect": "Impossible de joindre ESPN ; les équipes enregistrées ou en cache sont proposées."
     }
+  },
+  "entity": {
+    "sensor": {
+      "today_games": {
+        "name": "Matchs du jour"
+      },
+      "east_standings": {
+        "name": "Classement Est"
+      },
+      "west_standings": {
+        "name": "Classement Ouest"
+      },
+      "leaders_points": {
+        "name": "Meilleurs marqueurs"
+      },
+      "leaders_rebounds": {
+        "name": "Meilleurs rebondeurs"
+      },
+      "leaders_assists": {
+        "name": "Meilleurs passeurs"
+      },
+      "leaders_steals": {
+        "name": "Meilleurs intercepteurs"
+      },
+      "leaders_blocks": {
+        "name": "Meilleurs contreurs"
+      },
+      "playoff_leaders_points": {
+        "name": "Meilleurs marqueurs playoffs"
+      },
+      "playoff_leaders_rebounds": {
+        "name": "Meilleurs rebondeurs playoffs"
+      },
+      "playoff_leaders_assists": {
+        "name": "Meilleurs passeurs playoffs"
+      },
+      "playoff_leaders_steals": {
+        "name": "Meilleurs intercepteurs playoffs"
+      },
+      "playoff_leaders_blocks": {
+        "name": "Meilleurs contreurs playoffs"
+      },
+      "teams_catalog": {
+        "name": "Catalogue des équipes"
+      },
+      "data_status": {
+        "name": "État du flux principal"
+      },
+      "team_last": {
+        "name": "{team_name} Dernier match"
+      },
+      "team_next": {
+        "name": "{team_name} Prochain match"
+      },
+      "team_live": {
+        "name": "{team_name} Match en cours"
+      },
+      "team_recent_games": {
+        "name": "{team_name} Derniers matchs"
+      }
+    }
   }
 }

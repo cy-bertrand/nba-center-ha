@@ -28,9 +28,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         entities.append(NBAPostseasonLeadersSensor(coordinator, key))
     for team_id in coordinator.teams:
         entities += [
-            NBATeamSensor(coordinator, team_id, "last", "Dernier match"),
-            NBATeamSensor(coordinator, team_id, "next", "Prochain match"),
-            NBATeamSensor(coordinator, team_id, "live", "Match en cours"),
+            NBATeamSensor(coordinator, team_id, "last"),
+            NBATeamSensor(coordinator, team_id, "next"),
+            NBATeamSensor(coordinator, team_id, "live"),
             NBARecentGamesSensor(coordinator, team_id),
         ]
     async_add_entities(entities)
@@ -50,7 +50,7 @@ class NBABaseSensor(CoordinatorEntity[NBACoordinator], SensorEntity):
 
 
 class NBATodayGamesSensor(NBABaseSensor):
-    _attr_name = "Matchs du jour"
+    _attr_translation_key = "today_games"
     _attr_icon = "mdi:basketball"
 
     def __init__(self, coordinator: NBACoordinator) -> None:
@@ -72,7 +72,7 @@ class NBAStandingsSensor(NBABaseSensor):
     def __init__(self, coordinator: NBACoordinator, conference: str, slug: str) -> None:
         super().__init__(coordinator)
         self._conf = conference
-        self._attr_name = f"Classement {'Est' if slug == 'east' else 'Ouest'}"
+        self._attr_translation_key = f"{slug}_standings"
         self._attr_unique_id = f"{DOMAIN}_standings_{slug}"
 
     def _rows(self) -> list[dict]:
@@ -99,7 +99,7 @@ class NBALeadersSensor(NBABaseSensor):
     def __init__(self, coordinator: NBACoordinator, key: str) -> None:
         super().__init__(coordinator)
         self._key = key
-        self._attr_name = f"Meilleurs {LEADER_CATEGORIES[key][0].lower()}"
+        self._attr_translation_key = f"leaders_{key}"
         self._attr_unique_id = f"{DOMAIN}_leaders_{key}"
 
     def _rows(self) -> list[dict]:
@@ -125,7 +125,7 @@ class NBAPostseasonLeadersSensor(NBABaseSensor):
     def __init__(self, coordinator: NBACoordinator, key: str) -> None:
         super().__init__(coordinator)
         self._key = key
-        self._attr_name = f"Meilleurs {LEADER_CATEGORIES[key][0].lower()} playoffs"
+        self._attr_translation_key = f"playoff_leaders_{key}"
         self._attr_unique_id = f"{DOMAIN}_playoff_leaders_{key}"
 
     def _rows(self) -> list[dict]:
@@ -143,12 +143,13 @@ class NBAPostseasonLeadersSensor(NBABaseSensor):
 
 
 class NBATeamSensor(NBABaseSensor):
-    def __init__(self, coordinator: NBACoordinator, team_id: str, kind: str, label: str) -> None:
+    def __init__(self, coordinator: NBACoordinator, team_id: str, kind: str) -> None:
         super().__init__(coordinator)
         self._team_id = team_id
         self._kind = kind
         info = coordinator.data["teams"][team_id]
-        self._attr_name = f"{info['name']} {label}"
+        self._attr_translation_key = f"team_{kind}"
+        self._attr_translation_placeholders = {"team_name": info["name"]}
         self._attr_unique_id = f"{DOMAIN}_{team_id}_{kind}"
         self._attr_icon = {"last": "mdi:history", "next": "mdi:calendar-clock", "live": "mdi:basketball-hoop"}[kind]
 
@@ -183,7 +184,8 @@ class NBARecentGamesSensor(NBABaseSensor):
         super().__init__(coordinator)
         self._team_id = team_id
         info = coordinator.data["teams"][team_id]
-        self._attr_name = f"{info['name']} Derniers matchs"
+        self._attr_translation_key = "team_recent_games"
+        self._attr_translation_placeholders = {"team_name": info["name"]}
         self._attr_unique_id = f"{DOMAIN}_{team_id}_recent"
 
     def _recent(self) -> list[dict]:
@@ -208,7 +210,7 @@ class NBARecentGamesSensor(NBABaseSensor):
 class NBATeamsCatalogSensor(NBABaseSensor):
     """Catalogue global des 30 franchises NBA, sans capteur par équipe."""
 
-    _attr_name = "Catalogue des équipes"
+    _attr_translation_key = "teams_catalog"
     _attr_icon = "mdi:basketball"
 
     def __init__(self, coordinator: NBACoordinator) -> None:
@@ -234,7 +236,7 @@ class NBATeamsCatalogSensor(NBABaseSensor):
 class NBADataStatusSensor(NBABaseSensor):
     """État du scoreboard, des classements et calendriers favoris."""
 
-    _attr_name = "État du flux principal"
+    _attr_translation_key = "data_status"
     _attr_icon = "mdi:database-check"
 
     def __init__(self, coordinator: NBACoordinator) -> None:
