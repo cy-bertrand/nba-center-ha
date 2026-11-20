@@ -14,3 +14,6 @@ blueprint:
     team_filter:
       name: Équipe à suivre
       description: Toutes les équipes favorites, ou une seule équipe précise.
+    notification_language:
+      name: Langue des notifications
+      description: Langue utilisée pour le titre et le message des notifications.
