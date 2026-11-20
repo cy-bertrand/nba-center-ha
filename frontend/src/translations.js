@@ -280,6 +280,13 @@ const EN = {
   "Tableau de conférence indisponible": "Conference bracket unavailable",
   "Données du joueur indisponibles.": "Player data unavailable.",
   "Résumé du match indisponible.": "Game summary unavailable.",
+  "Statistiques playoffs indisponibles.": "Playoff statistics unavailable.",
+  "Fermer le profil joueur": "Close player profile",
+  "Afficher la photo de": "Show photo of",
+  "Afficher la photo en grand": "View photo enlarged",
+  "Fermer la photo": "Close photo",
+  "Photo de": "Photo of",
+  "Certaines sources ESPN sont indisponibles :": "Some ESPN feeds are unavailable:",
 };
 export function translate(key, language = "fr") {
   const locale = String(language || "fr").toLowerCase().replace("_", "-");
