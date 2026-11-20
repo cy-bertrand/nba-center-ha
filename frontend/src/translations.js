@@ -255,7 +255,6 @@ const EN = {
   "WAITING FOR ESPN API": "WAITING FOR ESPN API",
   "Détails du match": "Game details",
   "Actualiser les détails du match": "Refresh game details",
-  "ACTUALISER": "REFRESH",
   "équipe visiteuse": "away team",
   "Ouvrir la fiche équipe": "Open team profile",
   "équipe à domicile": "home team",
