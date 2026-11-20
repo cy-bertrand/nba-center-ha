@@ -114,7 +114,7 @@ class NBALeadersSensor(NBABaseSensor):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        return {"leaders": self._rows(), "category": LEADER_CATEGORIES[self._key][0]}
+        return {"leaders": self._rows(), "category": LEADER_CATEGORIES[self._key][0], "category_key": self._key, "category_scope": "season"}
 
 
 class NBAPostseasonLeadersSensor(NBABaseSensor):
@@ -139,7 +139,9 @@ class NBAPostseasonLeadersSensor(NBABaseSensor):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         return {"leaders": self._rows(),
-                "category": f"Playoffs {LEADER_CATEGORIES[self._key][0]}"}
+                "category": f"Playoffs {LEADER_CATEGORIES[self._key][0]}",
+                "category_key": self._key,
+                "category_scope": "playoffs"}
 
 
 class NBATeamSensor(NBABaseSensor):
