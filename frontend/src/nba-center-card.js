@@ -6,11 +6,11 @@ import { translate } from "./translations.js";
 const BUILD_VERSION = __BUILD_VERSION__;
 
 const VIEWS = [
-  { id: "home", label: "HOME" },
+  { id: "home", label: "ACCUEIL" },
   { id: "scores", label: "SCORES" },
-  { id: "teams", label: "TEAMS" },
-  { id: "players", label: "PLAYERS" },
-  { id: "stats", label: "STANDINGS" },
+  { id: "teams", label: "ÉQUIPES" },
+  { id: "players", label: "JOUEURS" },
+  { id: "stats", label: "CLASSEMENT" },
 ];
 const LEADERS = {
   points: ["POINTS", "marque"],
@@ -367,19 +367,19 @@ class NBACenterCard extends LitElement {
     const players = this._teamRoster?.players ?? [];
     return html`
       <div class="overlay team-overlay" @click=${(event) => { if (event.target === event.currentTarget) this._closeTeamOverlay(); }}>
-        <section class="overlay-panel team-roster-overlay" role="dialog" aria-modal="true" aria-label="Effectif de l'équipe">
+        <section class="overlay-panel team-roster-overlay" role="dialog" aria-modal="true" aria-label=${this._t("Effectif de l'équipe")}>
           <header class="overlay-head">
             <div class="team-roster-heading">
               ${this._teamOverlay?.logo ? html`<img class="logo large" src=${this._teamOverlay.logo} alt="">` : ""}
               <div><h2>${value(this._teamOverlay?.display_name, this._teamOverlay?.name)}</h2>
-                <div class="muted">${value(this._teamOverlay?.abbreviation)} · ${value(this._teamRoster?.season, "Effectif NBA")}</div>
-                <label class="team-season-picker">SAISON
+                <div class="muted">${value(this._teamOverlay?.abbreviation)} · ${value(this._teamRoster?.season, this._t("Effectif NBA"))}</div>
+                <label class="team-season-picker">${this._t("SAISON")}
                   <select .value=${String(this._teamSelectedSeason ?? this._teamRoster?.season_year ?? new Date().getFullYear())} @change=${(event) => this._selectTeamSeason(event.target.value)}>
                     ${Array.from({ length: Math.max(1, (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) - 2002 + 1) }, (_, index) => new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0) - index).map((year) => html`<option value=${year}>${year - 1}-${String(year).slice(-2)}</option>`)}
                   </select>
                 </label></div>
             </div>
-            <button class="overlay-close" aria-label="Fermer la fiche équipe" @click=${this._closeTeamOverlay}>✕</button>
+            <button class="overlay-close" aria-label=${this._t("Fermer la fiche équipe")} @click=${this._closeTeamOverlay}>✕</button>
           </header>
           <div class="overlay-body">
             ${this._selectedPlayer ? html`
@@ -392,11 +392,11 @@ class NBACenterCard extends LitElement {
                   <div><small>${this._t("POIDS")}</small><strong>${this._selectedPlayer.weight_kg == null ? "—" : `${this._selectedPlayer.weight_kg.toLocaleString("fr-BE")} kg`}</strong></div><div><small>${this._t("EXPÉRIENCE")}</small><strong>${this._selectedPlayer.experience_years == null ? "—" : `${this._selectedPlayer.experience_years} ans`}</strong></div>
                   <div><small>${this._t("STATUT")}</small><strong>${value(this._selectedPlayer.status)}</strong></div><div><small>${this._t("UNIVERSITÉ / CLUB")}</small><strong>${value(this._selectedPlayer.college)}</strong></div>
                 </div>
-                ${this._selectedPlayer.injuries?.length ? html`<p class="roster-injury">ÉTAT MÉDICAL ESPN : ${this._selectedPlayer.injuries.map((injury) => value(injury.status)).filter(Boolean).join(" · ")}</p>` : ""}
+                ${this._selectedPlayer.injuries?.length ? html`<p class="roster-injury">${this._t("ÉTAT MÉDICAL ESPN")} : ${this._selectedPlayer.injuries.map((injury) => value(injury.status)).filter(Boolean).join(" · ")}</p>` : ""}
               </section>` : ""}
             ${!this._selectedPlayer && this._teamRoster?.standing ? html`
               <section class="panel team-season-summary">
-                <div class="panel-head"><h3>${this._t("SAISON RÉGULIÈRE")}</h3><span class="pill">${value(this._teamRoster.standing.rank, "—")}e PLACE</span></div>
+                <div class="panel-head"><h3>${this._t("SAISON RÉGULIÈRE")}</h3><span class="pill">${value(this._teamRoster.standing.rank, "—")} ${this._t("PLACE")}</span></div>
                 <div class="team-standing-grid ${this._teamSelectedSeason === (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) ? "current" : "historical"}">
                   <div><small>${this._t("BILAN")}</small><strong>${value(this._teamRoster.standing.wins)}–${value(this._teamRoster.standing.losses)}</strong></div>
                   <div><small>${this._t("% VICTOIRES")}</small><strong>${value(this._teamRoster.standing.pct)}</strong></div>
@@ -417,20 +417,20 @@ class NBACenterCard extends LitElement {
                         <span class="team-playoff-path-number">${index + 1}</span>
                         <div><strong>${value(round.round_label)}</strong><div class="team-playoff-opponent">${round.opponent?.logo ? html`<img src=${round.opponent.logo} alt="" loading="lazy">` : ""}<span>${value(round.opponent?.name, round.opponent?.abbreviation)}</span></div></div>
                         <div class="team-playoff-path-score"><b>${value(round.wins, "—")}–${value(round.opponent_wins, "—")}</b></div>
-                        <span class="team-playoff-path-status ${round.outcome === "win" ? "win" : round.outcome === "loss" ? "loss" : "live"}">${round.outcome === "win" ? "TOUR SUIVANT" : round.outcome === "loss" ? "FIN DU PARCOURS" : "SÉRIE EN COURS"}</span>
+                        <span class="team-playoff-path-status ${round.outcome === "win" ? "win" : round.outcome === "loss" ? "loss" : "live"}">${round.outcome === "win" ? this._t("TOUR SUIVANT") : round.outcome === "loss" ? this._t("FIN DU PARCOURS") : this._t("SÉRIE EN COURS")}</span>
                       </div>`)}
                   </div>` : html`<p class="muted">${this._t("Aucun parcours en playoffs enregistré pour cette saison.")}</p>`}
               </section>` : this._teamPlayoffLoading && !this._selectedPlayer ? html`<section class="panel team-playoff-history"><div class="panel-head"><h3>${this._t("PARCOURS EN PLAYOFFS")}</h3></div><p class="muted">${this._t("Chargement du parcours…")}</p></section>` : ""}
-            <div class="panel-head"><h3>${this._selectedPlayer ? "AUTRES JOUEURS" : "EFFECTIF"}</h3><span class="pill">${this._teamRoster?.count ?? 0} JOUEURS</span></div>
+            <div class="panel-head"><h3>${this._selectedPlayer ? this._t("AUTRES JOUEURS") : this._t("EFFECTIF")}</h3><span class="pill">${this._teamRoster?.count ?? 0} ${this._t("JOUEURS")}</span></div>
             ${this._teamRosterLoading ? html`<section class="empty">${this._t("Chargement de l'effectif…")}</section>` : ""}
             ${this._teamRosterError ? html`<section class="empty"><strong>${this._t("Effectif indisponible")}</strong><p>${this._teamRosterError}</p><button @click=${() => this._openTeam(this._teamOverlay)}>${this._t("RÉESSAYER")}</button></section>` : ""}
-            ${!this._teamRosterLoading && !this._teamRosterError && !players.length ? html`<section class="empty"><strong>${this._teamSelectedSeason !== (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) ? "Effectif historique non proposé" : "Effectif indisponible"}</strong><p>${this._teamSelectedSeason !== (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) ? "NBA Center affiche uniquement l’effectif de la saison actuelle. Les bilans, classements et parcours en playoffs restent consultables pour les saisons précédentes." : "ESPN ne fournit pas de joueurs pour cette saison. Le bilan et le calendrier restent affichés lorsqu’ils sont disponibles."}</p>${this._teamSelectedSeason === (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) ? html`<button @click=${() => this._openTeam(this._teamOverlay)}>${this._t("RÉESSAYER")}</button>` : ""}</section>` : ""}
+            ${!this._teamRosterLoading && !this._teamRosterError && !players.length ? html`<section class="empty"><strong>${this._teamSelectedSeason !== (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) ? this._t("Effectif historique non proposé") : this._t("Effectif indisponible")}</strong><p>${this._teamSelectedSeason !== (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) ? this._t("NBA Center affiche uniquement l’effectif de la saison actuelle. Les bilans, classements et parcours en playoffs restent consultables pour les saisons précédentes.") : this._t("ESPN ne fournit pas de joueurs pour cette saison. Le bilan et le calendrier restent affichés lorsqu’ils sont disponibles.")}</p>${this._teamSelectedSeason === (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) ? html`<button @click=${() => this._openTeam(this._teamOverlay)}>${this._t("RÉESSAYER")}</button>` : ""}</section>` : ""}
             ${!this._teamRosterLoading && !this._teamRosterError && players.length ? html`
               <div class="roster-list">${players.map((player) => html`
                 <button class="roster-player roster-player-button" type="button" @click=${() => this._selectRosterPlayer(player)}>
                   ${player.headshot ? html`<img class="roster-headshot" src=${player.headshot} alt="" loading="lazy">` : html`<div class="roster-headshot roster-placeholder"></div>`}
                   <div class="roster-player-info"><strong>${value(player.name)}</strong>
-                    <small>${value(player.position)} · ${player.height_cm == null ? "—" : `${player.height_cm} cm`} · ${value(player.college, "Université non renseignée")}</small>
+                    <small>${value(player.position)} · ${player.height_cm == null ? "—" : `${player.height_cm} cm`} · ${value(player.college, this._t("Université non renseignée"))}</small>
                     ${player.injuries?.length ? html`<small class="roster-injury">${player.injuries.map((injury) => value(injury.status)).filter(Boolean).join(" · ")}</small>` : ""}
                   </div>
                   <div class="roster-number"><strong>${player.jersey ? `#${player.jersey}` : "—"}</strong><small>${value(player.status)}</small></div>
@@ -646,11 +646,11 @@ class NBACenterCard extends LitElement {
                 <div><small>${this._t("POSTE")}</small><strong>${value(player.position_name, player.position)}</strong></div>
                 <div><small>${this._t("TAILLE")}</small><strong>${player.height_cm == null ? value(player.height) : `${player.height_cm} cm`}</strong></div>
                 <div><small>${this._t("POIDS")}</small><strong>${player.weight_kg == null ? value(player.weight) : `${player.weight_kg.toLocaleString("fr-BE")} kg`}</strong></div>
-                <div><small>${this._t("EXPÉRIENCE NBA")}</small><strong>${player.experience_years == null ? "—" : `${player.experience_years} ans`}${(() => { const gp = overview.career_statistics?.find((row) => row.name === "gamesPlayed"); return gp ? html` / ${value(gp.display_value, gp.value)} m` : ""; })()}</strong></div>
+                <div><small>${this._t("EXPÉRIENCE NBA")}</small><strong>${player.experience_years == null ? "—" : `${player.experience_years} ${this._t("ans")}`}${(() => { const gp = overview.career_statistics?.find((row) => row.name === "gamesPlayed"); return gp ? html` / ${value(gp.display_value, gp.value)} m` : ""; })()}</strong></div>
                 <div><small>N°</small><strong>${value(player.jersey)}</strong></div>
                 <div><small>DRAFT NBA</small><strong>${value(player.draft)}</strong></div>
                 <div><small>${this._t("STATUT")}</small><strong>${value(player.status)}</strong></div>
-                <div><small>${this._t("ÉTAT MÉDICAL")}</small><strong class="roster-injury">${player.injuries?.length ? player.injuries.map((injury) => value(injury.status)).filter(Boolean).join(" · ") : "Non renseigné"}</strong></div>
+                <div><small>${this._t("ÉTAT MÉDICAL")}</small><strong class="roster-injury">${player.injuries?.length ? player.injuries.map((injury) => value(injury.status)).filter(Boolean).join(" · ") : this._t("Non renseigné")}</strong></div>
               </div>
               ${overview.career_statistics?.length ? html`
                 <div class="panel-head" style="margin-top:16px"><h3>${this._t("MOYENNES EN CARRIÈRE")}</h3></div>
@@ -802,9 +802,9 @@ class NBACenterCard extends LitElement {
     const teams = series.teams ?? [];
     const winnerId = series.winner?.id == null ? null : String(series.winner.id);
     const catalog = this._teamsCatalog().teams;
-    const status = series.status === "completed" ? "TERMINÉE" : series.status === "inconsistent" ? "À VÉRIFIER" : "EN COURS";
-    return html`<button type="button" class="playoff-series playoff-series-button" @click=${() => this._openPlayoffSeries(series)} aria-label=${`Voir les matchs de la série ${teams.map((team) => team.abbreviation ?? team.name).join(" contre ")}`}>
-      <div class="playoff-series-top"><span class="playoff-series-round">${value(series.round_label, "SÉRIE")}</span><span class="pill">${status}</span></div>
+    const status = series.status === "completed" ? this._t("TERMINÉE") : series.status === "inconsistent" ? this._t("À VÉRIFIER") : this._t("EN COURS");
+    return html`<button type="button" class="playoff-series playoff-series-button" @click=${() => this._openPlayoffSeries(series)} aria-label=${`${this._t("Voir les matchs de la série")} ${teams.map((team) => team.abbreviation ?? team.name).join(" vs ")}`}>
+      <div class="playoff-series-top"><span class="playoff-series-round">${value(series.round_label, this._t("SÉRIE"))}</span><span class="pill">${status}</span></div>
       ${teams.map((team) => {
         const club = catalog.find((candidate) => String(candidate.id) === String(team.id));
         return html`<div class="playoff-team ${winnerId === String(team.id) ? "playoff-winner" : ""}">
@@ -814,9 +814,9 @@ class NBACenterCard extends LitElement {
           <span class="playoff-wins">${Number.isInteger(team.wins) ? `${series.unknown_results ? "≥" : ""}${team.wins}` : "—"}</span>
         </div>`;
       })}
-      <div class="playoff-series-bottom"><span>${series.completed_games ?? 0} / ${series.games_played ?? 0} MATCHS TERMINÉS</span><strong>VOIR LES MATCHS <span aria-hidden="true">›</span></strong></div>
-      ${series.unknown_results ? html`<div class="playoff-warning">${series.unknown_results} résultat(s) non confirmé(s)</div>` : ""}
-      ${series.issues?.length ? html`<div class="playoff-warning">Données incohérentes : ${series.issues.join(", ")}</div>` : ""}
+      <div class="playoff-series-bottom"><span>${series.completed_games ?? 0} / ${series.games_played ?? 0} ${this._t("MATCHS TERMINÉS")}</span><strong>${this._t("VOIR LES MATCHS")} <span aria-hidden="true">›</span></strong></div>
+      ${series.unknown_results ? html`<div class="playoff-warning">${series.unknown_results} ${this._t("résultat(s) non confirmé(s)")}</div>` : ""}
+      ${series.issues?.length ? html`<div class="playoff-warning">${this._t("Données incohérentes")} : ${series.issues.join(", ")}</div>` : ""}
     </button>`;
   }
   _playoffSeriesOverlay() {
@@ -828,10 +828,10 @@ class NBACenterCard extends LitElement {
     const teamFor = (game, side) => (game.teams ?? []).find((team) => team.home_away === side) ?? {};
     const clubFor = (team) => catalog.find((club) => String(club.id) === String(team.id));
     return html`<div class="overlay playoff-series-overlay" @click=${(event) => { if (event.target === event.currentTarget) this._closePlayoffSeries(); }}>
-      <section class="overlay-panel" role="dialog" aria-modal="true" aria-label="Matchs de la série">
+      <section class="overlay-panel" role="dialog" aria-modal="true" aria-label=${this._t("Matchs de la série")}>
         <header class="overlay-head"><div><div class="section-kicker">${value(series.round_label, "PLAYOFFS")}</div><h2>${teams.map((team) => value(team.abbreviation, team.name)).join(" · ")}</h2></div><button class="overlay-close" aria-label="Fermer la série" @click=${this._closePlayoffSeries}>✕</button></header>
         <div class="overlay-body">
-          <div class="playoff-series-detail-summary"><span class="pill">${series.status === "completed" ? "SÉRIE TERMINÉE" : series.status === "inconsistent" ? "DONNÉES À VÉRIFIER" : "SÉRIE EN COURS"}</span><strong>${teams.map((team) => Number.isInteger(team.wins) ? team.wins : "—").join(" – ")}</strong><span class="muted">${series.completed_games ?? 0} matchs terminés · ${series.games_played ?? 0} recensés</span></div>
+          <div class="playoff-series-detail-summary"><span class="pill">${series.status === "completed" ? this._t("SÉRIE TERMINÉE") : series.status === "inconsistent" ? this._t("DONNÉES À VÉRIFIER") : this._t("SÉRIE EN COURS")}</span><strong>${teams.map((team) => Number.isInteger(team.wins) ? team.wins : "—").join(" – ")}</strong><span class="muted">${series.completed_games ?? 0} ${this._t("matchs terminés")} · ${series.games_played ?? 0} ${this._t("recensés")}</span></div>
           <div class="playoff-game-list">
             ${games.length ? games.map((game) => {
               const away = teamFor(game, "away");
@@ -845,14 +845,14 @@ class NBACenterCard extends LitElement {
               const winnerSide = declaredWinners.length === 1
                 ? (String(declaredWinners[0].id) === String(away.id) ? "away" : String(declaredWinners[0].id) === String(home.id) ? "home" : null)
                 : scoreWinner;
-              const gameLabel = game.game_number ? `GAME ${game.game_number}` : "MATCH";
-              const date = game.date ? new Date(game.date).toLocaleDateString("fr-BE", { day: "2-digit", month: "short", year: "numeric" }) : "Date indisponible";
+              const gameLabel = game.game_number ? `GAME ${game.game_number}` : this._t("MATCH");
+              const date = game.date ? new Date(game.date).toLocaleDateString(this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE", { day: "2-digit", month: "short", year: "numeric" }) : "Date indisponible";
               return html`<button type="button" class="playoff-game-row ${winnerSide === "away" ? "winner-away" : winnerSide === "home" ? "winner-home" : ""}" ?disabled=${!game.id} @click=${() => {
                 if (!game.id) return;
                 this._closePlayoffSeries();
                 this._openGame({
                   id: game.id, date_text: date, state: completed ? "post" : "pre",
-                  detail: completed ? "TERMINÉ" : "À VENIR",
+                  detail: completed ? this._t("TERMINÉ") : this._t("À VENIR"),
                   away: { id: away.id, name: away.name ?? awayClub?.display_name ?? awayClub?.name, abbr: away.abbreviation, logo: awayClub?.logo, score: away.score },
                   home: { id: home.id, name: home.name ?? homeClub?.display_name ?? homeClub?.name, abbr: home.abbreviation, logo: homeClub?.logo, score: home.score },
                 });
@@ -873,10 +873,10 @@ class NBACenterCard extends LitElement {
   }
   _playoffsView() {
     const data = this._playoffData;
-    return html`<div class="section-kicker">TABLEAU DES PLAYOFFS · ${this._standingSeason - 1}-${String(this._standingSeason).slice(-2)}</div>
-      ${this._playoffLoading ? html`<section class="empty">Chargement du tableau ${this._playoffSeason - 1}-${String(this._playoffSeason).slice(-2)}…</section>` : ""}
+    return html`<div class="section-kicker">${this._t("TABLEAU DES PLAYOFFS")} · ${this._standingSeason - 1}-${String(this._standingSeason).slice(-2)}</div>
+      ${this._playoffLoading ? html`<section class="empty">${this._t("Chargement du tableau")} ${this._playoffSeason - 1}-${String(this._playoffSeason).slice(-2)}…</section>` : ""}
       ${this._playoffError ? html`<section class="empty"><strong>${this._t("Tableau indisponible")}</strong><p>${this._playoffError}</p><button @click=${() => this._loadPlayoffBracket()}>${this._t("RÉESSAYER")}</button></section>` : ""}
-      ${!this._playoffLoading && data ? html`<div class="playoff-summary"><span>${data.games_count ?? 0} MATCHS</span><span>${data.series_count ?? 0} SÉRIES</span><span>${data.available ? "DONNÉES REÇUES" : "AUCUN MATCH PLAYOFF"}</span></div>
+      ${!this._playoffLoading && data ? html`<div class="playoff-summary"><span>${data.games_count ?? 0} ${this._t("MATCHS")}</span><span>${data.series_count ?? 0} ${this._t("SÉRIES")}</span><span>${data.available ? this._t("DONNÉES REÇUES") : this._t("AUCUN MATCH PLAYOFF")}</span></div>
         ${Object.entries(data.conferences ?? {}).map(([conference, rounds]) => html`<section class="playoff-conference"><div class="playoff-conference-title"><h2>${conference.toUpperCase()}ERN CONFERENCE</h2><span class="pill">${(rounds ?? []).reduce((n, round) => n + (round.series?.length ?? 0), 0)} SÉRIES</span></div>${(rounds ?? []).length ? rounds.map((round) => this._playoffRound(round)) : html`<section class="empty"><strong>Tableau ${conference} indisponible</strong><p>${this._t("Les données ESPN ne permettent pas de reconstituer les séries de cette conférence.")}</p></section>`}</section>`)}
         <section class="playoff-conference"><div class="playoff-conference-title"><h2>NBA FINALS</h2></div>${(data.finals ?? []).length ? html`<div class="grid">${data.finals.map((series) => this._playoffSeriesCard(series))}</div>` : html`<section class="empty"><strong>${this._t("Finales NBA non disponibles")}</strong><p>${this._t("Aucune série des Finales n'a été identifiée pour cette saison.")}</p></section>`}</section>
         ${(data.unplaced ?? []).length ? html`<section class="playoff-conference"><div class="playoff-conference-title"><h2>${this._t("SÉRIES NON CLASSÉES")}</h2></div><div class="grid">${data.unplaced.map((series) => this._playoffSeriesCard(series))}</div></section>` : ""}
@@ -1269,7 +1269,7 @@ class NBACenterCard extends LitElement {
       <section class="panel">
         <div class="team-row">
           ${team.logo ? html`<img class="logo large" src=${team.logo} alt="" loading="lazy">` : ""}
-          <div class="team-info"><strong>${team.name}</strong><small>Équipe favorite · ${team.id}</small></div>
+          <div class="team-info"><strong>${team.name}</strong><small>${this._t("Équipe favorite")} · ${team.id}</small></div>
           ${team.live?.state === "in" ? html`<span class="pill accent">${this._t("LIVE")}</span>` : ""}
         </div>
         <div class="team-row"><div class="team-info"><small>${this._t("DERNIER MATCH")}</small><strong>${value(last?.name,"Donnée indisponible")}</strong></div>
@@ -1350,17 +1350,17 @@ class NBACenterCard extends LitElement {
     const weekday = new Intl.DateTimeFormat(this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE", { weekday: "short" }).format(new Date(`${this._selectedDate}T12:00:00`)).replace(".", "").slice(0, 3).toUpperCase();
     return html`
       <div class="head"><h2>${this._t("SCORES & CALENDRIER")}</h2><span class="pill">${rows.length} MATCHS</span></div>
-      <div class="date-nav"><button aria-label="Jour précédent" @click=${() => this._shiftDate(-1)}>‹</button>
-        <label class="date-picker-control"><span class="date-weekday">${weekday}</span><input type="date" aria-label="Choisir une date" .value=${this._selectedDate} @change=${this._setDate}></label>
-        <button aria-label="Jour suivant" @click=${() => this._shiftDate(1)}>›</button>
+      <div class="date-nav"><button aria-label=${this._t("Jour précédent")} @click=${() => this._shiftDate(-1)}>‹</button>
+        <label class="date-picker-control"><span class="date-weekday">${weekday}</span><input type="date" aria-label=${this._t("Choisir une date")} .value=${this._selectedDate} @change=${this._setDate}></label>
+        <button aria-label=${this._t("Jour suivant")} @click=${() => this._shiftDate(1)}>›</button>
         <button @click=${() => { this._selectedDate = localDateISO(new Date(), this.hass?.config?.time_zone); this._loadCalendar(this._selectedDate); }}>${this._t("AUJOURD&#39;HUI")}</button></div>
       ${this._calendarStale ? html`<p class="muted" role="status">Données en cache · actualisation ESPN indisponible${this._calendarStaleError ? html` · ${this._calendarStaleError}` : ""}</p>` : ""}
-      <div class="filters">${[["all","TOUS"],["in","LIVE"],["pre","À VENIR"],["post","TERMINÉS"]].map(([k,l]) => html`<button class="chip" aria-pressed=${this._filter===k} @click=${() => this._setFilter(k)}>${l}</button>`)}
-        <input type="search" aria-label="Rechercher une équipe" placeholder="Filtrer une équipe…" .value=${this._search} @input=${this._setSearch}></div>
+      <div class="filters">${[["all",this._t("TOUS")],["in","LIVE"],["pre",this._t("À VENIR")],["post",this._t("TERMINÉS")]].map(([k,l]) => html`<button class="chip" aria-pressed=${this._filter===k} @click=${() => this._setFilter(k)}>${l}</button>`)}
+        <input type="search" aria-label=${this._t("Rechercher une équipe")} placeholder=${this._t("Filtrer une équipe…")} .value=${this._search} @input=${this._setSearch}></div>
       ${this._calendarLoading ? html`<section class="empty">${this._t("Chargement du calendrier…")}</section>` : ""}
       ${this._calendarError ? html`<section class="empty"><strong>${this._t("Calendrier indisponible")}</strong><p>${this._calendarError}</p><button @click=${() => this._loadCalendar(this._selectedDate)}>${this._t("RÉESSAYER")}</button></section>` : ""}
       ${!this._calendarLoading && !this._calendarError && filtered.length ? html`<div class="game-list">${filtered.map((g) => this._gameCard(g))}</div>` : ""}
-      ${!this._calendarLoading && !this._calendarError && !filtered.length ? html`<section class="empty"><strong>${rows.length ? "Aucun match correspondant" : "Aucun match programmé"}</strong><p>${rows.length ? "Modifie les filtres ou la recherche." : "Aucune rencontre n&#39;est prévue pour cette date dans le fuseau horaire de Home Assistant."}</p></section>` : ""}
+      ${!this._calendarLoading && !this._calendarError && !filtered.length ? html`<section class="empty"><strong>${rows.length ? this._t("Aucun match correspondant") : this._t("Aucun match programmé")}</strong><p>${rows.length ? this._t("Modifie les filtres ou la recherche.") : this._t("Aucune rencontre n\'est prévue pour cette date dans le fuseau horaire de Home Assistant.")}</p></section>` : ""}
     `;
   }
   _teamCatalogCard(team) {
@@ -1369,10 +1369,10 @@ class NBACenterCard extends LitElement {
       <div class="team-row">
         ${team.logo ? html`<img class="logo large" src=${team.logo} alt="" loading="lazy">` : ""}
         <div class="team-info"><strong>${value(team.display_name, team.name)}</strong>
-          <small>${value(team.abbreviation)} · ${value(team.conference, "Conférence inconnue")} · ${value(team.division, "Division inconnue")}</small></div>
+          <small>${value(team.abbreviation)} · ${value(team.conference, this._t("Conférence inconnue"))} · ${value(team.division, this._t("Division inconnue"))}</small></div>
         ${team.favorite ? html`<span class="pill accent">${this._t("FAVORI")}</span>` : ""}
       </div>
-      ${favorite ? html`<div class="catalog-favorite-tracking"><span>DERNIER MATCH · ${value(favorite.last?.name, "—")}</span><span>PROCHAIN MATCH · ${value(favorite.next?.date_text, "—")} ${value(favorite.next?.name, "")}</span>${favorite.live?.state === "in" ? html`<strong class="pill accent">${this._t("MATCH EN DIRECT")}</strong>` : ""}</div>` : ""}
+      ${favorite ? html`<div class="catalog-favorite-tracking"><span>${this._t("DERNIER MATCH")} · ${value(favorite.last?.name, "—")}</span><span>${this._t("PROCHAIN MATCH")} · ${value(favorite.next?.date_text, "—")} ${value(favorite.next?.name, "")}</span>${favorite.live?.state === "in" ? html`<strong class="pill accent">${this._t("MATCH EN DIRECT")}</strong>` : ""}</div>` : ""}
     </section>`;
   }
 
@@ -1393,7 +1393,7 @@ class NBACenterCard extends LitElement {
         <button class="chip" aria-pressed=${this._teamConference === "all"} @click=${() => this._setTeamConference("all")}>${this._t("TOUTES")}</button>
         <button class="chip" aria-pressed=${this._teamConference === "east"} @click=${() => this._setTeamConference("east")}>${this._t("EAST")}</button>
         <button class="chip" aria-pressed=${this._teamConference === "west"} @click=${() => this._setTeamConference("west")}>${this._t("WEST")}</button>
-        <input type="search" aria-label="Rechercher une franchise NBA" placeholder="Rechercher une équipe…" .value=${this._teamSearch} @input=${this._setTeamSearch}>
+        <input type="search" aria-label=${this._t("Rechercher une franchise NBA")} placeholder=${this._t("Rechercher une équipe…")} .value=${this._teamSearch} @input=${this._setTeamSearch}>
       </div>
       ${teams.length ? html`<div class="grid">${teams.map((team) => this._teamCatalogCard(team))}</div>` :
         html`<section class="empty"><strong>${catalog.count ? "Aucune franchise correspondante" : "Catalogue des équipes indisponible"}</strong><p>${catalog.count ? "Modifie la recherche ou le filtre de conférence." : "Le capteur Catalogue des équipes n'a pas encore reçu les données ESPN."}</p></section>`}
@@ -1413,7 +1413,7 @@ class NBACenterCard extends LitElement {
       <p class="muted">${this._t("Sélectionne directement un joueur dans un classement pour ouvrir sa fiche détaillée.")}</p>
       <div class="filters">
         <button class="chip" aria-pressed=${!postseason} @click=${() => this._setPlayersPhase("regular")}>${this._t("SAISON RÉGULIÈRE")}</button>
-        <button class="chip" aria-pressed=${postseason} @click=${() => this._setPlayersPhase("playoffs")}>PLAYOFFS</button>
+        <button class="chip" aria-pressed=${postseason} @click=${() => this._setPlayersPhase("playoffs")}>${this._t("PLAYOFFS")}</button>
       </div>
       ${this._playersLoading ? html`<section class="empty"><p>${this._t("Chargement des classements ESPN…")}</p></section>` : ""}
       ${this._playersError ? html`<section class="empty"><strong>${this._t("Classements indisponibles")}</strong><p>${value(this._playersError)}</p></section>` : ""}
@@ -1488,7 +1488,7 @@ class NBACenterCard extends LitElement {
       </div>
       ${this._standingPhase === "regular" ? html`
         ${this._seasonStandingsLoading ? html`<section class="empty">Chargement du classement ${this._standingSeason - 1}-${String(this._standingSeason).slice(-2)}…</section>` : ""}
-        ${this._seasonStandingsError ? html`<section class="empty"><strong>Classement indisponible</strong><p>${this._seasonStandingsError}</p><button @click=${() => this._loadHistoricalStandings()}>${this._t("RÉESSAYER")}</button></section>` : ""}
+        ${this._seasonStandingsError ? html`<section class="empty"><strong>${this._t("Classement indisponible")}</strong><p>${this._seasonStandingsError}</p><button @click=${() => this._loadHistoricalStandings()}>${this._t("RÉESSAYER")}</button></section>` : ""}
         ${!this._seasonStandingsLoading && this._seasonStandings ? html`
           <div class="grid">
             ${this._standingsTable("east", "EASTERN CONFERENCE", eastRows)}
@@ -1510,7 +1510,7 @@ class NBACenterCard extends LitElement {
           <h1>${this._config.title}</h1><div class="subtitle">${this._config.subtitle}</div>
           <div class="meta"><span class="dot"></span><span>NBA DATA</span><span>·</span>
             <span>${this.hass ? "CONNECTED TO ESPN API" : "WAITING FOR ESPN API"}</span>
-            ${dataStatus ? html`<span class="data-health ${degraded ? "degraded" : "healthy"}">${degraded ? "DONNÉES PARTIELLES" : "FLUX À JOUR"}</span>` : ""}</div>
+            ${dataStatus ? html`<span class="data-health ${degraded ? "degraded" : "healthy"}">${degraded ? this._t("Données partielles") : this._t("FLUX À JOUR")}</span>` : ""}</div>
           ${degraded ? html`<div class="data-warning">Certaines sources ESPN sont indisponibles. Les dernières données valides sont conservées. Consultez l'attribut <strong>errors</strong> du capteur d'état pour le détail.</div>` : ""}
         </header>
         <nav aria-label="NBA Center navigation">${VIEWS.map((v) => html`
