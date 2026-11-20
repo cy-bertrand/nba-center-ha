@@ -77,6 +77,18 @@
       },
       "data_status": {
         "name": "Main data status"
+      },
+      "team_last": {
+        "name": "{team_name} Last game"
+      },
+      "team_next": {
+        "name": "{team_name} Next game"
+      },
+      "team_live": {
+        "name": "{team_name} Live game"
+      },
+      "team_recent_games": {
+        "name": "{team_name} Recent games"
       }
     }
   }
