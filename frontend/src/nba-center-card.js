@@ -497,7 +497,7 @@ class NBACenterCard extends LitElement {
       this._playerData = { ...this._playerData, postseason_stats: result.postseason_stats, postseason_gamelog: result.postseason_gamelog };
     } catch (err) {
       if (playerRequest === this._playerRequest && playoffRequest === this._playerPlayoffRequest) {
-        this._playerError = err?.message ?? "Statistiques playoffs indisponibles.";
+        this._playerError = err?.message ?? this._t("Statistiques playoffs indisponibles.");
       }
     } finally {
       if (playerRequest === this._playerRequest && playoffRequest === this._playerPlayoffRequest) {
@@ -651,8 +651,8 @@ class NBACenterCard extends LitElement {
     const statLabel = (item) => item?.display_value ?? (item?.value == null ? "—" : item.value);
     return html`<div class="overlay player-overlay" @click=${(event) => { if (event.target === event.currentTarget) this._closePlayer(); }}>
       <section class="overlay-panel player-profile-overlay" role="dialog" aria-modal="true" aria-label=${this._t("Profil joueur")}>
-        <header class="overlay-head"><div class="team-roster-heading">${player.headshot ? html`<button class="player-photo-trigger" type="button" aria-label="Afficher la photo de ${value(player.name)} en grand" title="Afficher la photo en grand" @click=${() => { this._expandedPlayerPhoto = player.headshot; }}><img class="roster-headshot" src=${player.headshot} alt="Photo de ${value(player.name)}"></button>` : ""}${(currentTeam?.logo ?? player.team_logo) ? html`<img class="player-team-logo" src=${currentTeam?.logo ?? player.team_logo} alt="">` : ""}<div><h2>${value(overview.athlete?.name, player.name)}</h2><div class="muted">${[player.team, player.nationality, player.birth_place].filter(Boolean).join(" · ")}</div></div></div>
-          <button class="overlay-close" aria-label="Fermer le profil joueur" @click=${() => this._closePlayer()}>✕</button></header>
+        <header class="overlay-head"><div class="team-roster-heading">${player.headshot ? html`<button class="player-photo-trigger" type="button" aria-label=${`${this._t("Afficher la photo de")} ${value(player.name)} ${this._t("Afficher la photo en grand")}`} title=${this._t("Afficher la photo en grand")} @click=${() => { this._expandedPlayerPhoto = player.headshot; }}><img class="roster-headshot" src=${player.headshot} alt=${`${this._t("Photo de")} ${value(player.name)}`}></button>` : ""}${(currentTeam?.logo ?? player.team_logo) ? html`<img class="player-team-logo" src=${currentTeam?.logo ?? player.team_logo} alt="">` : ""}<div><h2>${value(overview.athlete?.name, player.name)}</h2><div class="muted">${[player.team, player.nationality, player.birth_place].filter(Boolean).join(" · ")}</div></div></div>
+          <button class="overlay-close" aria-label=${this._t("Fermer le profil joueur")} @click=${() => this._closePlayer()}>✕</button></header>
         <div class="overlay-body">
           ${this._playerLoading ? html`<section class="empty">${this._t("Chargement des statistiques du joueur…")}</section>` : ""}
           ${this._playerError ? html`<section class="empty"><strong>${this._t("Profil détaillé indisponible")}</strong><p>${this._playerError}</p><button @click=${() => this._openPlayer(player.id, player)}>${this._t("RÉESSAYER")}</button></section>` : ""}
@@ -706,12 +706,12 @@ class NBACenterCard extends LitElement {
                 ${postseasonDetailed.length ? html`<div class="table-wrap"><table><thead><tr><th>${this._t("STATISTIQUE")}</th><th>${this._t("VALEUR")}</th></tr></thead><tbody>${postseasonDetailed.map((item) => html`<tr><td>${value(translateStat(item),item.name)}</td><td>${value(item.display_value ?? item.value)}</td></tr>`)}</tbody></table></div>` : ""}
               ` : html`<p class="muted">${this._t("Les statistiques des playoffs sont récupérées séparément. Elles apparaîtront ici dès qu'ESPN publiera les données de postseason pour cette saison.")}</p>`}
             </section>
-            ${Object.keys(this._playerData.errors ?? {}).length ? html`<p class="muted">Certaines sources ESPN sont indisponibles : ${Object.keys(this._playerData.errors).join(" · ")}</p>` : ""}
+            ${Object.keys(this._playerData.errors ?? {}).length ? html`<p class="muted">${this._t("Certaines sources ESPN sont indisponibles :")} ${Object.keys(this._playerData.errors).join(" · ")}</p>` : ""}
           ` : ""}
         </div>
       </section>
       ${this._expandedPlayerPhoto ? html`<div class="player-photo-lightbox" role="dialog" aria-modal="true" aria-label="Photo du joueur en grand" @click=${() => { this._expandedPlayerPhoto = null; }}>
-        <button type="button" aria-label="Fermer la photo" @click=${() => { this._expandedPlayerPhoto = null; }}>✕</button>
+        <button type="button" aria-label=${this._t("Fermer la photo")} @click=${() => { this._expandedPlayerPhoto = null; }}>✕</button>
         <img src=${this._expandedPlayerPhoto} alt="Photo de ${value(player.name)}" @click=${(event) => event.stopPropagation()} />
       </div>` : ""}
     </div>`;
