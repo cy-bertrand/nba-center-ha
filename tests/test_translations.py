@@ -180,6 +180,11 @@ class TranslationTests(unittest.TestCase):
         self.assertIn('this._t("ans")', frontend)
         self.assertNotIn('this._selectedPlayer.experience_years} ans', frontend)
 
+    def test_frontend_translation_dictionary_has_no_duplicate_keys(self):
+        translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
+        keys = re.findall(r'^  ("(?:[^"\\\\]|\\\\.)*")\\s*:', translations, re.MULTILINE)
+        self.assertEqual(len(keys), len(set(keys)), "Duplicate frontend translation keys found")
+
     def test_frontend_visible_labels_use_translation_helper(self):
         frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
