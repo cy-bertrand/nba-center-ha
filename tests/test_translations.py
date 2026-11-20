@@ -149,7 +149,7 @@ class TranslationTests(unittest.TestCase):
         ):
             self.assertIn(f'"{key}"', translations)
             if key in ("EASTERN CONFERENCE", "WESTERN CONFERENCE"):
-                self.assertIn(`this._t(conference === "east" ? "EASTERN CONFERENCE" : conference === "west" ? "WESTERN CONFERENCE"`, frontend)
+                self.assertIn('this._t(conference === "east" ? "EASTERN CONFERENCE" : conference === "west" ? "WESTERN CONFERENCE"', frontend)
             else:
                 self.assertIn(f'this._t("{key}")', frontend)
         self.assertIn('this._formatDate(raw, fallback = "", empty = this._t("Date à confirmer"))', frontend)
