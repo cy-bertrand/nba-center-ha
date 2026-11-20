@@ -70,7 +70,7 @@ assert.match(source, /@media\(max-width:760px\)\{\.playoff-round \.grid\{grid-te
 assert.match(source, /series\.unknown_results \? "≥" : ""/, "playoff wins must be marked as minimum counts when results are unconfirmed");
 assert.match(source, /_dataStatus\(\)/, "card must read the diagnostic sensor");
 assert.match(source, /dataStatus\?\.state !== "À jour"/, "unknown diagnostic states must be treated as degraded");
-assert.match(source, /DONNÉES PARTIELLES/, "card must warn when core NBA feeds are degraded");
+assert.match(source, /this\._t\("Données partielles"\)/, "card must warn when core NBA feeds are degraded");
 assert.match(source, /series\.unknown_results \? "≥" : ""/, "playoff wins must be marked as minimum counts when results are unconfirmed");
 assert.match(source, /TÊTES DE SÉRIE NON VALIDÉES|Têtes de série non validées/, "unvalidated playoff seeds must be disclosed");
 assert.match(bundle, /TABLEAU DES PLAYOFFS/, "bundled card must include the playoff bracket inside standings center");
