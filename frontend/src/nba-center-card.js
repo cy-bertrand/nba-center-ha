@@ -809,7 +809,7 @@ class NBACenterCard extends LitElement {
       this._playoffData = result;
     } catch (err) {
       if (request !== this._playoffRequest) return;
-      this._playoffError = err?.message ?? "Impossible de charger le tableau des playoffs.";
+      this._playoffError = err?.message ?? this._t("Impossible de charger le tableau des playoffs.");
     } finally {
       if (request === this._playoffRequest) this._playoffLoading = false;
     }
@@ -918,7 +918,7 @@ class NBACenterCard extends LitElement {
       this._calendarStaleError = result.error ?? "";
     } catch (err) {
       if (request !== this._calendarRequest || date !== this._selectedDate) return;
-      this._calendarError = err?.message ?? "Impossible de charger le calendrier NBA.";
+      this._calendarError = err?.message ?? this._t("Impossible de charger le calendrier NBA.");
       this._calendarGames = [];
     } finally {
       if (request === this._calendarRequest) this._calendarLoading = false;
