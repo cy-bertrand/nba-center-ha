@@ -111,7 +111,6 @@ const EN = {
   "WEST": "WEST",
   "PLAYERS CENTER": "PLAYERS CENTER",
   "Classements officiels ESPN · moyennes par match": "Official ESPN leaderboards · per-game averages",
-  "Sélectionne directement un joueur dans un classement pour ouvrir sa fiche détaillée.": "Select a player in a leaderboard to open their detailed profile.",
   "Chargement des classements ESPN…": "Loading ESPN leaderboards…",
   "Classements indisponibles": "Leaderboards unavailable",
   "Aucun classement disponible": "No leaderboard available",
