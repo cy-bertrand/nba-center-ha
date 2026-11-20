@@ -1080,7 +1080,7 @@ class NBACenterCard extends LitElement {
       this._syncOverlayGame(details);
       if (this._overlayGame?.state !== "in") this._stopOverlayAutoRefresh();
     } catch (err) {
-      if (request === this._overlayRequest) this._overlayError = err?.message ?? "Actualisation du match impossible.";
+      if (request === this._overlayRequest) this._overlayError = err?.message ?? this._t("Actualisation du match impossible.");
     } finally {
       if (request === this._overlayRequest) this._overlayLoading = false;
     }
@@ -1350,7 +1350,7 @@ class NBACenterCard extends LitElement {
           ${dailyCategories.map((category) => {
             const rows = daily.categories?.[category.key] ?? [];
             return html`<section class="panel home-daily-panel"><div class="panel-head"><h3>${category.label}</h3><span class="home-daily-unit">${category.unit}</span></div>
-              ${rows.length ? html`<div class="home-daily-list">${rows.map((player, index) => html`<button class="home-daily-player home-daily-player-button" type="button" aria-label=${"`Afficher le match de ${player.player}`"} @click=${() => this._openGame({ id: String(player.game_id), state: "post", name: `${player.team} vs ${player.opponent ?? ""}` })}>
+              ${rows.length ? html`<div class="home-daily-list">${rows.map((player, index) => html`<button class="home-daily-player home-daily-player-button" type="button" aria-label=${`${this._t("Voir le match de")} ${player.player}`} @click=${() => this._openGame({ id: String(player.game_id), state: "post", name: `${player.team} vs ${player.opponent ?? ""}` })}>
                 <span class="home-daily-rank">${index + 1}</span>
                 ${player.headshot ? html`<img src=${player.headshot} alt="" loading="lazy">` : html`<span class="home-daily-avatar"></span>`}
                 <span class="home-daily-info"><strong>${value(player.player)}</strong><small>${value(player.team)} ${player.opponent ? `· vs ${player.opponent}` : ""}</small></span>
