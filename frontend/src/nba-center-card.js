@@ -256,7 +256,10 @@ class NBACenterCard extends LitElement {
   }
 
   _dataStatus() {
-    return this._entity("status", (state) => state.attributes?.scope === "scoreboard, standings, calendriers favoris, classements et catalogue des équipes");
+    return this._entity("status", (state) =>
+      state.attributes?.scope_key === "main_data" ||
+      (!state.attributes?.scope_key && state.attributes?.scope === "scoreboard, standings, calendriers favoris, classements et catalogue des équipes")
+    );
   }
 
   _games() {
@@ -277,9 +280,12 @@ class NBACenterCard extends LitElement {
   _leaders(key, postseason = false) {
     const fragment = LEADERS[key][1];
     const state = this._entity(postseason ? `playoff_${key}` : key, (s) => {
-      const category = (s.attributes?.category ?? "").toLowerCase();
-      return Array.isArray(s.attributes?.leaders) && category.includes(fragment) &&
+      const attrs = s.attributes ?? {};
+      const category = (attrs.category ?? "").toLowerCase();
+      const stableMatch = attrs.category_key === key && attrs.category_scope === (postseason ? "playoffs" : "season");
+      const legacyMatch = attrs.category_key == null && category.includes(fragment) &&
         (postseason ? category.startsWith("playoffs ") : !category.startsWith("playoffs "));
+      return Array.isArray(attrs.leaders) && (stableMatch || legacyMatch);
     });
     return { state, rows: state?.attributes?.leaders ?? [] };
   }
@@ -293,14 +299,15 @@ class NBACenterCard extends LitElement {
       const friendly = (attrs.friendly_name ?? state.entity_id).toLowerCase();
       const team = teams[id] ??= {
         id,
-        name: (attrs.friendly_name ?? id).replace(/ (dernier match|prochain match|match en cours|derniers matchs)$/i, ""),
+        name: attrs.team_name ?? (attrs.friendly_name ?? id).replace(/ (dernier match|prochain match|match en cours|derniers matchs)$/i, ""),
         logo: attrs.team_logo,
       };
       team.logo ??= attrs.team_logo;
-      if (friendly.includes("dernier match")) team.last = attrs;
-      if (friendly.includes("prochain match")) team.next = attrs;
-      if (friendly.includes("match en cours")) team.live = attrs;
-      if (Array.isArray(attrs.games)) team.recent = attrs.games;
+      const sensorType = attrs.team_sensor_type;
+      if (sensorType === "last" || (!sensorType && friendly.includes("dernier match"))) team.last = attrs;
+      if (sensorType === "next" || (!sensorType && friendly.includes("prochain match"))) team.next = attrs;
+      if (sensorType === "live" || (!sensorType && friendly.includes("match en cours"))) team.live = attrs;
+      if (sensorType === "recent" || (!sensorType && Array.isArray(attrs.games))) team.recent = attrs.games;
     }
     return Object.values(teams).sort((a,b) => a.name.localeCompare(b.name));
   }
@@ -1100,7 +1107,7 @@ class NBACenterCard extends LitElement {
           <thead><tr><th>${this._t("JOUEUR")}</th>${columns.map((key) => html`<th>${key}</th>`)}</tr></thead>
           <tbody>${rows.map((player) => html`
             <tr class="${player.starter ? "starter" : ""} ${player.did_not_play ? "dnp" : ""}">
-              <td><span class="player-cell">${player.headshot ? html`<img src=${player.headshot} alt="" loading="lazy">` : ""}<span>${player.id ? html`<button type="button" class="boxscore-player-link" aria-label="Ouvrir le profil de ${value(player.name)}" @click=${() => this._openPlayer(player.id, { ...player, player: player.name, team_id: block.team_id, team_abbreviation: block.abbr, team: block.abbr ?? block.team, team_logo: team?.logo })}>${value(player.name)}</button>` : html`<strong>${value(player.name)}</strong>`}<small>${[player.jersey ? `#${player.jersey}` : "", player.position || "", player.ejected ? "ÉJECTÉ" : player.did_not_play ? `DNP · ${value(player.reason, "NON PRIS EN JEU")}` : player.starter ? this._t("TITULAIRE") : player.active ? this._t("ACTIF") : ""].filter(Boolean).join(" · ")}</small></span></span></td>
+              <td><span class="player-cell">${player.headshot ? html`<img src=${player.headshot} alt="" loading="lazy">` : ""}<span>${player.id ? html`<button type="button" class="boxscore-player-link" aria-label="Ouvrir le profil de ${value(player.name)}" @click=${() => this._openPlayer(player.id, { ...player, player: player.name, team_id: block.team_id, team_abbreviation: block.abbr, team: block.abbr ?? block.team, team_logo: team?.logo })}>${value(player.name)}</button>` : html`<strong>${value(player.name)}</strong>`}<small>${[player.jersey ? `#${player.jersey}` : "", player.position || "", player.ejected ? this._t("ÉJECTÉ") : player.did_not_play ? `DNP · ${value(player.reason, "NON PRIS EN JEU")}` : player.starter ? this._t("TITULAIRE") : player.active ? this._t("ACTIF") : ""].filter(Boolean).join(" · ")}</small></span></span></td>
               ${columns.map((key) => html`<td>${value(player.stats?.[key])}</td>`)}
             </tr>`)}
           </tbody>
@@ -1310,13 +1317,13 @@ class NBACenterCard extends LitElement {
       <div class="head"><h2>${this._t("NBA TODAY")}</h2><span class="pill">${this._t("TABLEAU DE BORD")}</span></div>
       <section class="home-live panel">
         <div class="panel-head"><div><span class="home-kicker">${this._t("SUIVI EN TEMPS RÉEL")}</span><h3>NBA LIVE</h3></div>
-          <span class="home-live-count ${live.length ? "is-live" : ""}">${live.length ? `● ${live.length} EN DIRECT` : "AUCUN MATCH LIVE"}</span></div>
+          <span class="home-live-count ${live.length ? "is-live" : ""}">${live.length ? `● ${live.length} ${this._t("EN DIRECT")}` : this._t("AUCUN MATCH LIVE")}</span></div>
         ${live.length ? html`<div class="home-game-list">${live.map((game) => this._gameCard(game))}</div>` :
           html`<div class="home-empty"><span class="home-empty-icon">🏀</span><div><strong>${this._t("Pas de match en direct")}</strong><p>${this._t("Les rencontres en cours apparaîtront ici automatiquement.")}</p></div></div>`}
       </section>
       <div class="home-grid">
         <section class="panel home-upcoming">
-          <div class="panel-head"><div><span class="home-kicker">${this._t("LE CALENDRIER")}</span><h3>${this._t("PROCHAINS MATCHS")}</h3></div><span class="pill">${next.length} MATCHS</span></div>
+          <div class="panel-head"><div><span class="home-kicker">${this._t("LE CALENDRIER")}</span><h3>${this._t("PROCHAINS MATCHS")}</h3></div><span class="pill">${next.length} ${this._t("MATCHS")}</span></div>
           ${next.length ? html`<div class="home-game-list">${next.map((game) => this._gameCard(game))}</div>` :
             html`<p class="muted">${this._t("Aucun match prévu dans les prochaines 24 heures.")}</p>`}
         </section>
@@ -1398,7 +1405,7 @@ class NBACenterCard extends LitElement {
       return matchesSearch && matchesConference;
     });
     return html`
-      <div class="head"><h2>${this._t("TEAMS CENTER")}</h2><span class="pill">${catalog.count}/30 FRANCHISES</span></div>
+      <div class="head"><h2>${this._t("TEAMS CENTER")}</h2><span class="pill">${catalog.count}/30 ${this._t("FRANCHISES")}</span></div>
       ${!catalog.complete ? html`<p class="muted" role="status">${this._t("Catalogue partiel ou en attente")} · ${catalog.count} ${this._t("équipes reçues")}</p>` : ""}
       <div class="filters">
         <button class="chip" aria-pressed=${this._teamConference === "all"} @click=${() => this._setTeamConference("all")}>${this._t("TOUTES")}</button>
@@ -1407,7 +1414,7 @@ class NBACenterCard extends LitElement {
         <input type="search" aria-label=${this._t("Rechercher une franchise NBA")} placeholder=${this._t("Rechercher une équipe…")} .value=${this._teamSearch} @input=${this._setTeamSearch}>
       </div>
       ${teams.length ? html`<div class="grid">${teams.map((team) => this._teamCatalogCard(team))}</div>` :
-        html`<section class="empty"><strong>${catalog.count ? this._t("Aucune franchise correspondante") : this._t("Catalogue des équipes indisponible")}</strong><p>${catalog.count ? "Modifie la recherche ou le filtre de conférence." : "Le capteur Catalogue des équipes n'a pas encore reçu les données ESPN."}</p></section>`}
+        html`<section class="empty"><strong>${catalog.count ? this._t("Aucune franchise correspondante") : this._t("Catalogue des équipes indisponible")}</strong><p>${catalog.count ? this._t("Modifie la recherche ou le filtre de conférence.") : this._t("Le capteur Catalogue des équipes n'a pas encore reçu les données ESPN.")}</p></section>`}
     `;
   }
 
