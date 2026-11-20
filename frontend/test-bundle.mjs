@@ -183,7 +183,7 @@ if (!source.includes("_playByPlayPanel") || !source.includes("POINTS SEULEMENT")
   throw new Error("Play-by-play UI is missing from source or bundle");
 }
 
-if (!source.includes("aria-label=\"Actualiser les détails du match\"") || !translations.includes('"RÉESSAYER": "RETRY"')) {
+if (!source.includes('this._t("Actualiser les détails du match")') || !translations.includes('"Actualiser les détails du match": "Refresh game details"')) {
   throw new Error("Match detail refresh/error state is missing");
 }
 
