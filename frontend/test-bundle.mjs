@@ -74,7 +74,7 @@ assert.match(source, /series\.unknown_results \? "≥" : ""/, "playoff wins must
 assert.match(source, /TÊTES DE SÉRIE NON VALIDÉES|Têtes de série non validées/, "unvalidated playoff seeds must be disclosed");
 assert.match(bundle, /TABLEAU DES PLAYOFFS/, "bundled card must include the playoff bracket inside standings center");
 assert.match(bundle, /NBA FINALS/, "bundled card must include NBA Finals");
-assert.match(bundle, /FORME RÉCENTE/, "favorite team recent form must be included");
+assert.match(bundle, /RECENT FORM/, "favorite team recent form must be included in English");
 assert.match(source, /_teamsCatalog\(\)/, "Teams Center must read the global franchise catalog sensor");
 assert.match(source, /_teamCatalogCard\(team\)/, "Teams Center must render lightweight franchise cards");
 assert.match(source, /nba_center\/team_roster/, "franchise detail must load its roster through Home Assistant websocket");
