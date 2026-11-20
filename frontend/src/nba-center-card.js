@@ -6,11 +6,11 @@ import { translate } from "./translations.js";
 const BUILD_VERSION = __BUILD_VERSION__;
 
 const VIEWS = [
-  { id: "home", label: "HOME" },
+  { id: "home", label: "ACCUEIL" },
   { id: "scores", label: "SCORES" },
-  { id: "teams", label: "TEAMS" },
-  { id: "players", label: "PLAYERS" },
-  { id: "stats", label: "STANDINGS" },
+  { id: "teams", label: "ÉQUIPES" },
+  { id: "players", label: "JOUEURS" },
+  { id: "stats", label: "CLASSEMENT" },
 ];
 const LEADERS = {
   points: ["POINTS", "marque"],
@@ -689,18 +689,18 @@ class NBACenterCard extends LitElement {
                     };
                     const didNotPlay = game.did_not_play === true;
                     const labels = [["MIN",pick("MIN","minutes")],["PTS",pick("PTS","points")],["REB",pick("REB","rebounds")],["AST",pick("AST","assists")],["STL",pick("STL","steals")],["BLK",pick("BLK","blocks")]];
-                    return html`<button class="player-game-row player-game-row-button" type="button" ?disabled=${!game.id} aria-label="Voir le match du ${formatGameDate(game.date)} contre ${value(game.opponent_abbreviation, value(game.opponent))}" @click=${() => this._openPlayerRecentGame(game)}><strong class="player-game-date">${formatGameDate(game.date)}</strong><span class="player-game-opponent">${game.home_away === "@" ? "@" : "vs"} ${value(game.opponent_abbreviation, value(game.opponent))}${didNotPlay ? " DNP" : ""}</span>${labels.map(([label,val]) => html`<span class="player-game-cell">${didNotPlay ? "—" : val}</span>`)}</button>`;
+                    return html`<button class="player-game-row player-game-row-button" type="button" ?disabled=${!game.id} aria-label=${`${this._t("Voir le match du")} ${formatGameDate(game.date)} ${this._t("contre")} ${value(game.opponent_abbreviation, value(game.opponent))}`} @click=${() => this._openPlayerRecentGame(game)}><strong class="player-game-date">${formatGameDate(game.date)}</strong><span class="player-game-opponent">${game.home_away === "@" ? "@" : "vs"} ${value(game.opponent_abbreviation, value(game.opponent))}${didNotPlay ? " DNP" : ""}</span>${labels.map(([label,val]) => html`<span class="player-game-cell">${didNotPlay ? "—" : val}</span>`)}</button>`;
                   })}</div>` : html`<p class="muted">${this._t("Les box scores individuels ne sont pas encore disponibles pour ces rencontres.")}</p>`}
               </section>` : ""}
             <section class="panel player-season-panel"><div class="panel-head"><h3>${this._t("STATISTIQUES DE SAISON")}</h3><span class="pill">${value(seasonLabel, "SAISON")}</span></div>
-              ${seasonHistory.length > 1 ? html`<div class="filters player-season-picker"><label class="muted" for="player-season-select">${this._t("SAISON")}</label><select id="player-season-select" aria-label="Choisir une saison" .value=${String(selectedSeason?.year ?? "")} @change=${(event) => { this._playerSelectedSeason = event.target.value; this.requestUpdate(); }}>${seasonHistory.map((item) => html`<option value=${String(item.year)}>${item.display_name}${seasonTeamLabel(item) ? ` · ${seasonTeamLabel(item)}` : ""}</option>`)}</select></div>` : ""}
-            <div class="player-stat-grid player-season-highlights">${averageQuick.map(([label,item]) => html`<div><small>${label} / MATCH</small><strong>${statLabel(item)}</strong></div>`)}</div>
+              ${seasonHistory.length > 1 ? html`<div class="filters player-season-picker"><label class="muted" for="player-season-select">${this._t("SAISON")}</label><select id="player-season-select" aria-label=${this._t("Choisir une saison")} .value=${String(selectedSeason?.year ?? "")} @change=${(event) => { this._playerSelectedSeason = event.target.value; this.requestUpdate(); }}>${seasonHistory.map((item) => html`<option value=${String(item.year)}>${item.display_name}${seasonTeamLabel(item) ? ` · ${seasonTeamLabel(item)}` : ""}</option>`)}</select></div>` : ""}
+            <div class="player-stat-grid player-season-highlights">${averageQuick.map(([label,item]) => html`<div><small>${label} / ${this._t("MATCH")}</small><strong>${statLabel(item)}</strong></div>`)}</div>
               ${stats.length ? html`<div class="table-wrap"><table><thead><tr><th>${this._t("STATISTIQUE")}</th><th>${this._t("VALEUR")}</th></tr></thead><tbody>${detailedStats.map((item) => html`<tr><td>${value(translateStat(item),item.name)}</td><td>${value(item.display_value ?? item.value)}</td></tr>`)}</tbody></table></div>` : html`<p class="muted">${this._t("Aucune autre statistique disponible pour cette saison.")}</p>`}
             </section>
             <section class="panel player-postseason-panel">
               <div class="panel-head"><h3>${this._t("STATISTIQUES PLAYOFFS")}</h3><span class="pill">${value(postseason.season, selectedPlayoffSeason?.display_name ?? "POSTSEASON")}</span></div>
               <p class="muted">${this._t("Moyennes fournies par ESPN Web API v3. On les affiche directement, sans recalcul local.")}</p>
-              ${seasonHistory.length ? html`<div class="filters player-season-picker"><label class="muted" for="player-playoff-season-select">${this._t("SAISON PLAYOFFS")}</label><select id="player-playoff-season-select" aria-label="Choisir la saison des playoffs" .value=${String(this._playerSelectedPlayoffSeason || seasonHistory[0]?.year || "")} @change=${(event) => this._loadPlayerPlayoffSeason(player.id, Number(event.target.value))}>${seasonHistory.map((item) => html`<option value=${String(item.year)}>${item.display_name}${seasonTeamLabel(item) ? ` · ${seasonTeamLabel(item)}` : ""}</option>`)}</select>${this._playerPlayoffLoading ? html`<span class="muted">${this._t("Chargement…")}</span>` : ""}</div>` : ""}
+              ${seasonHistory.length ? html`<div class="filters player-season-picker"><label class="muted" for="player-playoff-season-select">${this._t("SAISON PLAYOFFS")}</label><select id="player-playoff-season-select" aria-label=${this._t("Choisir la saison des playoffs")} .value=${String(this._playerSelectedPlayoffSeason || seasonHistory[0]?.year || "")} @change=${(event) => this._loadPlayerPlayoffSeason(player.id, Number(event.target.value))}>${seasonHistory.map((item) => html`<option value=${String(item.year)}>${item.display_name}${seasonTeamLabel(item) ? ` · ${seasonTeamLabel(item)}` : ""}</option>`)}</select>${this._playerPlayoffLoading ? html`<span class="muted">${this._t("Chargement…")}</span>` : ""}</div>` : ""}
               ${postseasonStats.length ? html`
                 <div class="player-stat-grid player-season-highlights">${postseasonAverageQuick.map(([label,item]) => html`<div><small>${label} / MATCH</small><strong>${value(item)}</strong></div>`)}</div>
                 ${postseasonDetailed.length ? html`<div class="table-wrap"><table><thead><tr><th>${this._t("STATISTIQUE")}</th><th>${this._t("VALEUR")}</th></tr></thead><tbody>${postseasonDetailed.map((item) => html`<tr><td>${value(translateStat(item),item.name)}</td><td>${value(item.display_value ?? item.value)}</td></tr>`)}</tbody></table></div>` : ""}
@@ -896,7 +896,7 @@ class NBACenterCard extends LitElement {
       ${this._playoffError ? html`<section class="empty"><strong>${this._t("Tableau indisponible")}</strong><p>${this._playoffError}</p><button @click=${() => this._loadPlayoffBracket()}>${this._t("RÉESSAYER")}</button></section>` : ""}
       ${!this._playoffLoading && data ? html`<div class="playoff-summary"><span>${data.games_count ?? 0} ${this._t("MATCHS")}</span><span>${data.series_count ?? 0} ${this._t("SÉRIES")}</span><span>${data.available ? this._t("DONNÉES REÇUES") : this._t("AUCUN MATCH PLAYOFF")}</span></div>
         ${Object.entries(data.conferences ?? {}).map(([conference, rounds]) => html`<section class="playoff-conference"><div class="playoff-conference-title"><h2>${this._t(conference === "east" ? "EASTERN CONFERENCE" : conference === "west" ? "WESTERN CONFERENCE" : `${conference.toUpperCase()}ERN CONFERENCE`)}</h2><span class="pill">${(rounds ?? []).reduce((n, round) => n + (round.series?.length ?? 0), 0)} ${this._t("SÉRIES")}</span></div>${(rounds ?? []).length ? rounds.map((round) => this._playoffRound(round)) : html`<section class="empty"><strong>${this._t("Tableau de conférence indisponible")} · ${conference.toUpperCase()}</strong><p>${this._t("Les données ESPN ne permettent pas de reconstituer les séries de cette conférence.")}</p></section>`}</section>`)}
-        <section class="playoff-conference"><div class="playoff-conference-title"><h2>NBA FINALS</h2></div>${(data.finals ?? []).length ? html`<div class="grid">${data.finals.map((series) => this._playoffSeriesCard(series))}</div>` : html`<section class="empty"><strong>${this._t("Finales NBA non disponibles")}</strong><p>${this._t("Aucune série des Finales n'a été identifiée pour cette saison.")}</p></section>`}</section>
+        <section class="playoff-conference"><div class="playoff-conference-title"><h2>${this._t("NBA FINALS")}</h2></div>${(data.finals ?? []).length ? html`<div class="grid">${data.finals.map((series) => this._playoffSeriesCard(series))}</div>` : html`<section class="empty"><strong>${this._t("Finales NBA non disponibles")}</strong><p>${this._t("Aucune série des Finales n'a été identifiée pour cette saison.")}</p></section>`}</section>
         ${(data.unplaced ?? []).length ? html`<section class="playoff-conference"><div class="playoff-conference-title"><h2>${this._t("SÉRIES NON CLASSÉES")}</h2></div><div class="grid">${data.unplaced.map((series) => this._playoffSeriesCard(series))}</div></section>` : ""}
         ${Object.keys(data.seed_errors ?? {}).length ? html`<section class="empty playoff-warning"><strong>${this._t("Têtes de série non validées")}</strong><p>${Object.entries(data.seed_errors).map(([conference, errors]) => `${conference} : ${errors.join(", ")}`).join(" · ")}</p>${this._t("Les positions de tableau ne sont pas inventées.")}</section>` : ""}
         ${Object.keys(data.schedule_errors ?? {}).length ? html`<p class="muted">Calendriers manquants pour ${Object.keys(data.schedule_errors).length} ${this._t("équipe(s)")} · ${this._t("certaines séries peuvent être incomplètes.")}</p>` : ""}
@@ -1373,7 +1373,7 @@ class NBACenterCard extends LitElement {
         <button aria-label=${this._t("Jour suivant")} @click=${() => this._shiftDate(1)}>›</button>
         <button @click=${() => { this._selectedDate = localDateISO(new Date(), this.hass?.config?.time_zone); this._loadCalendar(this._selectedDate); }}>${this._t("AUJOURD&#39;HUI")}</button></div>
       ${this._calendarStale ? html`<p class="muted" role="status">${this._t("Données en cache")} · ${this._t("actualisation ESPN indisponible")}${this._calendarStaleError ? html` · ${this._calendarStaleError}` : ""}</p>` : ""}
-      <div class="filters">${[["all",this._t("TOUS")],["in","LIVE"],["pre",this._t("À VENIR")],["post",this._t("TERMINÉS")]].map(([k,l]) => html`<button class="chip" aria-pressed=${this._filter===k} @click=${() => this._setFilter(k)}>${l}</button>`)}
+      <div class="filters">${[["all",this._t("TOUS")],["in",this._t("LIVE")],["pre",this._t("À VENIR")],["post",this._t("TERMINÉS")]].map(([k,l]) => html`<button class="chip" aria-pressed=${this._filter===k} @click=${() => this._setFilter(k)}>${l}</button>`)}
         <input type="search" aria-label=${this._t("Rechercher une équipe")} placeholder=${this._t("Filtrer une équipe…")} .value=${this._search} @input=${this._setSearch}></div>
       ${this._calendarLoading ? html`<section class="empty">${this._t("Chargement du calendrier…")}</section>` : ""}
       ${this._calendarError ? html`<section class="empty"><strong>${this._t("Calendrier indisponible")}</strong><p>${this._calendarError}</p><button @click=${() => this._loadCalendar(this._selectedDate)}>${this._t("RÉESSAYER")}</button></section>` : ""}
@@ -1424,7 +1424,7 @@ class NBACenterCard extends LitElement {
     const years = Array.from({ length: currentSeason - firstYear + 1 }, (_, index) => currentSeason - index);
     const postseason = this._playersPhase === "playoffs";
     return html`<div class="head"><div><h2>${this._t("PLAYERS CENTER")}</h2><p class="muted">${this._t("Classements officiels ESPN · moyennes par match")}</p></div>
-        <select class="playoff-season" aria-label="Choisir la saison des classements joueurs" .value=${String(this._playersSeason)} @change=${(event) => this._setPlayersSeason(event)}>
+        <select class="playoff-season" aria-label=${this._t("Choisir la saison des classements joueurs")} .value=${String(this._playersSeason)} @change=${(event) => this._setPlayersSeason(event)}>
           ${years.map((year) => html`<option value=${year}>${year - 1}-${String(year).slice(-2)}</option>`)}
         </select>
       </div>
@@ -1496,7 +1496,7 @@ class NBACenterCard extends LitElement {
     const westRows = standings[westKey] ?? [];
     return html`
       <div class="head"><div><h2>${this._t("STANDINGS CENTER")}</h2><p class="muted">${this._t("Classements officiels ESPN · saison régulière et playoffs")}</p></div>
-        <select class="playoff-season" aria-label="Choisir la saison NBA" .value=${String(this._standingSeason)} @change=${this._setStandingsSeason}>
+        <select class="playoff-season" aria-label=${this._t("Choisir la saison NBA")} .value=${String(this._standingSeason)} @change=${this._setStandingsSeason}>
           ${years.map((year) => html`<option value=${year}>${year - 1}-${String(year).slice(-2)}</option>`)}
         </select>
       </div>
@@ -1531,9 +1531,9 @@ class NBACenterCard extends LitElement {
             ${dataStatus ? html`<span class="data-health ${degraded ? "degraded" : "healthy"}">${degraded ? this._t("Données partielles") : this._t("FLUX À JOUR")}</span>` : ""}</div>
           ${degraded ? html`<div class="data-warning">${this._t("Certaines sources ESPN sont indisponibles. Les dernières données valides sont conservées. Consultez l'attribut")} <strong>errors</strong> ${this._t("du capteur d'état pour le détail.")}</div>` : ""}
         </header>
-        <nav aria-label="NBA Center navigation">${VIEWS.map((v) => html`
+        <nav aria-label=${this._t("Navigation NBA Center")}>${VIEWS.map((v) => html`
           <button type="button" data-view=${v.id} aria-selected=${v.id===this._active}
-            @click=${() => this._selectView(v.id)}>${v.label}</button>`)}</nav>
+            @click=${() => this._selectView(v.id)}>${this._t(v.label)}</button>`)}</nav>
         <main>${this.hass ? view[active.id]() : html`
           <section class="empty"><strong>${this._t("Connexion à Home Assistant…")}</strong><p>${this._t("La carte attend les états de l'intégration NBA.")}</p></section>`}</main>
         ${this._seriesOverlay && !this._overlayGame ? this._playoffSeriesOverlay() : ""}
@@ -1563,7 +1563,7 @@ class NBACenterCard extends LitElement {
             ${!this._overlayLoading && !this._overlayError && !this._overlayDetails?.error && !this._overlayDetails?.teams?.length && !this._overlayDetails?.has_boxscore ? html`<section class="empty"><p>${this._t("Le résumé détaillé n’est pas encore disponible pour cette rencontre.")}</p></section>` : ""}            </div></section></div>` : ""}
         ${this._teamOverlay ? this._teamRosterPanel() : ""}
         ${this._playerOverlay ? this._playerProfilePanel() : ""}
-        <footer class="footer"><span>NBA CENTER · ${active.label}</span><span>${BUILD_VERSION}</span></footer>
+        <footer class="footer"><span>NBA CENTER · ${this._t(active.label)}</span><span>${BUILD_VERSION}</span></footer>
       </ha-card>`;
   }
 
