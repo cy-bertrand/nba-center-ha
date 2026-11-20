@@ -201,6 +201,30 @@ class TranslationTests(unittest.TestCase):
         for key in ('HOME', 'SCORES', 'TEAMS', 'PLAYERS', 'STANDINGS'):
             self.assertIn(f'label: "{key}"', frontend)
 
+    def test_remaining_frontend_fallback_messages_are_localized(self):
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
+        expected = {
+            '"Joueur NBA": "NBA player"',
+            '"SAISON": "SEASON"',
+            '"Photo du joueur en grand": "Enlarged player photo"',
+            '"Impossible de charger le classement de cette saison.": "Unable to load this season standings."',
+            '"Chargement du classement": "Loading standings"',
+            '"Effectif indisponible.": "Roster unavailable."',
+        }
+        for entry in expected:
+            self.assertIn(entry, translations)
+        for expression in (
+            'this._t("Joueur NBA")',
+            'this._t("SAISON")',
+            'this._t("Photo du joueur en grand")',
+            'this._t("Impossible de charger le classement de cette saison.")',
+            'this._t("Chargement du classement")',
+            'this._t("Effectif indisponible.")',
+            'this._t("Date indisponible")',
+        ):
+            self.assertIn(expression, frontend)
+
     def test_frontend_translation_dictionary_has_no_duplicate_keys(self):
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
         keys = re.findall(r'^  ("(?:[^"\\\\]|\\\\.)*")\\s*:', translations, re.MULTILINE)
