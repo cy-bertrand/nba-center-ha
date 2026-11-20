@@ -188,15 +188,17 @@ class TranslationTests(unittest.TestCase):
                     "Choisir la saison des classements joueurs", "Choisir la saison NBA",
                     "Voir le match du", "contre", "NBA FINALS"):
             self.assertIn(f'"{key}"', translations)
-        for expression in ('this._t(v.label)', 'this._t(active.label)', 'this._t("NBA FINALS")',
+        for expression in ('this._t("NBA FINALS")',
                            'this._t("LIVE")', 'this._t("Navigation NBA Center")',
                            'this._t("Choisir une saison")', 'this._t("Choisir la saison des playoffs")',
                            'this._t("Choisir la saison des classements joueurs")',
                            'this._t("Choisir la saison NBA")', 'this._t("MATCH")'):
             self.assertIn(expression, frontend)
+        self.assertNotIn('this._t(v.label)', frontend)
+        self.assertNotIn('this._t(active.label)', frontend)
         self.assertIn('"contre": "against"', translations)
         self.assertIn('"Voir le match du": "View game on"', translations)
-        for key in ('ACCUEIL', 'SCORES', 'ÉQUIPES', 'JOUEURS', 'CLASSEMENT'):
+        for key in ('HOME', 'SCORES', 'TEAMS', 'PLAYERS', 'STANDINGS'):
             self.assertIn(f'label: "{key}"', frontend)
 
     def test_frontend_translation_dictionary_has_no_duplicate_keys(self):
