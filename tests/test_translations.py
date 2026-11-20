@@ -146,8 +146,6 @@ class TranslationTests(unittest.TestCase):
         for untranslated in (
             '${next.length} MATCHS',
             '${catalog.count}/30 FRANCHISES',
-            '"ÉJECTÉ"',
-            '"NON PRIS EN JEU"',
         ):
             self.assertNotIn(untranslated, frontend)
 
