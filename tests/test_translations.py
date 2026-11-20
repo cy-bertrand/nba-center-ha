@@ -152,7 +152,7 @@ class TranslationTests(unittest.TestCase):
                 self.assertIn('this._t(conference === "east" ? "EASTERN CONFERENCE" : conference === "west" ? "WESTERN CONFERENCE"', frontend)
             else:
                 self.assertIn(f'this._t("{key}")', frontend)
-        self.assertIn('this._formatDate(raw, fallback = "", empty = this._t("Date à confirmer"))', frontend)
+        self.assertIn('_formatDate(raw, fallback = "", empty = this._t("Date à confirmer"))', frontend)
         self.assertIn('detail: this._t("TERMINÉ")', frontend)
 
     def test_frontend_visible_labels_use_translation_helper(self):
