@@ -240,7 +240,8 @@ assert.match(bundle, /this\._teamOverlay\?this\._teamRosterPanel\(\):""/, "bundl
 
 assert.match(source, /Le bilan et le calendrier restent affichés/, "missing roster must not hide team season results");
 
-assert.ok(["HOME", "SCORES", "TEAMS", "PLAYERS", "STANDINGS"].every((label) => source.includes(`label: "${label}"`)), "main navigation labels must remain English regardless of locale");
+assert.ok(["ACCUEIL", "SCORES", "ÉQUIPES", "JOUEURS", "CLASSEMENT"].every((label) => source.includes(`label: "${label}"`)), "main navigation labels must use translatable French source keys");
+assert.match(translations, /"CLASSEMENT": "STANDINGS"/, "standings navigation must have an English translation");
 assert.ok(source.includes("_formatDate(raw, fallback ="), "backend ISO dates must be formatted with the Home Assistant frontend locale");
 assert.ok(source.includes("this._formatDate(this._overlayGame.date"), "Match Center dates must use the frontend locale");
 assert.match((await readFile(new URL("./src/translations.js", import.meta.url), "utf8")), /"m": "G"/, "French match abbreviation must map to English games abbreviation");
