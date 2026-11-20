@@ -6,11 +6,11 @@ import { translate } from "./translations.js";
 const BUILD_VERSION = __BUILD_VERSION__;
 
 const VIEWS = [
-  { id: "home", label: "ACCUEIL" },
+  { id: "home", label: "HOME" },
   { id: "scores", label: "SCORES" },
-  { id: "teams", label: "ÉQUIPES" },
-  { id: "players", label: "JOUEURS" },
-  { id: "stats", label: "CLASSEMENT" },
+  { id: "teams", label: "TEAMS" },
+  { id: "players", label: "PLAYERS" },
+  { id: "stats", label: "STANDINGS" },
 ];
 const LEADERS = {
   points: ["POINTS", "marque"],
@@ -1533,7 +1533,7 @@ class NBACenterCard extends LitElement {
         </header>
         <nav aria-label=${this._t("Navigation NBA Center")}>${VIEWS.map((v) => html`
           <button type="button" data-view=${v.id} aria-selected=${v.id===this._active}
-            @click=${() => this._selectView(v.id)}>${this._t(v.label)}</button>`)}</nav>
+            @click=${() => this._selectView(v.id)} >${v.label}</button>`)}</nav>
         <main>${this.hass ? view[active.id]() : html`
           <section class="empty"><strong>${this._t("Connexion à Home Assistant…")}</strong><p>${this._t("La carte attend les états de l'intégration NBA.")}</p></section>`}</main>
         ${this._seriesOverlay && !this._overlayGame ? this._playoffSeriesOverlay() : ""}
@@ -1563,7 +1563,7 @@ class NBACenterCard extends LitElement {
             ${!this._overlayLoading && !this._overlayError && !this._overlayDetails?.error && !this._overlayDetails?.teams?.length && !this._overlayDetails?.has_boxscore ? html`<section class="empty"><p>${this._t("Le résumé détaillé n’est pas encore disponible pour cette rencontre.")}</p></section>` : ""}            </div></section></div>` : ""}
         ${this._teamOverlay ? this._teamRosterPanel() : ""}
         ${this._playerOverlay ? this._playerProfilePanel() : ""}
-        <footer class="footer"><span>NBA CENTER · ${this._t(active.label)}</span><span>${BUILD_VERSION}</span></footer>
+        <footer class="footer"><span>NBA CENTER · ${active.label}</span><span>${BUILD_VERSION}</span></footer>
       </ha-card>`;
   }
 
