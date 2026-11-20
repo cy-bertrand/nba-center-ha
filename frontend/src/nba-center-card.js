@@ -1292,7 +1292,7 @@ class NBACenterCard extends LitElement {
         </div>
         <div class="team-row"><div class="team-info"><small>${this._t("DERNIER MATCH")}</small><strong>${value(last?.name,this._t("Donnée indisponible"))}</strong></div>
           <div class="record">${value(last?.away?.score)} – ${value(last?.home?.score)}</div></div>
-        <div class="team-row"><div class="team-info"><small>${this._t("PROCHAIN MATCH")}</small><strong>${value(next?.name,"Calendrier indisponible")}</strong>
+        <div class="team-row"><div class="team-info"><small>${this._t("PROCHAIN MATCH")}</small><strong>${value(next?.name,this._t("Calendrier indisponible"))}</strong>
           <small>${this._formatDate(next?.date, next?.date_text, "")}</small></div></div>
         ${team.recent?.length ? html`
           <div class="muted" style="margin-top:10px">${this._t("FORME RÉCENTE")}</div>
@@ -1479,7 +1479,7 @@ class NBACenterCard extends LitElement {
       if (!result?.available) this._playersError = Object.values(result?.errors ?? {}).find(Boolean) ?? "";
     } catch (err) {
       if (request !== this._playersRequest) return;
-      this._playersError = err?.message ?? "Impossible de charger les classements de cette saison.";
+      this._playersError = err?.message ?? this._t("Impossible de charger les classements de cette saison.");
     } finally {
       if (request === this._playersRequest) this._playersLoading = false;
     }
