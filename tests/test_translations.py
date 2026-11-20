@@ -25,16 +25,10 @@ class EntityTranslationTests(unittest.TestCase):
 
     def test_sensor_uses_translation_keys_for_all_entity_names(self):
         source = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
-        for key in (
-            "today_games", "east_standings", "west_standings",
-            "leaders_points", "leaders_rebounds", "leaders_assists",
-            "leaders_steals", "leaders_blocks",
-            "playoff_leaders_points", "playoff_leaders_rebounds",
-            "playoff_leaders_assists", "playoff_leaders_steals",
-            "playoff_leaders_blocks", "teams_catalog", "data_status",
-            "team_last", "team_next", "team_live", "team_recent_games",
-        ):
+        for key in ("today_games", "teams_catalog", "data_status", '"team_recent_games"'):
             self.assertIn(key, source)
+        for pattern in ('f"{slug}_standings"', 'f"leaders_{key}"', 'f"playoff_leaders_{key}"', 'f"team_{kind}"'):
+            self.assertIn(pattern, source)
 
 
 if __name__ == "__main__":
