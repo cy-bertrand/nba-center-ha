@@ -475,7 +475,7 @@ var H=globalThis,V=H.ShadowRoot&&(H.ShadyCSS===void 0||H.ShadyCSS.nativeShadow)&
             ${this._standingsTable("west","WESTERN CONFERENCE",p)}
           </div>`:""}
       `:this._playoffsView()}
-    `}render(){let e=he.find(r=>r.id===this._active)??he[0],t=this._dataStatus(),s=t?.attributes?.status_key,a=(s?s!=="up_to_date":t?.state!=="\xC0 jour")||t?.attributes?.stale,o={home:()=>this._homeView(),scores:()=>this._scoresView(),teams:()=>this._teamsView(),players:()=>this._playersView(),stats:()=>this._statsView()};return i`
+    `}render(){let e=he.find(r=>r.id===this._active)??he[0],t=this._dataStatus(),s=t?.attributes?.status_key,a=(s?s!=="up_to_date":!["\xC0 jour","up_to_date"].includes(t?.state))||t?.attributes?.stale,o={home:()=>this._homeView(),scores:()=>this._scoresView(),teams:()=>this._teamsView(),players:()=>this._playersView(),stats:()=>this._statsView()};return i`
       <ha-card class="shell">
         <header class="hero">
           <h1>${this._config.title}</h1><div class="subtitle">${this._config.subtitle}</div>
