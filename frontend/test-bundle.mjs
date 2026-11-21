@@ -290,3 +290,5 @@ assert.match(source, /score-timeline-zero/, "score timeline must show the zero l
 assert.match(source, /score-timeline-tooltip/, "score timeline must expose score and margin on hover");
 assert.match(source, /48 \+ overtimeCount \* 5/, "score timeline must extend its time axis for overtime periods");
 assert.match(translations, /"SCORE TIMELINE": "SCORE TIMELINE"/, "score timeline labels must have an English translation");
+assert.match(source, /_scoreTimelineHover: \\{ state: true \\}/, "score timeline hover state must be reactive");
+assert.match(source, /\\(\\d\\{1,2\\}\\):\\(\\d\\{2\\}\\)/, "score timeline must parse ESPN minute-second clocks");

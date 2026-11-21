@@ -51,7 +51,7 @@ class NBACenterCard extends LitElement {
     _calendarLoading: { state: true }, _calendarError: { state: true }, _calendarStale: { state: true },
     _overlayGame: { state: true }, _overlayDetails: { state: true },
     _overlayLoading: { state: true }, _overlayError: { state: true },
-    _showAllPlays: { state: true }, _scoringOnly: { state: true },
+    _showAllPlays: { state: true }, _scoringOnly: { state: true }, _scoreTimelineHover: { state: true },
     _teamSearch: { state: true }, _teamConference: { state: true },
     _teamOverlay: { state: true }, _teamRoster: { state: true }, _teamPlayoffPath: { state: true }, _teamPlayoffLoading: { state: true }, _teamRosterLoading: { state: true }, _teamRosterError: { state: true }, _teamRequest: { state: true }, _teamSelectedSeason: { state: true },
     _playerSearch: { state: true }, _playerOverlay: { state: true }, _expandedPlayerPhoto: { state: true }, _playerData: { state: true }, _playerLoading: { state: true }, _playerError: { state: true }, _playerRequest: { state: true }, _playerSelectedSeason: { state: true }, _playerSelectedPlayoffSeason: { state: true }, _playerPlayoffLoading: { state: true },
@@ -1007,7 +1007,7 @@ class NBACenterCard extends LitElement {
     this._stopOverlayAutoRefresh();
     const request = ++this._overlayRequest;
     this._overlayGame = game; this._overlayDetails = null; this._overlayError = ""; this._overlayLoading = true;
-    this._showAllPlays = false; this._scoringOnly = false;
+    this._showAllPlays = false; this._scoringOnly = false; this._scoreTimelineHover = null;
     try {
       const details = await this.hass.callWS({ type: "nba_center/game_details", game_id: String(game.id) });
       if (request !== this._overlayRequest || String(this._overlayGame?.id) !== String(game.id)) return;
