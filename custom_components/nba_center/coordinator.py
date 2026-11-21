@@ -1038,13 +1038,8 @@ class NBACoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 draft = athlete.get("draft") if isinstance(athlete.get("draft"), dict) else {}
                 draft_round = draft.get("round")
                 draft_selection = draft.get("selection")
-                draft_text = (
-                    f"{draft.get('year')} · {'1er' if draft_round == 1 else f'{draft_round}e'} tour · "
-                    f"{draft_selection}{'er' if draft_selection == 1 else 'e'} choix"
-                    if draft.get("year") is not None and draft_round is not None
-                    and draft_selection is not None
-                    else draft.get("displayText") or draft.get("displayName")
-                )
+                draft_text = draft.get("displayText") or draft.get("displayName")
+
                 citizenship = athlete.get("citizenship") or athlete.get("nationality")
                 if isinstance(citizenship, dict):
                     citizenship = citizenship.get("displayName") or citizenship.get("name")
@@ -1069,7 +1064,12 @@ class NBACoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "age": athlete.get("age"),
                     "birth_place": birth_place_text or None,
                     "nationality": citizenship,
+                    # Keep ESPN's raw draft components so the frontend can
+                    # format ordinals in the active Home Assistant language.
                     "draft": draft_text,
+                    "draft_year": draft.get("year"),
+                    "draft_round": draft_round,
+                    "draft_selection": draft_selection,
                     "experience_years": athlete.get("experience", {}).get("years") if isinstance(athlete.get("experience"), dict) else None,
                     "status": status.get("name") or status.get("abbreviation"),
                 }
