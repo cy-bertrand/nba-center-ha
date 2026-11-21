@@ -283,3 +283,10 @@ assert.match(source, /this\._closeTeamOverlay\(\);[\s\S]*?this\._openGame\(/, "o
 assert.match(source, /\.player-overlay\{z-index:10001\}/, "player profile overlay must appear above the team profile");
 assert.match(source, /class="overlay team-overlay"/, "team profile must use a single stable overlay layer");
 assert.match(source, /\.team-overlay\{z-index:9999\}/, "team profile must use the standard overlay layer");
+
+assert.match(source, /_scoreTimelinePanel\(\)/, "Match Center must render the score timeline panel");
+assert.match(source, /home - away/, "score timeline must plot home minus away point differential");
+assert.match(source, /score-timeline-zero/, "score timeline must show the zero lead-change baseline");
+assert.match(source, /score-timeline-tooltip/, "score timeline must expose score and margin on hover");
+assert.match(source, /48 \+ overtimeCount \* 5/, "score timeline must extend its time axis for overtime periods");
+assert.match(translations, /"SCORE TIMELINE": "SCORE TIMELINE"/, "score timeline labels must have an English translation");
