@@ -1147,7 +1147,7 @@ class NBACenterCard extends LitElement {
       const away = Number(play.away_score);
       const home = Number(play.home_score);
       const period = Number(play.period);
-      const clock = String(play.clock ?? "").match(/^(\\d{1,2}):(\\d{2})$/);
+      const clock = String(play.clock ?? "").match(/^(\d{1,2}):(\d{2})$/);
       if (!Number.isFinite(away) || !Number.isFinite(home) || !Number.isInteger(period) || period < 1 || !clock) continue;
       const minutesRemaining = Number(clock[1]) + Number(clock[2]) / 60;
       const periodLength = period <= 4 ? 12 : 5;
@@ -1164,7 +1164,7 @@ class NBACenterCard extends LitElement {
 
     const live = this._overlayGame?.state === "in" ? this._overlayGame : null;
     const livePeriod = Number(live?.period);
-    const liveClock = String(live?.clock ?? "").match(/^(\\d{1,2}):(\\d{2})$/);
+    const liveClock = String(live?.clock ?? "").match(/^(\d{1,2}):(\d{2})$/);
     const currentPeriod = live && Number.isInteger(livePeriod) && livePeriod > 0 ? livePeriod : 0;
     const overtimeCount = Math.max(0, ...snapshots.map((point) => point.period - 4), currentPeriod - 4);
     const totalMinutes = 48 + overtimeCount * 5;
