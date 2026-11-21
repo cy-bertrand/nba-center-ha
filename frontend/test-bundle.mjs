@@ -295,7 +295,7 @@ assert.match(translations, /"SCORE TIMELINE": "SCORE TIMELINE"/, "score timeline
 
 assert.match(source, /_scoreTimelineHover: \{ state: true \}/, "score timeline hover state must be reactive");
 
-assert.match(source, /tick === 0 \\? "#f2c45f"/, "score timeline zero baseline must be visibly rendered in the SVG");
+assert.match(source, /tick === 0 \? "#f2c45f"/, "score timeline zero baseline must be visibly rendered in the SVG");
 assert.match(source, /const yTicks = \[20, 10, 0, -10, -20\]/, "score timeline must show a fixed -20 to +20 vertical scale");
 assert.match(source, /const xTicks = \[/, "score timeline must expose elapsed-time axis ticks");
 assert.match(source, /const live = this\._overlayGame\?\.state === "in"/, "live timeline must include the current game clock and extend through overtime");
