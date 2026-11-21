@@ -163,7 +163,7 @@ assert.match(source, /this\._t\("Actualisation du match impossible\."\)/, "Match
 assert.match(translations, /"Voir le match de": "View the game for"/, "daily performance accessible label must have an English translation");
 assert.match(translations, /"Actualisation du match impossible\.": "Unable to refresh game details\."/ , "Match Center refresh fallback must have an English translation");
 assert.match(source, /const statusKey = dataStatus\?\.attributes\?\.status_key/, "data health must prefer the locale-independent status key");
-assert.match(source, /statusKey \? statusKey !== "up_to_date" : dataStatus\?\.state !== "À jour"/, "legacy data health sensors must keep their French-state fallback");
+assert.match(source, /statusKey \? statusKey !== "up_to_date" : !\["À jour", "up_to_date"\]\.includes\(dataStatus\?\.state\)/, "legacy data health sensors must keep their French-state fallback while accepting stable states");
 
 console.log("NBA Center frontend bundle and feature checks passed.");
 
