@@ -301,6 +301,37 @@ class TranslationTests(unittest.TestCase):
             "Frontend labels are missing from the translation dictionary",
         )
 
+    def test_sensor_states_use_stable_keys_and_have_french_english_translations(self):
+        sensor = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
+        self.assertIn('return "degraded" if data.get("data_stale") or data.get("data_errors") else "up_to_date"', sensor)
+        self.assertIn('return "no_game" if self._kind == "live" else None', sensor)
+
+        for language, expected in {
+            "en": {
+                "data_status": {"up_to_date": "Up to date", "degraded": "Degraded"},
+                "team_live": {"no_game": "No game in progress"},
+            },
+            "fr": {
+                "data_status": {"up_to_date": "À jour", "degraded": "Dégradé"},
+                "team_live": {"no_game": "Aucun match en cours"},
+            },
+        }.items():
+            translations = json.loads(
+                (COMPONENT / "translations" / f"{language}.json").read_text(encoding="utf-8")
+            )
+            for entity_key, states in expected.items():
+                self.assertEqual(translations["entity"]["sensor"][entity_key]["state"], states)
+
+        source = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            source["entity"]["sensor"]["data_status"]["state"],
+            {"up_to_date": "À jour", "degraded": "Dégradé"},
+        )
+        self.assertEqual(
+            source["entity"]["sensor"]["team_live"]["state"],
+            {"no_game": "Aucun match en cours"},
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
