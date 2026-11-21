@@ -1145,7 +1145,7 @@ class NBACenterCard extends LitElement {
       const away = Number(play.away_score);
       const home = Number(play.home_score);
       const period = Number(play.period);
-      const clock = String(play.clock ?? "").match(/^(\\d{1,2}):(\\d{2})$/);
+      const clock = String(play.clock ?? "").match(/^(\d{1,2}):(\d{2})$/);
       if (!Number.isFinite(away) || !Number.isFinite(home) || !Number.isInteger(period) || period < 1 || !clock) continue;
       const minutesRemaining = Number(clock[1]) + Number(clock[2]) / 60;
       const periodLength = period <= 4 ? 12 : 5;
