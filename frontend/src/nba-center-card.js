@@ -61,6 +61,25 @@ class NBACenterCard extends LitElement {
   };
 
   _locale() { return this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE"; }
+
+  _formatDraft(player) {
+    if (player?.draft_year == null || player?.draft_round == null || player?.draft_selection == null) {
+      return player?.draft ?? "—";
+    }
+    const language = this._locale().toLowerCase().split(/[-_]/)[0];
+    const round = Number(player.draft_round);
+    const selection = Number(player.draft_selection);
+    if (language === "en") {
+      const ordinal = (number) => {
+        const mod100 = number % 100;
+        const suffix = mod100 >= 11 && mod100 <= 13 ? "th"
+          : number % 10 === 1 ? "st" : number % 10 === 2 ? "nd" : number % 10 === 3 ? "rd" : "th";
+        return `${number}${suffix}`;
+      };
+      return `${player.draft_year} · Round ${ordinal(round)} · ${ordinal(selection)} pick`;
+    }
+    return `${player.draft_year} · ${round === 1 ? "1er" : `${round}e`} tour · ${selection}${selection === 1 ? "er" : "e"} choix`;
+  }
   _t(key) { return translate(key, this._locale()); }
 
   static styles = css`
@@ -659,7 +678,7 @@ class NBACenterCard extends LitElement {
                 <div><small>${this._t("POIDS")}</small><strong>${player.weight_kg == null ? value(player.weight) : `${player.weight_kg.toLocaleString(this._locale())} kg`}</strong></div>
                 <div><small>${this._t("EXPÉRIENCE NBA")}</small><strong>${player.experience_years == null ? "—" : `${player.experience_years} ${this._t("ans")}`}${(() => { const gp = overview.career_statistics?.find((row) => row.name === "gamesPlayed"); return gp ? html` / ${value(gp.display_value, gp.value)} m` : ""; })()}</strong></div>
                 <div><small>${this._t("N°")}</small><strong>${value(player.jersey)}</strong></div>
-                <div><small>${this._t("DRAFT NBA")}</small><strong>${value(player.draft)}</strong></div>
+                <div><small>${this._t("DRAFT NBA")}</small><strong>${this._formatDraft(player)}</strong></div>
                 <div><small>${this._t("STATUT")}</small><strong>${value(player.status)}</strong></div>
                 <div><small>${this._t("ÉTAT MÉDICAL")}</small><strong class="roster-injury">${player.injuries?.length ? player.injuries.map((injury) => value(injury.status)).filter(Boolean).join(" · ") : this._t("Non renseigné")}</strong></div>
               </div>
