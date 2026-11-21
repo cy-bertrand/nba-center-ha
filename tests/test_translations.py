@@ -257,6 +257,8 @@ class TranslationTests(unittest.TestCase):
             '"Profil joueur": "Player profile"',
             '"ÉJECTÉ": "EJECTED"',
             '"NON PRIS EN JEU": "DID NOT PLAY"',
+            '"V": "W"',
+            '"D": "L"',
         }
         for entry in expected:
             self.assertIn(entry, translations)
@@ -272,6 +274,8 @@ class TranslationTests(unittest.TestCase):
             'this._t("Profil joueur")',
             'this._t("ÉJECTÉ")',
             'this._t("NON PRIS EN JEU")',
+            'this._t("V")',
+            'this._t("D")',
         ):
             self.assertIn(expression, frontend)
 
