@@ -217,6 +217,10 @@ class TranslationTests(unittest.TestCase):
         for expression in (
             'this._t("Joueur NBA")',
             'this._t("SAISON")',
+            'this._t("N°")',
+            'this._t("DRAFT NBA")',
+            'this._t(" / MATCH")',
+            'this._t("CAREER")',
             'this._t("Photo du joueur en grand")',
             'this._t("Impossible de charger le classement de cette saison.")',
             'this._t("Chargement du classement")',
