@@ -1049,6 +1049,8 @@ class NBACenterCard extends LitElement {
       ...this._overlayGame,
       state: liveState === "pre" ? "pre" : liveState === "in" ? "in" : "post",
       detail: details.live_state.status_detail ?? this._overlayGame.detail,
+      period: details.live_state.period ?? this._overlayGame.period,
+      clock: details.live_state.clock ?? this._overlayGame.clock,
       away: toTeam(away),
       home: toTeam(home),
     };
