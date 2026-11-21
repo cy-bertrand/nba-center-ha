@@ -651,15 +651,15 @@ class NBACenterCard extends LitElement {
           ${this._playerError ? html`<section class="empty"><strong>${this._t("Profil détaillé indisponible")}</strong><p>${this._playerError}</p><button @click=${() => this._openPlayer(player.id, player)}>${this._t("RÉESSAYER")}</button></section>` : ""}
           ${this._playerData ? html`
             <section class="panel">
-              <div class="panel-head"><h3>${this._t("FICHE JOUEUR & BILAN CARRIÈRE")}</h3><span class="pill">CAREER</span></div>
+              <div class="panel-head"><h3>${this._t("FICHE JOUEUR & BILAN CARRIÈRE")}</h3><span class="pill">${this._t("CAREER")}</span></div>
               <div class="player-profile-grid">
                 <div><small>${this._t("ÂGE")}</small><strong>${value(player.age)}</strong></div>
                 <div><small>${this._t("POSTE")}</small><strong>${value(player.position_name, player.position)}</strong></div>
                 <div><small>${this._t("TAILLE")}</small><strong>${player.height_cm == null ? value(player.height) : `${player.height_cm} cm`}</strong></div>
                 <div><small>${this._t("POIDS")}</small><strong>${player.weight_kg == null ? value(player.weight) : `${player.weight_kg.toLocaleString(this._locale())} kg`}</strong></div>
                 <div><small>${this._t("EXPÉRIENCE NBA")}</small><strong>${player.experience_years == null ? "—" : `${player.experience_years} ${this._t("ans")}`}${(() => { const gp = overview.career_statistics?.find((row) => row.name === "gamesPlayed"); return gp ? html` / ${value(gp.display_value, gp.value)} m` : ""; })()}</strong></div>
-                <div><small>N°</small><strong>${value(player.jersey)}</strong></div>
-                <div><small>DRAFT NBA</small><strong>${value(player.draft)}</strong></div>
+                <div><small>${this._t("N°")}</small><strong>${value(player.jersey)}</strong></div>
+                <div><small>${this._t("DRAFT NBA")}</small><strong>${value(player.draft)}</strong></div>
                 <div><small>${this._t("STATUT")}</small><strong>${value(player.status)}</strong></div>
                 <div><small>${this._t("ÉTAT MÉDICAL")}</small><strong class="roster-injury">${player.injuries?.length ? player.injuries.map((injury) => value(injury.status)).filter(Boolean).join(" · ") : this._t("Non renseigné")}</strong></div>
               </div>
@@ -695,7 +695,7 @@ class NBACenterCard extends LitElement {
               <p class="muted">${this._t("Moyennes fournies par ESPN Web API v3. On les affiche directement, sans recalcul local.")}</p>
               ${seasonHistory.length ? html`<div class="filters player-season-picker"><label class="muted" for="player-playoff-season-select">${this._t("SAISON PLAYOFFS")}</label><select id="player-playoff-season-select" aria-label=${this._t("Choisir la saison des playoffs")} .value=${String(this._playerSelectedPlayoffSeason || seasonHistory[0]?.year || "")} @change=${(event) => this._loadPlayerPlayoffSeason(player.id, Number(event.target.value))}>${seasonHistory.map((item) => html`<option value=${String(item.year)}>${item.display_name}${seasonTeamLabel(item) ? ` · ${seasonTeamLabel(item)}` : ""}</option>`)}</select>${this._playerPlayoffLoading ? html`<span class="muted">${this._t("Chargement…")}</span>` : ""}</div>` : ""}
               ${postseasonStats.length ? html`
-                <div class="player-stat-grid player-season-highlights">${postseasonAverageQuick.map(([label,item]) => html`<div><small>${label} / MATCH</small><strong>${value(item)}</strong></div>`)}</div>
+                <div class="player-stat-grid player-season-highlights">${postseasonAverageQuick.map(([label,item]) => html`<div><small>${label}${this._t(" / MATCH")}</small><strong>${value(item)}</strong></div>`)}</div>
                 ${postseasonDetailed.length ? html`<div class="table-wrap"><table><thead><tr><th>${this._t("STATISTIQUE")}</th><th>${this._t("VALEUR")}</th></tr></thead><tbody>${postseasonDetailed.map((item) => html`<tr><td>${value(translateStat(item),item.name)}</td><td>${value(item.display_value ?? item.value)}</td></tr>`)}</tbody></table></div>` : ""}
               ` : html`<p class="muted">${this._t("Les statistiques des playoffs sont récupérées séparément. Elles apparaîtront ici dès qu'ESPN publiera les données de postseason pour cette saison.")}</p>`}
             </section>
