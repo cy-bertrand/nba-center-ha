@@ -229,6 +229,15 @@ class TranslationTests(unittest.TestCase):
         ):
             self.assertIn(expression, frontend)
 
+    def test_frontend_uses_home_assistant_locale_for_all_formatting(self):
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        self.assertIn('_locale() { return this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE"; }', frontend)
+        self.assertIn('new Intl.DateTimeFormat(this._locale()', frontend)
+        self.assertIn('toLocaleDateString(this._locale()', frontend)
+        self.assertIn('toLocaleString(this._locale())', frontend)
+        self.assertNotIn('toLocaleString("fr-BE")', frontend)
+        self.assertEqual(frontend.count("this.hass?.locale?.language ?? this.hass?.language ??"), 1)
+
     def test_frontend_translation_dictionary_has_no_duplicate_keys(self):
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
         keys = re.findall(r'^  ("(?:[^"\\\\]|\\\\.)*")\\s*:', translations, re.MULTILINE)
