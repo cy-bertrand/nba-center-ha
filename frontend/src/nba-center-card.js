@@ -1266,7 +1266,7 @@ class NBACenterCard extends LitElement {
       <section class="panel">
         <div class="panel-head"><h3>${label}</h3><span class="pill">${rows.length} ${this._t("ÉQUIPES")}</span></div>
         ${rows.length ? html`<div class="table-wrap"><table>
-          <thead><tr><th>#</th><th>${this._t("ÉQUIPE")}</th><th>V</th><th>D</th><th>%</th><th>GB</th><th>${this._t("SÉRIE")}</th></tr></thead>
+          <thead><tr><th>#</th><th>${this._t("ÉQUIPE")}</th><th>${this._t("V")}</th><th>${this._t("D")}</th><th>%</th><th>GB</th><th>${this._t("SÉRIE")}</th></tr></thead>
           <tbody>${rows.slice(0,15).map((r,i) => html`
             <tr><td>${value(r.rank,i+1)}</td><td><button class="standing-team-button" type="button" ?disabled=${!r.team_id} @click=${() => this._openStandingTeam(r)}>${r.logo ? html`<img src=${r.logo} alt="" loading="lazy">` : ""}<span>${value(r.abbr,r.team)}</span></button></td><td>${value(r.wins)}</td>
             <td>${value(r.losses)}</td><td>${value(r.pct)}</td><td>${value(r.gb)}</td><td class="standing-streak">${value(r.streak)}</td></tr>`)}</tbody>
