@@ -250,8 +250,8 @@ class TranslationTests(unittest.TestCase):
         self.assertIn('"draft_selection": draft_selection', coordinator)
         self.assertIn('_formatDraft(player)', frontend)
         self.assertIn('language === "en"', frontend)
-        self.assertIn('"Round ${ordinal(round)}"', frontend)
-        self.assertIn('"1er" : `${round}e`', frontend)
+        self.assertIn('Round ${ordinal(round)}', frontend)
+        self.assertIn('? "1er" : `${round}e`', frontend)
 
     def test_frontend_translation_dictionary_has_no_duplicate_keys(self):
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
