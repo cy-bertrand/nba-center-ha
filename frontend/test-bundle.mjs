@@ -283,3 +283,9 @@ assert.match(source, /this\._closeTeamOverlay\(\);[\s\S]*?this\._openGame\(/, "o
 assert.match(source, /\.player-overlay\{z-index:10001\}/, "player profile overlay must appear above the team profile");
 assert.match(source, /class="overlay team-overlay"/, "team profile must use a single stable overlay layer");
 assert.match(source, /\.team-overlay\{z-index:9999\}/, "team profile must use the standard overlay layer");
+
+assert.match(source, /_scoreProgressionPanel\(\)/, "Match Center must render a score progression chart");
+assert.match(source, /score-progression-chart/, "score progression chart must use the NBA Dark chart styling");
+assert.match(source, /home_score.*previousHome|previousHome.*home_score/, "score progression must reject decreasing score snapshots");
+assert.match(translations, /"ÉVOLUTION DU SCORE": "SCORING PROGRESSION"/, "score progression title must have an English translation");
+assert.match(bundle, /score-progression-chart/, "bundled Match Center must include the score progression chart");
