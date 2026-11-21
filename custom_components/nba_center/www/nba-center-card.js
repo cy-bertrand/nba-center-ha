@@ -355,7 +355,7 @@ var j=globalThis,V=j.ShadowRoot&&(j.ShadyCSS===void 0||j.ShadyCSS.nativeShadow)&
       <section class="panel">
         <div class="panel-head"><h3>${t}</h3><span class="pill">${a.length} ${this._t("\xC9QUIPES")}</span></div>
         ${a.length?i`<div class="table-wrap"><table>
-          <thead><tr><th>#</th><th>${this._t("\xC9QUIPE")}</th><th>V</th><th>D</th><th>%</th><th>GB</th><th>${this._t("S\xC9RIE")}</th></tr></thead>
+          <thead><tr><th>#</th><th>${this._t("\xC9QUIPE")}</th><th>${this._t("V")}</th><th>${this._t("D")}</th><th>%</th><th>GB</th><th>${this._t("S\xC9RIE")}</th></tr></thead>
           <tbody>${a.slice(0,15).map((o,r)=>i`
             <tr><td>${n(o.rank,r+1)}</td><td><button class="standing-team-button" type="button" ?disabled=${!o.team_id} @click=${()=>this._openStandingTeam(o)}>${o.logo?i`<img src=${o.logo} alt="" loading="lazy">`:""}<span>${n(o.abbr,o.team)}</span></button></td><td>${n(o.wins)}</td>
             <td>${n(o.losses)}</td><td>${n(o.pct)}</td><td>${n(o.gb)}</td><td class="standing-streak">${n(o.streak)}</td></tr>`)}</tbody>
