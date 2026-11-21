@@ -76,7 +76,11 @@
         "name": "Catalogue des équipes"
       },
       "data_status": {
-        "name": "État du flux principal"
+        "name": "État du flux principal",
+        "state": {
+          "up_to_date": "À jour",
+          "degraded": "Dégradé"
+        }
       },
       "team_last": {
         "name": "{team_name} Dernier match"
@@ -85,7 +89,10 @@
         "name": "{team_name} Prochain match"
       },
       "team_live": {
-        "name": "{team_name} Match en cours"
+        "name": "{team_name} Match en cours",
+        "state": {
+          "no_game": "Aucun match en cours"
+        }
       },
       "team_recent_games": {
         "name": "{team_name} Derniers matchs"
