@@ -1190,14 +1190,13 @@ class NBACenterCard extends LitElement {
     const points = [{ elapsed: 0, away: 0, home: 0, margin: 0, period: 1, clock: "12:00", text: "" }, ...snapshots];
     const path = points.map((point, index) => `${index ? "L" : "M"} ${x(point.elapsed).toFixed(1)} ${y(point.margin).toFixed(1)}`).join(" ");
     const yTicks = [20, 10, 0, -10, -20];
-    const xTicks = [
-      { minute: 0, label: "0:00" },
-      { minute: 12, label: "Q2" },
-      { minute: 24, label: "Q3" },
-      { minute: 36, label: "Q4" },
-      { minute: 48, label: overtimeCount ? "OT" : "48:00" },
-      ...Array.from({ length: overtimeCount }, (_, index) => ({ minute: 48 + (index + 1) * 5, label: index + 1 === overtimeCount ? `${index + 1}OT` : `${index + 1}OT` })),
-    ].filter((tick) => tick.minute <= totalMinutes);
+    const xTicks = [0, 12, 24, 36, 48, ...Array.from({ length: overtimeCount }, (_, index) => 48 + (index + 1) * 5)]
+      .filter((minute) => minute <= totalMinutes)
+      .map((minute) => ({ minute, label: String(minute) }));
+    const periodLabels = [
+      ...Array.from({ length: 4 }, (_, index) => ({ minute: index * 12 + 6, label: `Q${index + 1}` })),
+      ...Array.from({ length: overtimeCount }, (_, index) => ({ minute: 48 + index * 5 + 2.5, label: index ? `${index + 1}OT` : "OT" })),
+    ];
     const periodBoundaries = [12, 24, 36, 48, ...Array.from({ length: overtimeCount }, (_, index) => 48 + (index + 1) * 5)].filter((minute) => minute <= totalMinutes);
     const hover = this._scoreTimelineHover;
     const hoverPoint = hover ? points[hover.index] : null;
@@ -1225,7 +1224,8 @@ class NBACenterCard extends LitElement {
           <path d="${path}" fill="none" stroke="#58b9e8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
           ${points.slice(1).map((point, index) => html`<circle cx="${x(point.elapsed)}" cy="${y(point.margin)}" r="3.4" fill="#58b9e8" stroke="#0d1726" stroke-width="1.4" />`)}
           ${points.filter((point) => Math.abs(point.margin) > 20).map((point) => html`<text text-anchor="middle" x="${x(point.elapsed)}" y="${point.margin > 0 ? top - 7 : bottom + 13}" fill="#f2c45f" font-size="11" font-weight="900">${formatMargin(point.margin)}</text>`)}
-          ${xTicks.map((tick) => html`<text text-anchor="middle" x="${x(tick.minute)}" y="248" fill="#aab6ca" font-size="10" font-weight="800">${tick.label}</text>`)}
+          ${periodLabels.map((item) => html`<text text-anchor="middle" x="${x(item.minute)}" y="248" fill="#d5deeb" font-size="10" font-weight="900">${item.label}</text>`)}
+          ${xTicks.map((tick) => html`<text text-anchor="middle" x="${x(tick.minute)}" y="267" fill="#8292aa" font-size="9">${tick.label}</text>`)}
           ${hoverPoint ? html`<g>
             <line x1="${x(hoverPoint.elapsed)}" x2="${x(hoverPoint.elapsed)}" y1="${top}" y2="${bottom}" stroke="#f2c45f" stroke-width="1.5" stroke-dasharray="4 4" />
             <circle cx="${x(hoverPoint.elapsed)}" cy="${y(hoverPoint.margin)}" r="6" fill="#f2c45f" stroke="#0d1726" stroke-width="2" />
