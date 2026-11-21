@@ -180,6 +180,8 @@ const EN = {
   "Non renseigné": "Not provided",
   "Choisir une saison": "Choose a season",
   "DRAFT NBA": "NBA DRAFT",
+  "N°": "NO.",
+  " / MATCH": " / GAME",
   "TERMINÉE": "COMPLETED",
   "À VÉRIFIER": "NEEDS REVIEW",
   "EN COURS": "IN PROGRESS",
