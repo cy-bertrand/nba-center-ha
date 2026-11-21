@@ -76,7 +76,7 @@ class NBACenterCard extends LitElement {
           : number % 10 === 1 ? "st" : number % 10 === 2 ? "nd" : number % 10 === 3 ? "rd" : "th";
         return `${number}${suffix}`;
       };
-      return `${player.draft_year} · Round ${ordinal(round)} · ${ordinal(selection)} pick`;
+      return `${player.draft_year} · ${ordinal(round)} round · ${ordinal(selection)} pick`;
     }
     return `${player.draft_year} · ${round === 1 ? "1er" : `${round}e`} tour · ${selection}${selection === 1 ? "er" : "e"} choix`;
   }
