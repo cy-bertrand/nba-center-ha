@@ -5,6 +5,8 @@
  * before using them in the card, then provide the corresponding locale value.
  */
 const EN = {
+  "V": "W",
+  "D": "L",
   "EN DIRECT": "LIVE",
   "AUCUN MATCH LIVE": "NO LIVE GAMES",
   "MATCHS": "GAMES",
