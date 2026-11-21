@@ -292,4 +292,5 @@ assert.match(source, /48 \+ overtimeCount \* 5/, "score timeline must extend its
 assert.match(translations, /"SCORE TIMELINE": "SCORE TIMELINE"/, "score timeline labels must have an English translation");
 
 
+
 assert.match(source, /_scoreTimelineHover: \{ state: true \}/, "score timeline hover state must be reactive");
