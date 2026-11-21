@@ -287,11 +287,11 @@ class TranslationTests(unittest.TestCase):
 
         used_keys = {
             json.loads(match)
-            for match in re.findall(r'this\\._t\\(\\s*("(?:\\\\.|[^"\\\\])*")\\s*\\)', frontend)
+            for match in re.findall(r'this\._t\(\s*("(?:\\.|[^"\\])*")\s*\)', frontend)
         }
         dictionary_keys = {
             json.loads(match)
-            for match in re.findall(r'^\\s*("(?:\\\\.|[^"\\\\])*")\\s*:', translations, re.MULTILINE)
+            for match in re.findall(r'^\s*("(?:\\.|[^"\\])*")\s*:', translations, re.MULTILINE)
         }
 
         self.assertTrue(used_keys, "No literal frontend translation keys were found")
