@@ -1145,29 +1145,63 @@ class NBACenterCard extends LitElement {
       const away = Number(play.away_score);
       const home = Number(play.home_score);
       const period = Number(play.period);
-      const clock = String(play.clock ?? "").match(/^(\d{1,2}):(\d{2})$/);
+      const clock = String(play.clock ?? "").match(/^(\\d{1,2}):(\\d{2})$/);
       if (!Number.isFinite(away) || !Number.isFinite(home) || !Number.isInteger(period) || period < 1 || !clock) continue;
       const minutesRemaining = Number(clock[1]) + Number(clock[2]) / 60;
       const periodLength = period <= 4 ? 12 : 5;
       if (minutesRemaining < 0 || minutesRemaining > periodLength) continue;
       if (away < previousAway || home < previousHome) continue;
       if (away === previousAway && home === previousHome) continue;
-      const elapsed = period <= 4 ? (period - 1) * 12 + (12 - minutesRemaining) : 48 + (period - 5) * 5 + (5 - minutesRemaining);
+      const elapsed = period <= 4
+        ? (period - 1) * 12 + (12 - minutesRemaining)
+        : 48 + (period - 5) * 5 + (5 - minutesRemaining);
       snapshots.push({ elapsed, away, home, margin: home - away, period, clock: String(play.clock), text: play.text ?? "" });
-      previousAway = away; previousHome = home;
+      previousAway = away;
+      previousHome = home;
+    }
+
+    const live = this._overlayGame?.state === "in" ? this._overlayGame : null;
+    const livePeriod = Number(live?.period);
+    const liveClock = String(live?.clock ?? "").match(/^(\\d{1,2}):(\\d{2})$/);
+    const currentPeriod = live && Number.isInteger(livePeriod) && livePeriod > 0 ? livePeriod : 0;
+    const overtimeCount = Math.max(0, ...snapshots.map((point) => point.period - 4), currentPeriod - 4);
+    const totalMinutes = 48 + overtimeCount * 5;
+
+    if (live && liveClock && currentPeriod > 0) {
+      const remaining = Number(liveClock[1]) + Number(liveClock[2]) / 60;
+      const periodLength = currentPeriod <= 4 ? 12 : 5;
+      const away = Number(live.away?.score);
+      const home = Number(live.home?.score);
+      if (remaining >= 0 && remaining <= periodLength && Number.isFinite(away) && Number.isFinite(home)) {
+        const elapsed = currentPeriod <= 4
+          ? (currentPeriod - 1) * 12 + (12 - remaining)
+          : 48 + (currentPeriod - 5) * 5 + (5 - remaining);
+        const last = snapshots[snapshots.length - 1];
+        if (!last || elapsed > last.elapsed) {
+          snapshots.push({ elapsed, away, home, margin: home - away, period: currentPeriod, clock: String(live.clock), text: "" });
+        }
+      }
     }
     if (!snapshots.length) return "";
-    const overtimeCount = Math.max(0, ...snapshots.map((point) => point.period - 4));
-    const totalMinutes = 48 + overtimeCount * 5;
-    const width = 720, height = 250, left = 42, right = 704, top = 18, bottom = 204;
+
+    const width = 720, height = 286, left = 48, right = 704, top = 24, bottom = 224;
     const x = (minute) => left + (minute / totalMinutes) * (right - left);
     const y = (margin) => top + ((20 - Math.max(-20, Math.min(20, margin))) / 40) * (bottom - top);
     const points = [{ elapsed: 0, away: 0, home: 0, margin: 0, period: 1, clock: "12:00", text: "" }, ...snapshots];
     const path = points.map((point, index) => `${index ? "L" : "M"} ${x(point.elapsed).toFixed(1)} ${y(point.margin).toFixed(1)}`).join(" ");
-    const divisions = Array.from({ length: Math.floor(totalMinutes / 12) }, (_, index) => (index + 1) * 12).filter((minute) => minute < totalMinutes || minute === 48);
-    const labels = [{ minute: 0, label: "Q1" }, { minute: 12, label: "Q2" }, { minute: 24, label: "Q3" }, { minute: 36, label: "Q4" }, ...Array.from({ length: overtimeCount }, (_, index) => ({ minute: 48 + index * 5, label: index ? `${index + 1}OT` : "OT" }))];
+    const yTicks = [20, 10, 0, -10, -20];
+    const xTicks = [
+      { minute: 0, label: "0:00" },
+      { minute: 12, label: "Q2" },
+      { minute: 24, label: "Q3" },
+      { minute: 36, label: "Q4" },
+      { minute: 48, label: overtimeCount ? "OT" : "48:00" },
+      ...Array.from({ length: overtimeCount }, (_, index) => ({ minute: 48 + (index + 1) * 5, label: index + 1 === overtimeCount ? `${index + 1}OT` : `${index + 1}OT` })),
+    ].filter((tick) => tick.minute <= totalMinutes);
+    const periodBoundaries = [12, 24, 36, 48, ...Array.from({ length: overtimeCount }, (_, index) => 48 + (index + 1) * 5)].filter((minute) => minute <= totalMinutes);
     const hover = this._scoreTimelineHover;
     const hoverPoint = hover ? points[hover.index] : null;
+    const formatMargin = (margin) => `${margin > 0 ? "+" : ""}${margin}`;
     return html`
       <section class="panel score-timeline">
         <div class="panel-head"><h3>${this._t("SCORE TIMELINE")}</h3><span class="pill">${this._t("ÉCART DE POINTS")}</span></div>
@@ -1181,13 +1215,24 @@ class NBACenterCard extends LitElement {
             this._scoreTimelineHover = { index: nearest };
           }}
           @pointerleave=${() => { this._scoreTimelineHover = null; }}>
-          ${[-20, -10, 0, 10, 20].map((tick) => html`<g><line class="${tick === 0 ? "score-timeline-zero" : "score-timeline-grid"}" x1="${left}" x2="${right}" y1="${y(tick)}" y2="${y(tick)}" /><text class="score-timeline-axis" x="4" y="${y(tick) + 3}">${tick > 0 ? "+" : ""}${tick}</text></g>`)}
-          ${divisions.map((minute) => html`<line class="score-timeline-grid" x1="${x(minute)}" x2="${x(minute)}" y1="${top}" y2="${bottom}" />`)}
-          ${labels.map((item) => html`<text class="score-timeline-period" text-anchor="middle" x="${x(item.minute + (item.label.startsWith("Q") ? 6 : 2.5))}" y="236">${item.label}</text>`)}
-          <path class="score-timeline-line" d="${path}" />
-          ${points.map((point, index) => html`<circle class="score-timeline-dot" cx="${x(point.elapsed)}" cy="${y(point.margin)}" r="${index === points.length - 1 ? 4 : 2.5}" />`)}
-          ${points.filter((point) => Math.abs(point.margin) > 20).map((point) => html`<text class="score-timeline-overflow" text-anchor="middle" x="${x(point.elapsed)}" y="${point.margin > 0 ? top - 5 : bottom + 13}">${point.margin > 0 ? "+" : ""}${point.margin}</text>`)}
-          ${hoverPoint ? html`<g><line x1="${x(hoverPoint.elapsed)}" x2="${x(hoverPoint.elapsed)}" y1="${top}" y2="${bottom}" stroke="#f2c45f" stroke-dasharray="3 3" /><circle class="score-timeline-hover" cx="${x(hoverPoint.elapsed)}" cy="${y(hoverPoint.margin)}" r="5" /><rect class="score-timeline-tooltip" x="${Math.min(right - 148, Math.max(left, x(hoverPoint.elapsed) - 74))}" y="2" width="148" height="34" rx="6" /><text class="score-timeline-tooltip-text" text-anchor="middle" x="${Math.min(right - 74, Math.max(left + 74, x(hoverPoint.elapsed)))}" y="16">${hoverPoint.away} – ${hoverPoint.home} · ${hoverPoint.margin > 0 ? "+" : ""}${hoverPoint.margin}</text><text class="score-timeline-tooltip-text" text-anchor="middle" x="${Math.min(right - 74, Math.max(left + 74, x(hoverPoint.elapsed)))}" y="29">${hoverPoint.period > 4 ? (hoverPoint.period === 5 ? "OT" : `${hoverPoint.period - 4}OT`) : `Q${hoverPoint.period}`} · ${hoverPoint.clock}</text></g>` : ""}
+          ${yTicks.map((tick) => html`<g>
+            <line x1="${left}" x2="${right}" y1="${y(tick)}" y2="${y(tick)}"
+              stroke="${tick === 0 ? "#f2c45f" : "#ffffff20"}" stroke-width="${tick === 0 ? "2.5" : "1"}"
+              stroke-dasharray="${tick === 0 ? "none" : "3 5"}" />
+            <text x="5" y="${y(tick) + 4}" fill="${tick === 0 ? "#f2c45f" : "#aab6ca"}" font-size="11" font-weight="${tick === 0 ? "900" : "600"}">${tick > 0 ? "+" : ""}${tick}</text>
+          </g>`)}
+          ${periodBoundaries.map((minute) => html`<line x1="${x(minute)}" x2="${x(minute)}" y1="${top}" y2="${bottom}" stroke="#ffffff24" stroke-width="1" stroke-dasharray="3 5" />`)}
+          <path d="${path}" fill="none" stroke="#58b9e8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+          ${points.slice(1).map((point, index) => html`<circle cx="${x(point.elapsed)}" cy="${y(point.margin)}" r="3.4" fill="#58b9e8" stroke="#0d1726" stroke-width="1.4" />`)}
+          ${points.filter((point) => Math.abs(point.margin) > 20).map((point) => html`<text text-anchor="middle" x="${x(point.elapsed)}" y="${point.margin > 0 ? top - 7 : bottom + 13}" fill="#f2c45f" font-size="11" font-weight="900">${formatMargin(point.margin)}</text>`)}
+          ${xTicks.map((tick) => html`<text text-anchor="middle" x="${x(tick.minute)}" y="248" fill="#aab6ca" font-size="10" font-weight="800">${tick.label}</text>`)}
+          ${hoverPoint ? html`<g>
+            <line x1="${x(hoverPoint.elapsed)}" x2="${x(hoverPoint.elapsed)}" y1="${top}" y2="${bottom}" stroke="#f2c45f" stroke-width="1.5" stroke-dasharray="4 4" />
+            <circle cx="${x(hoverPoint.elapsed)}" cy="${y(hoverPoint.margin)}" r="6" fill="#f2c45f" stroke="#0d1726" stroke-width="2" />
+            <rect x="${Math.min(right - 154, Math.max(left, x(hoverPoint.elapsed) - 77))}" y="2" width="154" height="39" rx="7" fill="#101c2d" stroke="#f2c45f" stroke-width="1" />
+            <text text-anchor="middle" x="${Math.min(right - 77, Math.max(left + 77, x(hoverPoint.elapsed)))}" y="17" fill="#f4f6fb" font-size="11" font-weight="900">${hoverPoint.away} – ${hoverPoint.home} · ${formatMargin(hoverPoint.margin)}</text>
+            <text text-anchor="middle" x="${Math.min(right - 77, Math.max(left + 77, x(hoverPoint.elapsed)))}" y="31" fill="#c5cfde" font-size="10">${hoverPoint.period > 4 ? (hoverPoint.period === 5 ? "OT" : `${hoverPoint.period - 4}OT`) : `Q${hoverPoint.period}`} · ${hoverPoint.clock}</text>
+          </g>` : ""}
         </svg>
         <div class="score-timeline-legend"><span><strong>+ ${this._t("DOMICILE")}</strong> · ${this._t("L'extérieur mène sous 0")}</span><span>${this._t("Échelle fixe")} −20 / +20</span></div>
       </section>`;
