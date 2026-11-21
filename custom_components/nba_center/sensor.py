@@ -163,7 +163,7 @@ class NBATeamSensor(NBABaseSensor):
     def native_value(self) -> str | None:
         g = self._game
         if not g:
-            return "Aucun" if self._kind == "live" else None
+            return "no_game" if self._kind == "live" else None
         if self._kind == "next":
             return f"{g['name']} - {g['date_text']}" if g.get("date_text") else g["name"]
         return f"{g['away'].get('abbr')} {g['away'].get('score')} - {g['home'].get('score')} {g['home'].get('abbr')}"
@@ -248,7 +248,7 @@ class NBADataStatusSensor(NBABaseSensor):
     @property
     def native_value(self) -> str:
         data = self.coordinator.data or {}
-        return "Dégradé" if data.get("data_stale") or data.get("data_errors") else "À jour"
+        return "degraded" if data.get("data_stale") or data.get("data_errors") else "up_to_date"
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
