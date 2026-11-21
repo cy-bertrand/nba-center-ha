@@ -76,7 +76,11 @@
         "name": "Teams catalog"
       },
       "data_status": {
-        "name": "Main data status"
+        "name": "Main data status",
+        "state": {
+          "up_to_date": "Up to date",
+          "degraded": "Degraded"
+        }
       },
       "team_last": {
         "name": "{team_name} Last game"
@@ -85,7 +89,10 @@
         "name": "{team_name} Next game"
       },
       "team_live": {
-        "name": "{team_name} Live game"
+        "name": "{team_name} Live game",
+        "state": {
+          "no_game": "No game in progress"
+        }
       },
       "team_recent_games": {
         "name": "{team_name} Recent games"

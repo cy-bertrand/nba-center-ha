@@ -5,6 +5,8 @@
  * before using them in the card, then provide the corresponding locale value.
  */
 const EN = {
+  "V": "W",
+  "D": "L",
   "EN DIRECT": "LIVE",
   "AUCUN MATCH LIVE": "NO LIVE GAMES",
   "MATCHS": "GAMES",
@@ -76,6 +78,9 @@ const EN = {
   "ÉQUIPE": "TEAM",
   "TOTAL": "TOTAL",
   "COMPARAISON DES ÉQUIPES": "TEAM COMPARISON",
+  "TEAM STATS": "TEAM STATS",
+  "NBA LIVE": "NBA LIVE",
+  "NBA DATA": "NBA DATA",
   "FIL DU MATCH": "PLAY-BY-PLAY",
   "TOUTES": "ALL",
   "POINTS SEULEMENT": "SCORING PLAYS ONLY",
@@ -178,6 +183,8 @@ const EN = {
   "Non renseigné": "Not provided",
   "Choisir une saison": "Choose a season",
   "DRAFT NBA": "NBA DRAFT",
+  "N°": "NO.",
+  " / MATCH": " / GAME",
   "TERMINÉE": "COMPLETED",
   "À VÉRIFIER": "NEEDS REVIEW",
   "EN COURS": "IN PROGRESS",

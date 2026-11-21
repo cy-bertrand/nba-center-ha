@@ -217,6 +217,10 @@ class TranslationTests(unittest.TestCase):
         for expression in (
             'this._t("Joueur NBA")',
             'this._t("SAISON")',
+            'this._t("N°")',
+            'this._t("DRAFT NBA")',
+            'this._t(" / MATCH")',
+            'this._t("CAREER")',
             'this._t("Photo du joueur en grand")',
             'this._t("Impossible de charger le classement de cette saison.")',
             'this._t("Chargement du classement")',
@@ -228,6 +232,15 @@ class TranslationTests(unittest.TestCase):
             'this._t("Impossible de charger le calendrier NBA.")',
         ):
             self.assertIn(expression, frontend)
+
+    def test_frontend_uses_home_assistant_locale_for_all_formatting(self):
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        self.assertIn('_locale() { return this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE"; }', frontend)
+        self.assertIn('new Intl.DateTimeFormat(this._locale()', frontend)
+        self.assertIn('toLocaleDateString(this._locale()', frontend)
+        self.assertIn('toLocaleString(this._locale())', frontend)
+        self.assertNotIn('toLocaleString("fr-BE")', frontend)
+        self.assertEqual(frontend.count("this.hass?.locale?.language ?? this.hass?.language ??"), 1)
 
     def test_frontend_translation_dictionary_has_no_duplicate_keys(self):
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
@@ -248,6 +261,11 @@ class TranslationTests(unittest.TestCase):
             '"Profil joueur": "Player profile"',
             '"ÉJECTÉ": "EJECTED"',
             '"NON PRIS EN JEU": "DID NOT PLAY"',
+            '"V": "W"',
+            '"D": "L"',
+            '"TEAM STATS": "TEAM STATS"',
+            '"NBA LIVE": "NBA LIVE"',
+            '"NBA DATA": "NBA DATA"',
         }
         for entry in expected:
             self.assertIn(entry, translations)
@@ -263,6 +281,11 @@ class TranslationTests(unittest.TestCase):
             'this._t("Profil joueur")',
             'this._t("ÉJECTÉ")',
             'this._t("NON PRIS EN JEU")',
+            'this._t("V")',
+            'this._t("D")',
+            'this._t("TEAM STATS")',
+            'this._t("NBA LIVE")',
+            'this._t("NBA DATA")',
         ):
             self.assertIn(expression, frontend)
 
@@ -271,6 +294,57 @@ class TranslationTests(unittest.TestCase):
             '${catalog.count}/30 FRANCHISES',
         ):
             self.assertNotIn(untranslated, frontend)
+
+    def test_every_literal_frontend_translation_key_has_an_english_translation(self):
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
+
+        used_keys = {
+            json.loads(match)
+            for match in re.findall(r'this\._t\(\s*("(?:\\.|[^"\\])*")\s*\)', frontend)
+        }
+        dictionary_keys = {
+            json.loads(match)
+            for match in re.findall(r'^\s*("(?:\\.|[^"\\])*")\s*:', translations, re.MULTILINE)
+        }
+
+        self.assertTrue(used_keys, "No literal frontend translation keys were found")
+        self.assertEqual(
+            used_keys - dictionary_keys,
+            set(),
+            "Frontend labels are missing from the translation dictionary",
+        )
+
+    def test_sensor_states_use_stable_keys_and_have_french_english_translations(self):
+        sensor = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
+        self.assertIn('return "degraded" if data.get("data_stale") or data.get("data_errors") else "up_to_date"', sensor)
+        self.assertIn('return "no_game" if self._kind == "live" else None', sensor)
+
+        for language, expected in {
+            "en": {
+                "data_status": {"up_to_date": "Up to date", "degraded": "Degraded"},
+                "team_live": {"no_game": "No game in progress"},
+            },
+            "fr": {
+                "data_status": {"up_to_date": "À jour", "degraded": "Dégradé"},
+                "team_live": {"no_game": "Aucun match en cours"},
+            },
+        }.items():
+            translations = json.loads(
+                (COMPONENT / "translations" / f"{language}.json").read_text(encoding="utf-8")
+            )
+            for entity_key, states in expected.items():
+                self.assertEqual(translations["entity"]["sensor"][entity_key]["state"], states)
+
+        source = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
+        self.assertEqual(
+            source["entity"]["sensor"]["data_status"]["state"],
+            {"up_to_date": "À jour", "degraded": "Dégradé"},
+        )
+        self.assertEqual(
+            source["entity"]["sensor"]["team_live"]["state"],
+            {"no_game": "Aucun match en cours"},
+        )
 
 
 if __name__ == "__main__":

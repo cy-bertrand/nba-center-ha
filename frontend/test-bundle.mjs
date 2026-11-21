@@ -69,7 +69,7 @@ assert.match(source, /@media\(max-width:760px\)\{\.playoff-round \.grid\{grid-te
 
 assert.match(source, /series\.unknown_results \? "≥" : ""/, "playoff wins must be marked as minimum counts when results are unconfirmed");
 assert.match(source, /_dataStatus\(\)/, "card must read the diagnostic sensor");
-assert.match(source, /dataStatus\?\.state !== "À jour"/, "unknown diagnostic states must be treated as degraded");
+assert.match(source, /!\["À jour", "up_to_date"\]\.includes\(dataStatus\?\.state\)/, "unknown diagnostic states must be treated as degraded while accepting the stable up_to_date state");
 assert.match(source, /this\._t\("Données partielles"\)/, "card must warn when core NBA feeds are degraded");
 assert.match(source, /series\.unknown_results \? "≥" : ""/, "playoff wins must be marked as minimum counts when results are unconfirmed");
 assert.match(source, /TÊTES DE SÉRIE NON VALIDÉES|Têtes de série non validées/, "unvalidated playoff seeds must be disclosed");
@@ -163,7 +163,7 @@ assert.match(source, /this\._t\("Actualisation du match impossible\."\)/, "Match
 assert.match(translations, /"Voir le match de": "View the game for"/, "daily performance accessible label must have an English translation");
 assert.match(translations, /"Actualisation du match impossible\.": "Unable to refresh game details\."/ , "Match Center refresh fallback must have an English translation");
 assert.match(source, /const statusKey = dataStatus\?\.attributes\?\.status_key/, "data health must prefer the locale-independent status key");
-assert.match(source, /statusKey \? statusKey !== "up_to_date" : dataStatus\?\.state !== "À jour"/, "legacy data health sensors must keep their French-state fallback");
+assert.match(source, /statusKey \? statusKey !== "up_to_date" : !\["À jour", "up_to_date"\]\.includes\(dataStatus\?\.state\)/, "legacy data health sensors must keep their French-state fallback while accepting stable states");
 
 console.log("NBA Center frontend bundle and feature checks passed.");
 
