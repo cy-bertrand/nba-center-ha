@@ -166,6 +166,7 @@ class NBACenterCard extends LitElement {
     .overlay-body{padding:18px}.overlay-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;text-align:center}
     .overlay-team img{width:54px;height:54px;object-fit:contain}.overlay-team strong{display:block;margin-top:7px;font-size:14.4px}
     .overlay-score{font-size:28.8px;font-weight:950;color:#f2c45f}.overlay-actions{display:flex;align-items:center;gap:7px}.overlay-refresh{min-width:0;padding:8px 10px;border:1px solid #34465f;color:#e8bb58;font-size:10.8px}.overlay-refresh:disabled{opacity:.55;cursor:wait}.overlay-close{min-width:38px;padding:8px;border:1px solid #34465f}
+    .score-progression-panel{margin-top:12px;padding:12px}.score-chart-legend{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 6px;color:#b9c5d5;font-size:11px}.score-chart-legend span{display:flex;align-items:center;gap:6px}.score-chart-dot{width:8px;height:8px;border-radius:50%;display:inline-block}.score-chart-dot.away{background:#45b8e8}.score-chart-dot.home{background:#f2c45f}.score-progression-chart{display:block;width:100%;height:auto;overflow:visible}.score-chart-grid{stroke:#ffffff16;stroke-width:1}.score-chart-divider{stroke:#ffffff30;stroke-width:1;stroke-dasharray:3 4}.score-chart-period,.score-chart-value{fill:#91a0b5;font-size:10px}.score-chart-line{fill:none;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}.score-chart-line.away{stroke:#45b8e8}.score-chart-line.home{stroke:#f2c45f}.score-chart-point.away{fill:#45b8e8}.score-chart-point.home{fill:#f2c45f}
     .game-leaders-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.game-leader-card{padding:12px;min-width:0}.game-leader-card .panel-head{margin-bottom:7px}.game-leader-card .panel-head h3{font-size:14.4px;letter-spacing:.08em}.game-leader{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #ffffff12}.game-leader-category{color:#e8bb58;font-size:10.8px;font-weight:900;letter-spacing:.08em}.game-leader-name{font-size:13.2px;font-weight:750;overflow-wrap:anywhere}.game-leader-value{color:#f2c45f;font-size:15.6px;font-weight:950;font-variant-numeric:tabular-nums}.game-leaders-empty{color:#91a0b5;font-size:12px;padding:7px 0}@media(max-width:760px){.playoff-round .grid{grid-template-columns:1fr}}
     .game .logo{width:32px;height:32px}.home-daily-player img,.home-daily-avatar{width:36px;height:36px}.leader-list .avatar{width:38px;height:38px}.player-profile-overlay .roster-headshot{width:64px;height:64px}.player-profile-overlay .player-team-logo{width:36px;height:36px}.player-photo-trigger{display:inline-flex;flex:0 0 auto;padding:0;border:0;border-radius:50%;background:transparent;cursor:zoom-in}.player-photo-trigger .roster-headshot{display:block;transition:transform .15s,box-shadow .15s}.player-photo-trigger:hover .roster-headshot{transform:scale(1.06);box-shadow:0 0 0 2px #f2c45f}.player-photo-trigger:focus-visible{outline:2px solid #f2c45f;outline-offset:4px}.player-photo-lightbox{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:24px;background:#03070ddd;cursor:zoom-out}.player-photo-lightbox img{display:block;max-width:min(88vw,680px);max-height:86vh;width:auto;height:auto;object-fit:contain;border-radius:14px;box-shadow:0 20px 70px #000b}.player-photo-lightbox button{position:absolute;top:18px;right:18px;width:44px;height:44px;padding:0;border:1px solid #ffffff44;border-radius:50%;background:#172338;color:#fff;font-size:22px;cursor:pointer}
     @media(max-width:620px){.home-heading h2{font-size:22.8px}.home-grid{grid-template-columns:1fr}.home-leaders-grid{grid-template-columns:1fr}.home-daily-grid{grid-template-columns:1fr}.home-daily-panel{padding:12px}.home-leaders-grid .panel{padding:12px}.home-leaders-grid .leader{grid-template-columns:24px 34px minmax(0,1fr) auto}.home-leaders-grid .avatar{width:32px;height:32px}.home-leaders-grid .player{font-size:13.2px}.home-leaders-grid .stat{font-size:15.6px}.home-live .game{grid-template-columns:1fr;gap:5px}.home-live .status{text-align:left}
@@ -1115,6 +1116,69 @@ class NBACenterCard extends LitElement {
     });
   }
 
+  _scoreProgressionPanel() {
+    const plays = this._overlayDetails?.plays ?? [];
+    const valid = [];
+    let previousHome = 0;
+    let previousAway = 0;
+    for (const play of plays) {
+      const home = Number(play.home_score);
+      const away = Number(play.away_score);
+      const period = Number(play.period);
+      if (!Number.isFinite(home) || !Number.isFinite(away) || !Number.isInteger(period)
+          || period < 1 || home < previousHome || away < previousAway) continue;
+      if (home === previousHome && away === previousAway) continue;
+      const clock = String(play.clock ?? "").match(/^(\d{1,2}):(\d{2})$/);
+      if (!clock) continue;
+      const duration = period <= 4 ? 12 * 60 : 5 * 60;
+      const remaining = Number(clock[1]) * 60 + Number(clock[2]);
+      if (remaining > duration) continue;
+      const elapsed = period <= 4
+        ? (period - 1) * 12 * 60 + duration - remaining
+        : 4 * 12 * 60 + (period - 5) * 5 * 60 + duration - remaining;
+      valid.push({ elapsed, home, away });
+      previousHome = home;
+      previousAway = away;
+    }
+    if (!valid.length) return "";
+    const maxPeriod = Math.max(4, ...plays.map((play) => Number(play.period) || 0));
+    const totalSeconds = 4 * 12 * 60 + Math.max(0, maxPeriod - 4) * 5 * 60;
+    const width = 640, height = 190, left = 34, right = 12, top = 12, bottom = 30;
+    const plotWidth = width - left - right, plotHeight = height - top - bottom;
+    const maxScore = Math.max(10, ...valid.flatMap((point) => [point.home, point.away]));
+    const x = (seconds) => left + Math.max(0, Math.min(1, seconds / totalSeconds)) * plotWidth;
+    const y = (score) => top + plotHeight - (score / maxScore) * plotHeight;
+    const awayPoints = [{ elapsed: 0, away: 0 }, ...valid];
+    const homePoints = [{ elapsed: 0, home: 0 }, ...valid];
+    const path = (points, key) => points.map((point, index) =>
+      `${index ? "L" : "M"} ${x(point.elapsed).toFixed(1)} ${y(point[key]).toFixed(1)}`).join(" ");
+    const separators = Array.from({ length: maxPeriod - 1 }, (_, index) => {
+      const period = index + 1;
+      const seconds = period < 4 ? period * 12 * 60 : 4 * 12 * 60 + (period - 4) * 5 * 60;
+      const label = period < 4 ? `Q${period + 1}` : period === 4 ? "OT" : `${period - 3}OT`;
+      return html`<line x1=${x(seconds)} y1=${top} x2=${x(seconds)} y2=${top + plotHeight} class="score-chart-divider"/><text x=${x(seconds) + 4} y=${height - 7} class="score-chart-period">${label}</text>`;
+    });
+    const away = this._overlayGame?.away?.name ?? this._t("Équipe visiteuse");
+    const home = this._overlayGame?.home?.name ?? this._t("Équipe à domicile");
+    const last = valid[valid.length - 1];
+    return html`
+      <section class="panel score-progression-panel">
+        <div class="panel-head"><h3>${this._t("ÉVOLUTION DU SCORE")}</h3></div>
+        <div class="score-chart-legend">
+          <span><i class="score-chart-dot away"></i>${away}</span>
+          <span><i class="score-chart-dot home"></i>${home}</span>
+        </div>
+        <svg class="score-progression-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label=${`${this._t("ÉVOLUTION DU SCORE")} · ${away} ${last.away} – ${last.home} ${home}`}>
+          ${[0, Math.round(maxScore / 2), maxScore].map((score) => html`<line x1=${left} y1=${y(score)} x2=${width - right} y2=${y(score)} class="score-chart-grid"/><text x=${left - 8} y=${y(score) + 4} text-anchor="end" class="score-chart-value">${score}</text>`)}
+          ${separators}
+          <path d=${path(awayPoints, "away")} class="score-chart-line away"/>
+          <path d=${path(homePoints, "home")} class="score-chart-line home"/>
+          <circle cx=${x(last.elapsed)} cy=${y(last.away)} r="3.5" class="score-chart-point away"/>
+          <circle cx=${x(last.elapsed)} cy=${y(last.home)} r="3.5" class="score-chart-point home"/>
+        </svg>
+      </section>`;
+  }
+
   _quarterScorePanel() {
     const teams = this._awayFirst(this._overlayDetails?.teams);
     const periods = Math.max(0, ...teams.map((team) => team.quarters?.length ?? 0));
@@ -1542,6 +1606,7 @@ class NBACenterCard extends LitElement {
               <div class="overlay-score">${this._overlayGame.state === "pre" ? "VS" : `${value(this._overlayGame.away?.score)} – ${value(this._overlayGame.home?.score)}`}</div>
               <div class="overlay-team">${this._overlayGame.home?.logo ? html`<button class="match-team-logo-button" type="button" aria-label=${`${this._t("Ouvrir la fiche")} ${value(this._overlayGame.home?.name, this._t("équipe à domicile"))}`} title=${this._t("Ouvrir la fiche équipe")} @click=${() => this._openMatchTeam(this._overlayGame.home)}><img src=${this._overlayGame.home.logo} alt=""></button>` : ""}<strong>${value(this._overlayGame.home?.name)}</strong></div>
             </div><p class="muted" style="text-align:center">${this._formatDate(this._overlayGame.date, this._overlayGame.date_text)} · ${value(this._overlayGame.detail, this._gameStatus(this._overlayGame).label)}</p>
+            ${this._scoreProgressionPanel()}
             ${this._overlayLoading ? html`<section class="empty">${this._t("Chargement du résumé…")}</section>` : ""}
             ${(this._overlayError || this._overlayDetails?.error) ? html`<section class="empty"><p>${value(this._overlayError || this._overlayDetails?.error, this._t("Détails du match indisponibles."))}</p><button @click=${() => this._openGame(this._overlayGame)}>${this._t("RÉESSAYER")}</button></section>` : ""}
             ${this._overlayDetails?.teams?.length ? html`<div class="game-leaders-grid">${this._awayFirst(this._overlayDetails.teams).map((team) => html`
