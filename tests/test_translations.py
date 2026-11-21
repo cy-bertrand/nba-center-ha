@@ -281,6 +281,26 @@ class TranslationTests(unittest.TestCase):
         ):
             self.assertNotIn(untranslated, frontend)
 
+    def test_every_literal_frontend_translation_key_has_an_english_translation(self):
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
+
+        used_keys = {
+            json.loads(match)
+            for match in re.findall(r'this\\._t\\(\\s*("(?:\\\\.|[^"\\\\])*")\\s*\\)', frontend)
+        }
+        dictionary_keys = {
+            json.loads(match)
+            for match in re.findall(r'^\\s*("(?:\\\\.|[^"\\\\])*")\\s*:', translations, re.MULTILINE)
+        }
+
+        self.assertTrue(used_keys, "No literal frontend translation keys were found")
+        self.assertEqual(
+            used_keys - dictionary_keys,
+            set(),
+            "Frontend labels are missing from the translation dictionary",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
