@@ -1513,7 +1513,7 @@ class NBACenterCard extends LitElement {
     const active = VIEWS.find((v) => v.id === this._active) ?? VIEWS[0];
     const dataStatus = this._dataStatus();
     const statusKey = dataStatus?.attributes?.status_key;
-    const degraded = (statusKey ? statusKey !== "up_to_date" : dataStatus?.state !== "À jour") || dataStatus?.attributes?.stale;
+    const degraded = (statusKey ? statusKey !== "up_to_date" : !["À jour", "up_to_date"].includes(dataStatus?.state)) || dataStatus?.attributes?.stale;
     const view = { home: () => this._homeView(), scores: () => this._scoresView(),
       teams: () => this._teamsView(), players: () => this._playersView(), stats: () => this._statsView() };
     return html`
