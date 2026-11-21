@@ -1171,7 +1171,7 @@ class NBACenterCard extends LitElement {
     return html`
       <section class="panel score-timeline">
         <div class="panel-head"><h3>${this._t("SCORE TIMELINE")}</h3><span class="pill">${this._t("ÉCART DE POINTS")}</span></div>
-        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label=${this._t("Évolution de l\u0027écart de points pendant le match")}
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label=${this._t("Évolution de l'écart de points pendant le match")}
           @pointermove=${(event) => {
             const rect = event.currentTarget.getBoundingClientRect();
             if (!rect.width) return;
@@ -1189,7 +1189,7 @@ class NBACenterCard extends LitElement {
           ${points.filter((point) => Math.abs(point.margin) > 20).map((point) => html`<text class="score-timeline-overflow" text-anchor="middle" x="${x(point.elapsed)}" y="${point.margin > 0 ? top - 5 : bottom + 13}">${point.margin > 0 ? "+" : ""}${point.margin}</text>`)}
           ${hoverPoint ? html`<g><line x1="${x(hoverPoint.elapsed)}" x2="${x(hoverPoint.elapsed)}" y1="${top}" y2="${bottom}" stroke="#f2c45f" stroke-dasharray="3 3" /><circle class="score-timeline-hover" cx="${x(hoverPoint.elapsed)}" cy="${y(hoverPoint.margin)}" r="5" /><rect class="score-timeline-tooltip" x="${Math.min(right - 148, Math.max(left, x(hoverPoint.elapsed) - 74))}" y="2" width="148" height="34" rx="6" /><text class="score-timeline-tooltip-text" text-anchor="middle" x="${Math.min(right - 74, Math.max(left + 74, x(hoverPoint.elapsed)))}" y="16">${hoverPoint.away} – ${hoverPoint.home} · ${hoverPoint.margin > 0 ? "+" : ""}${hoverPoint.margin}</text><text class="score-timeline-tooltip-text" text-anchor="middle" x="${Math.min(right - 74, Math.max(left + 74, x(hoverPoint.elapsed)))}" y="29">${hoverPoint.period > 4 ? (hoverPoint.period === 5 ? "OT" : `${hoverPoint.period - 4}OT`) : `Q${hoverPoint.period}`} · ${hoverPoint.clock}</text></g>` : ""}
         </svg>
-        <div class="score-timeline-legend"><span><strong>+ ${this._t("DOMICILE")}</strong> · ${this._t("L\u0027extérieur mène sous 0")}</span><span>${this._t("Échelle fixe")} −20 / +20</span></div>
+        <div class="score-timeline-legend"><span><strong>+ ${this._t("DOMICILE")}</strong> · ${this._t("L'extérieur mène sous 0")}</span><span>${this._t("Échelle fixe")} −20 / +20</span></div>
       </section>`;
   }
   _quarterScorePanel() {
