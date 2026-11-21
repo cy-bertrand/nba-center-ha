@@ -1309,7 +1309,7 @@ class NBACenterCard extends LitElement {
     return html`
       <div class="head"><h2>${this._t("NBA TODAY")}</h2><span class="pill">${this._t("TABLEAU DE BORD")}</span></div>
       <section class="home-live panel">
-        <div class="panel-head"><div><span class="home-kicker">${this._t("SUIVI EN TEMPS RÉEL")}</span><h3>NBA LIVE</h3></div>
+        <div class="panel-head"><div><span class="home-kicker">${this._t("SUIVI EN TEMPS RÉEL")}</span><h3>${this._t("NBA LIVE")}</h3></div>
           <span class="home-live-count ${live.length ? "is-live" : ""}">${live.length ? `● ${live.length} ${this._t("EN DIRECT")}` : this._t("AUCUN MATCH LIVE")}</span></div>
         ${live.length ? html`<div class="home-game-list">${live.map((game) => this._gameCard(game))}</div>` :
           html`<div class="home-empty"><span class="home-empty-icon">🏀</span><div><strong>${this._t("Pas de match en direct")}</strong><p>${this._t("Les rencontres en cours apparaîtront ici automatiquement.")}</p></div></div>`}
@@ -1520,7 +1520,7 @@ class NBACenterCard extends LitElement {
       <ha-card class="shell">
         <header class="hero">
           <h1>${this._config.title}</h1><div class="subtitle">${this._config.subtitle}</div>
-          <div class="meta"><span class="dot"></span><span>NBA DATA</span><span>·</span>
+          <div class="meta"><span class="dot"></span><span>${this._t("NBA DATA")}</span><span>·</span>
             <span>${this.hass ? this._t("CONNECTED TO ESPN API") : this._t("WAITING FOR ESPN API")}</span>
             ${dataStatus ? html`<span class="data-health ${degraded ? "degraded" : "healthy"}">${degraded ? this._t("Données partielles") : this._t("FLUX À JOUR")}</span>` : ""}</div>
           ${degraded ? html`<div class="data-warning">${this._t("Certaines sources ESPN sont indisponibles. Les dernières données valides sont conservées. Consultez l'attribut")} <strong>errors</strong> ${this._t("du capteur d'état pour le détail.")}</div>` : ""}
