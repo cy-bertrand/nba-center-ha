@@ -1122,6 +1122,7 @@ class NBACenterCard extends LitElement {
     let previousHome = 0;
     let previousAway = 0;
     for (const play of plays) {
+      if (!play.scoring) continue;
       const home = Number(play.home_score);
       const away = Number(play.away_score);
       const period = Number(play.period);
