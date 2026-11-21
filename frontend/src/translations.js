@@ -274,7 +274,7 @@ const EN = {
   "SCORE TIMELINE": "SCORE TIMELINE",
   "ÉCART DE POINTS": "POINT DIFFERENTIAL",
   "Évolution de l'écart de points pendant le match": "Point differential throughout the game",
-  "DOMICILE": "HOME",
+  
   "L'extérieur mène sous 0": "Away team leads below 0",
   "Échelle fixe": "Fixed scale",
   "Détails du match": "Game details",
