@@ -295,4 +295,11 @@ assert.match(translations, /"SCORE TIMELINE": "SCORE TIMELINE"/, "score timeline
 
 assert.match(source, /_scoreTimelineHover: \{ state: true \}/, "score timeline hover state must be reactive");
 
+assert.match(source, /stroke="#f2c45f" stroke-width="2\.5"/, "score timeline zero baseline must be visibly rendered in the SVG");
+assert.match(source, /const yTicks = \[20, 10, 0, -10, -20\]/, "score timeline must show a fixed -20 to +20 vertical scale");
+assert.match(source, /const xTicks = \[/, "score timeline must expose elapsed-time axis ticks");
+assert.match(source, /const live = this\._overlayGame\?\.state === "in"/, "live timeline must include the current game clock and extend through overtime");
+assert.match(source, /points\.slice\(1\)\.map/, "score timeline must show individual scoring snapshots");
+
+
 assert.match(translations, /"L\u0027extérieur mène sous 0": "Away team leads below 0"/, "score timeline English helper text must be translated");
