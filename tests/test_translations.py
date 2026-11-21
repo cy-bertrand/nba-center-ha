@@ -242,6 +242,17 @@ class TranslationTests(unittest.TestCase):
         self.assertNotIn('toLocaleString("fr-BE")', frontend)
         self.assertEqual(frontend.count("this.hass?.locale?.language ?? this.hass?.language ??"), 1)
 
+    def test_player_draft_is_formatted_using_home_assistant_locale(self):
+        coordinator = (ROOT / "custom_components" / "nba_center" / "coordinator.py").read_text(encoding="utf-8")
+        frontend = (ROOT / "frontend" / "src" / "nba-center-card.js").read_text(encoding="utf-8")
+        self.assertIn('"draft_year": draft.get("year")', coordinator)
+        self.assertIn('"draft_round": draft_round', coordinator)
+        self.assertIn('"draft_selection": draft_selection', coordinator)
+        self.assertIn('_formatDraft(player)', frontend)
+        self.assertIn('language === "en"', frontend)
+        self.assertIn('"Round ${ordinal(round)}"', frontend)
+        self.assertIn('"1er" : `${round}e`', frontend)
+
     def test_frontend_translation_dictionary_has_no_duplicate_keys(self):
         translations = (ROOT / "frontend" / "src" / "translations.js").read_text(encoding="utf-8")
         keys = re.findall(r'^  ("(?:[^"\\\\]|\\\\.)*")\\s*:', translations, re.MULTILINE)
