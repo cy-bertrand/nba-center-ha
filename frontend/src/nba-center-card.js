@@ -41,14 +41,6 @@ const shiftDateISO = (isoDate, days) => {
   return [date.getUTCFullYear(), String(date.getUTCMonth() + 1).padStart(2, "0"), String(date.getUTCDate()).padStart(2, "0")].join("-");
 };
 const value = (v, fallback = "—") => v === null || v === undefined || v === "" ? fallback : String(v);
-const fmtDate = (v) => {
-  if (!v) return "Date à confirmer";
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? value(v) : new Intl.DateTimeFormat(undefined, {
-    weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
-  }).format(d);
-};
-
 class NBACenterCard extends LitElement {
   static properties = {
     hass: { attribute: false },
@@ -68,7 +60,8 @@ class NBACenterCard extends LitElement {
     _standingSeason: { state: true }, _standingPhase: { state: true }, _seasonStandings: { state: true }, _seasonStandingsLoading: { state: true }, _seasonStandingsError: { state: true }, _seasonStandingsRequest: { state: true },
   };
 
-  _t(key) { return translate(key, this.hass?.locale?.language ?? this.hass?.language ?? "fr"); }
+  _locale() { return this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE"; }
+  _t(key) { return translate(key, this._locale()); }
 
   static styles = css`
     :host{display:block;color:var(--primary-text-color);font-family:var(--paper-font-body1_-_font-family,Roboto,sans-serif)}
@@ -244,7 +237,7 @@ class NBACenterCard extends LitElement {
     if (!raw) return fallback || empty;
     const date = new Date(raw);
     if (Number.isNaN(date.getTime())) return fallback || value(raw, empty);
-    const language = this.hass?.locale?.language ?? this.hass?.language ?? undefined;
+    const language = this._locale();
     return new Intl.DateTimeFormat(language, {
       weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit",
     }).format(date);
@@ -407,7 +400,7 @@ class NBACenterCard extends LitElement {
                   <div class="team-info"><strong>${value(this._selectedPlayer.name)}</strong><small>${value(this._selectedPlayer.position)} · ${this._selectedPlayer.jersey ? `#${this._selectedPlayer.jersey}` : this._t("N° —")}</small></div></div>
                 <div class="player-profile-grid">
                   <div><small>${this._t("ÂGE")}</small><strong>${value(this._selectedPlayer.age)}</strong></div><div><small>${this._t("TAILLE")}</small><strong>${this._selectedPlayer.height_cm == null ? "—" : `${this._selectedPlayer.height_cm} cm`}</strong></div>
-                  <div><small>${this._t("POIDS")}</small><strong>${this._selectedPlayer.weight_kg == null ? "—" : `${this._selectedPlayer.weight_kg.toLocaleString(this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE")} kg`}</strong></div><div><small>${this._t("EXPÉRIENCE")}</small><strong>${this._selectedPlayer.experience_years == null ? "—" : `${this._selectedPlayer.experience_years} ${this._t("ans")}`}</strong></div>
+                  <div><small>${this._t("POIDS")}</small><strong>${this._selectedPlayer.weight_kg == null ? "—" : `${this._selectedPlayer.weight_kg.toLocaleString(this._locale())} kg`}</strong></div><div><small>${this._t("EXPÉRIENCE")}</small><strong>${this._selectedPlayer.experience_years == null ? "—" : `${this._selectedPlayer.experience_years} ${this._t("ans")}`}</strong></div>
                   <div><small>${this._t("STATUT")}</small><strong>${value(this._selectedPlayer.status)}</strong></div><div><small>${this._t("UNIVERSITÉ / CLUB")}</small><strong>${value(this._selectedPlayer.college)}</strong></div>
                 </div>
                 ${this._selectedPlayer.injuries?.length ? html`<p class="roster-injury">${this._t("ÉTAT MÉDICAL ESPN")} : ${this._selectedPlayer.injuries.map((injury) => value(injury.status)).filter(Boolean).join(" · ")}</p>` : ""}
@@ -663,7 +656,7 @@ class NBACenterCard extends LitElement {
                 <div><small>${this._t("ÂGE")}</small><strong>${value(player.age)}</strong></div>
                 <div><small>${this._t("POSTE")}</small><strong>${value(player.position_name, player.position)}</strong></div>
                 <div><small>${this._t("TAILLE")}</small><strong>${player.height_cm == null ? value(player.height) : `${player.height_cm} cm`}</strong></div>
-                <div><small>${this._t("POIDS")}</small><strong>${player.weight_kg == null ? value(player.weight) : `${player.weight_kg.toLocaleString("fr-BE")} kg`}</strong></div>
+                <div><small>${this._t("POIDS")}</small><strong>${player.weight_kg == null ? value(player.weight) : `${player.weight_kg.toLocaleString(this._locale())} kg`}</strong></div>
                 <div><small>${this._t("EXPÉRIENCE NBA")}</small><strong>${player.experience_years == null ? "—" : `${player.experience_years} ${this._t("ans")}`}${(() => { const gp = overview.career_statistics?.find((row) => row.name === "gamesPlayed"); return gp ? html` / ${value(gp.display_value, gp.value)} m` : ""; })()}</strong></div>
                 <div><small>N°</small><strong>${value(player.jersey)}</strong></div>
                 <div><small>DRAFT NBA</small><strong>${value(player.draft)}</strong></div>
@@ -864,7 +857,7 @@ class NBACenterCard extends LitElement {
                 ? (String(declaredWinners[0].id) === String(away.id) ? "away" : String(declaredWinners[0].id) === String(home.id) ? "home" : null)
                 : scoreWinner;
               const gameLabel = game.game_number ? `GAME ${game.game_number}` : this._t("MATCH");
-              const date = game.date ? new Date(game.date).toLocaleDateString(this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE", { day: "2-digit", month: "short", year: "numeric" }) : this._t("Date indisponible");
+              const date = game.date ? new Date(game.date).toLocaleDateString(this._locale(), { day: "2-digit", month: "short", year: "numeric" }) : this._t("Date indisponible");
               return html`<button type="button" class="playoff-game-row ${winnerSide === "away" ? "winner-away" : winnerSide === "home" ? "winner-home" : ""}" ?disabled=${!game.id} @click=${() => {
                 if (!game.id) return;
                 this._closePlayoffSeries();
@@ -1365,7 +1358,7 @@ class NBACenterCard extends LitElement {
   _scoresView() {
     const rows = this._calendarGames;
     const filtered = this._filteredGames(rows);
-    const weekday = new Intl.DateTimeFormat(this.hass?.locale?.language ?? this.hass?.language ?? "fr-BE", { weekday: "short" }).format(new Date(`${this._selectedDate}T12:00:00`)).replace(".", "").slice(0, 3).toUpperCase();
+    const weekday = new Intl.DateTimeFormat(this._locale(), { weekday: "short" }).format(new Date(`${this._selectedDate}T12:00:00`)).replace(".", "").slice(0, 3).toUpperCase();
     return html`
       <div class="head"><h2>${this._t("SCORES & CALENDRIER")}</h2><span class="pill">${rows.length} ${this._t("MATCHS")}</span></div>
       <div class="date-nav"><button aria-label=${this._t("Jour précédent")} @click=${() => this._shiftDate(-1)}>‹</button>
