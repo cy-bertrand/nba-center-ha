@@ -264,6 +264,8 @@ class TranslationTests(unittest.TestCase):
             '"V": "W"',
             '"D": "L"',
             '"TEAM STATS": "TEAM STATS"',
+            '"NBA LIVE": "NBA LIVE"',
+            '"NBA DATA": "NBA DATA"',
         }
         for entry in expected:
             self.assertIn(entry, translations)
@@ -282,6 +284,8 @@ class TranslationTests(unittest.TestCase):
             'this._t("V")',
             'this._t("D")',
             'this._t("TEAM STATS")',
+            'this._t("NBA LIVE")',
+            'this._t("NBA DATA")',
         ):
             self.assertIn(expression, frontend)
 
