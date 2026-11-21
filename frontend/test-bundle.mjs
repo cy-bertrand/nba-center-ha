@@ -294,3 +294,5 @@ assert.match(translations, /"SCORE TIMELINE": "SCORE TIMELINE"/, "score timeline
 
 
 assert.match(source, /_scoreTimelineHover: \{ state: true \}/, "score timeline hover state must be reactive");
+
+assert.match(translations, /"L\u0027extérieur mène sous 0": "Away team leads below 0"/, "score timeline English helper text must be translated");
