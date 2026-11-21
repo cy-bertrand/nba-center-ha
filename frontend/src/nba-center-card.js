@@ -1156,7 +1156,7 @@ class NBACenterCard extends LitElement {
       (priorityIndex.get(a) ?? statPriority.length) - (priorityIndex.get(b) ?? statPriority.length));
     return html`
       <section class="panel team-stats-panel">
-        <div class="panel-head"><h3>${this._t("COMPARAISON DES ÉQUIPES")}</h3><span class="pill">TEAM STATS</span></div>
+        <div class="panel-head"><h3>${this._t("COMPARAISON DES ÉQUIPES")}</h3><span class="pill">${this._t("TEAM STATS")}</span></div>
         <div class="table-wrap"><table><thead><tr><th>${this._t("STATISTIQUE")}</th>${teams.map((team) => html`<th>${value(team.abbr, team.name)}</th>`)}</tr></thead>
           <tbody>${keys.map((key) => {
             const label = teams.flatMap((team) => team.statistics ?? []).find((stat) => stat.name === key)?.label ?? key;
