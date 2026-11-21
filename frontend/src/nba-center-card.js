@@ -414,7 +414,7 @@ class NBACenterCard extends LitElement {
                   <div><small>${this._t("RETARD")}</small><strong>${value(this._teamRoster.standing.gb)}</strong></div>
                   ${this._teamSelectedSeason === (new Date().getFullYear() + (new Date().getMonth() >= 9 ? 1 : 0)) ? html`<div><small>${this._t("SÉRIE")}</small><strong>${value(this._teamRoster.standing.streak)}</strong></div>` : ""}
                 </div>
-                ${this._teamRoster.schedule?.recent?.length ? html`<div class="muted" style="margin-top:12px">${this._t("FORME RÉCENTE")}</div><div class="recent">${this._teamRoster.schedule.recent.slice(0,5).map((game) => html`<button class="form-chip ${game.result === "V" ? "win" : game.result === "D" ? "loss" : "unknown"}" type="button" ?disabled=${!game.id} aria-label=${`${this._t("Voir le match")} ${value(game.team_abbr)} vs ${value(game.opp_abbr)} · ${this._formatDate(game.date, game.date_text)}`} @click=${() => game.id && this._openRecentTeamGame(game)}><strong>${value(game.result)}</strong><span>${game.home_away === "@" ? `@${value(game.opp_abbr)}` : value(game.opp_abbr)}</span><span>${value(game.team_score)}–${value(game.opp_score)}</span></button>`)}</div>` : ""}
+                ${this._teamRoster.schedule?.recent?.length ? html`<div class="muted" style="margin-top:12px">${this._t("FORME RÉCENTE")}</div><div class="recent">${this._teamRoster.schedule.recent.slice(0,5).map((game) => html`<button class="form-chip ${game.result === "V" ? "win" : game.result === "D" ? "loss" : "unknown"}" type="button" ?disabled=${!game.id} aria-label=${`${this._t("Voir le match")} ${value(game.team_abbr)} vs ${value(game.opp_abbr)} · ${this._formatDate(game.date, game.date_text)}`} @click=${() => game.id && this._openRecentTeamGame(game)}><strong>${game.result === "V" ? this._t("V") : game.result === "D" ? this._t("D") : value(game.result)}</strong><span>${game.home_away === "@" ? `@${value(game.opp_abbr)}` : value(game.opp_abbr)}</span><span>${value(game.team_score)}–${value(game.opp_score)}</span></button>`)}</div>` : ""}
                 ${this._teamRoster.schedule?.next ? html`<p class="muted">${this._t("PROCHAIN MATCH")} · ${this._formatDate(this._teamRoster.schedule.next.date, this._teamRoster.schedule.next.date_text)} · ${value(this._teamRoster.schedule.next.name)}</p>` : ""}
               </section>` : ""}
             ${!this._selectedPlayer && this._teamPlayoffPath ? html`
@@ -1291,7 +1291,7 @@ class NBACenterCard extends LitElement {
           <div class="muted" style="margin-top:10px">${this._t("FORME RÉCENTE")}</div>
           <div class="recent">${team.recent.slice(0,5).map((game) => html`
             <span class="form-chip ${game.result === "V" ? "win" : game.result === "D" ? "loss" : "unknown"}">
-              <strong>${value(game.result)}</strong><span>${value(game.opp_abbr)}</span>
+              <strong>${game.result === "V" ? this._t("V") : game.result === "D" ? this._t("D") : value(game.result)}</strong><span>${value(game.opp_abbr)}</span>
               <span>${value(game.team_score)}–${value(game.opp_score)}</span>
             </span>`)}</div>` : ""}
       </section>`;
@@ -1331,7 +1331,7 @@ class NBACenterCard extends LitElement {
             return html`<button class="home-favorite" type="button" @click=${() => this._openTeam(catalogTeam)}>
               ${team.logo ? html`<img src=${team.logo} alt="" loading="lazy">` : html`<span class="home-favorite-placeholder">🏀</span>`}
               <span class="home-favorite-main"><strong>${value(team.name)}</strong>${team.live?.state === "in" ? html`<span class="home-next-label" style="color:#ff858b">${this._t("● MATCH EN DIRECT")}</span><span class="home-next-date">${value(team.live.detail, "EN COURS")}</span>` : nextGame?.date_text ? html`<span class="home-next-label">${this._t("PROCHAIN MATCH")} · ${this._t(isHome ? "DOMICILE" : "EXTÉRIEUR")}</span><span class="home-next-date">${opponent?.logo ? html`<img class="home-opponent-logo" src=${opponent.logo} alt="" loading="lazy">` : ""}${value(opponent?.abbr, opponent?.name)} · ${this._formatDate(nextGame.date, nextGame.date_text)}</span>` : html`<small>${team.last ? `${this._t("DERNIER MATCH")} · ${value(team.last.name)}` : this._t("Calendrier indisponible")}</small>`}
-                ${recent.length ? html`<span class="home-form">${recent.slice(0,5).map((game) => html`<i class="${game.result === "V" ? "win" : game.result === "D" ? "loss" : ""}">${value(game.result)}</i>`)}</span>` : ""}</span>
+                ${recent.length ? html`<span class="home-form">${recent.slice(0,5).map((game) => html`<i class="${game.result === "V" ? "win" : game.result === "D" ? "loss" : ""}">${game.result === "V" ? this._t("V") : game.result === "D" ? this._t("D") : value(game.result)}</i>`)}</span>` : ""}</span>
               <span class="home-favorite-arrow">›</span>
             </button>`;
           })}</div>` : html`<p class="muted">${this._t("Choisis tes équipes favorites dans la configuration de l'intégration NBA.")}</p>`}
