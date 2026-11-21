@@ -5,6 +5,10 @@
  * before using them in the card, then provide the corresponding locale value.
  */
 const EN = {
+  "ÉVOLUTION DU SCORE": "SCORING PROGRESSION",
+  "Équipe visiteuse": "Away team",
+  "Équipe à domicile": "Home team",
+
   "V": "W",
   "D": "L",
   "EN DIRECT": "LIVE",
