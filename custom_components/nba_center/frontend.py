@@ -62,22 +62,14 @@ async def _async_register_lovelace_resource(hass: HomeAssistant) -> None:
     # async_items() is read. This prevents overwriting existing resources
     # on Home Assistant versions with lazy resource loading.
     await resources.async_get_info()
-    matching_resources = [
-        item
-        for item in resources.async_items()
-        if urlsplit(item.get("url", "")).path == RESOURCE_PATH
-    ]
-    existing = matching_resources[0] if matching_resources else None
-
-    # Multiple resources pointing to the same custom element can cause an
-    # older bundle to register the element first. The newer bundle then skips
-    # customElements.define(), leaving the old implementation active.
-    for duplicate in matching_resources[1:]:
-        await resources.async_delete_item(duplicate["id"])
-        _LOGGER.warning(
-            "Removed duplicate NBA Center Lovelace resource: %s",
-            duplicate.get("url", RESOURCE_PATH),
-        )
+    existing = next(
+        (
+            item
+            for item in resources.async_items()
+            if urlsplit(item.get("url", "")).path == RESOURCE_PATH
+        ),
+        None,
+    )
 
     if existing is None:
         await resources.async_create_item(
