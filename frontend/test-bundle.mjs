@@ -306,7 +306,8 @@ assert.match(source, /const yTicks = \[20, 10, 0, -10, -20\]/, "score timeline m
 assert.match(source, /const xTicks = \[/, "score timeline must expose elapsed-time axis ticks");
 assert.match(source, /const live = this\._overlayGame\?\.state === "in"/, "live timeline must include the current game clock and extend through overtime");
 assert.match(source, /points\.slice\(1\)\.map/, "score timeline must show individual scoring snapshots");
-assert.match(source, /\(\?:\\\.\(\\d\+\)\)\?/, "score timeline clock parser must accept fractional seconds in the final minute");
+assert.match(source, /\(\?:\(\\d\{1,2\}\):\)\?/, "score timeline clock parser must accept seconds-only timestamps in the final minute");
+assert.match(source, /opacity="0\.25"/, "score timeline team logos must use 25% opacity");
 assert.match(source, /const areaPath =/, "score timeline must shade the area between the curve and zero");
 assert.match(source, /fill-opacity="0\.14"/, "score timeline zero-area fill must remain translucent");
 assert.match(source, /homeLogo \? svg`<image/, "score timeline must show the home logo above zero");
