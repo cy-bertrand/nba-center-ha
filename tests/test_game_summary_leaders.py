@@ -87,12 +87,12 @@ class SummaryLeadersTests(unittest.TestCase):
         raw["leaders"] = [{"team": {"id": "8"}, "leaders": [
             {"name": "points", "leaders": []},
             {"name": "rebounds", "leaders": [
-                {"athlete": {"displayName": "Player A"}, "displayValue": "12"}
+                {"athlete": {"id": "12345", "displayName": "Player A"}, "displayValue": "12"}
             ]},
         ]}]
         result = parse_summary("game-1", raw)
         self.assertEqual(result["teams"][0]["top_players"], [
-            {"category": "rebounds", "player": "Player A", "headshot": None, "value": "12"}
+            {"id": "12345", "category": "rebounds", "player": "Player A", "headshot": None, "value": "12"}
         ])
 
     def test_malformed_category_does_not_discard_later_categories(self):
