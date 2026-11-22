@@ -1151,7 +1151,7 @@ class NBACenterCard extends LitElement {
       if (!Number.isFinite(away) || !Number.isFinite(home) || !Number.isInteger(period) || period < 1 || !clock) continue;
       const seconds = Number(clock[2]) + (clock[3] ? Number("0." + clock[3]) : 0);
       if (seconds >= 60) continue;
-      const minutesRemaining = Number(clock[1]) + seconds / 60;
+      const minutesRemaining = Number(clock[1] ?? 0) + seconds / 60;
       const periodLength = period <= 4 ? 12 : 5;
       if (minutesRemaining < 0 || minutesRemaining > periodLength) continue;
       if (away < previousAway || home < previousHome) continue;
@@ -1173,7 +1173,7 @@ class NBACenterCard extends LitElement {
 
     if (live && liveClock && currentPeriod > 0) {
       const liveSeconds = Number(liveClock[2]) + (liveClock[3] ? Number("0." + liveClock[3]) : 0);
-      const remaining = Number(liveClock[1]) + liveSeconds / 60;
+      const remaining = Number(liveClock[1] ?? 0) + liveSeconds / 60;
       const periodLength = currentPeriod <= 4 ? 12 : 5;
       const away = Number(live.away?.score);
       const home = Number(live.home?.score);
