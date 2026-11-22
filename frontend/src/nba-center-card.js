@@ -1037,7 +1037,7 @@ class NBACenterCard extends LitElement {
         id: competitor.team_id,
         name: competitor.name ?? catalogTeam?.display_name ?? catalogTeam?.name ?? competitor.abbr,
         abbr: competitor.abbr ?? catalogTeam?.abbreviation,
-        logo: catalogTeam?.logo,
+        logo: catalogTeam?.logo ?? competitor.logo ?? this._overlayGame?.[competitor.home_away]?.logo,
         score: competitor.score,
       };
     };
