@@ -1509,6 +1509,7 @@ class NBACoordinator(DataUpdateCoordinator[dict[str, Any]]):
                             continue
                         headshot = athlete.get("headshot")
                         top.append({
+                            "id": str(athlete.get("id")) if athlete.get("id") is not None else None,
                             "category": cat.get("displayName") or cat.get("name"),
                             "player": athlete.get("displayName"),
                             "headshot": headshot.get("href") if isinstance(headshot, dict) else headshot,
