@@ -1147,9 +1147,11 @@ class NBACenterCard extends LitElement {
       const away = Number(play.away_score);
       const home = Number(play.home_score);
       const period = Number(play.period);
-      const clock = String(play.clock ?? "").match(/^(\d{1,2}):(\d{2})$/);
+      const clock = String(play.clock ?? "").match(/^(\d{1,2}):(\d{1,2})(?:\.(\d+))?$/);
       if (!Number.isFinite(away) || !Number.isFinite(home) || !Number.isInteger(period) || period < 1 || !clock) continue;
-      const minutesRemaining = Number(clock[1]) + Number(clock[2]) / 60;
+      const seconds = Number(clock[2]) + (clock[3] ? Number("0." + clock[3]) : 0);
+      if (seconds >= 60) continue;
+      const minutesRemaining = Number(clock[1]) + seconds / 60;
       const periodLength = period <= 4 ? 12 : 5;
       if (minutesRemaining < 0 || minutesRemaining > periodLength) continue;
       if (away < previousAway || home < previousHome) continue;
@@ -1164,13 +1166,14 @@ class NBACenterCard extends LitElement {
 
     const live = this._overlayGame?.state === "in" ? this._overlayGame : null;
     const livePeriod = Number(live?.period);
-    const liveClock = String(live?.clock ?? "").match(/^(\d{1,2}):(\d{2})$/);
+    const liveClock = String(live?.clock ?? "").match(/^(\d{1,2}):(\d{1,2})(?:\.(\d+))?$/);
     const currentPeriod = live && Number.isInteger(livePeriod) && livePeriod > 0 ? livePeriod : 0;
     const overtimeCount = Math.max(0, ...snapshots.map((point) => point.period - 4), currentPeriod - 4);
     const totalMinutes = 48 + overtimeCount * 5;
 
     if (live && liveClock && currentPeriod > 0) {
-      const remaining = Number(liveClock[1]) + Number(liveClock[2]) / 60;
+      const liveSeconds = Number(liveClock[2]) + (liveClock[3] ? Number("0." + liveClock[3]) : 0);
+      const remaining = Number(liveClock[1]) + liveSeconds / 60;
       const periodLength = currentPeriod <= 4 ? 12 : 5;
       const away = Number(live.away?.score);
       const home = Number(live.home?.score);
@@ -1191,6 +1194,12 @@ class NBACenterCard extends LitElement {
     const y = (margin) => top + ((20 - Math.max(-20, Math.min(20, margin))) / 40) * (bottom - top);
     const points = [{ elapsed: 0, away: 0, home: 0, margin: 0, period: 1, clock: "12:00", text: "" }, ...snapshots];
     const path = points.map((point, index) => `${index ? "L" : "M"} ${x(point.elapsed).toFixed(1)} ${y(point.margin).toFixed(1)}`).join(" ");
+    const zeroY = y(0);
+    const areaPath = `${path} L ${x(points[points.length - 1].elapsed).toFixed(1)} ${zeroY.toFixed(1)} L ${x(points[0].elapsed).toFixed(1)} ${zeroY.toFixed(1)} Z`;
+    const homeLogo = this._overlayGame?.home?.logo;
+    const awayLogo = this._overlayGame?.away?.logo;
+    const logoSize = 104;
+    const logoX = (left + right - logoSize) / 2;
     const yTicks = [20, 10, 0, -10, -20];
     const xTicks = [0, 12, 24, 36, 48, ...Array.from({ length: overtimeCount }, (_, index) => 48 + (index + 1) * 5)]
       .filter((minute) => minute <= totalMinutes)
@@ -1216,6 +1225,8 @@ class NBACenterCard extends LitElement {
             this._scoreTimelineHover = { index: nearest };
           }}
           @pointerleave=${() => { this._scoreTimelineHover = null; }}>
+          ${homeLogo ? svg`<image href="${homeLogo}" x="${logoX}" y="${top + 3}" width="${logoSize}" height="${(zeroY - top) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.13" />` : ""}
+          ${awayLogo ? svg`<image href="${awayLogo}" x="${logoX}" y="${zeroY + 5}" width="${logoSize}" height="${(bottom - zeroY) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.13" />` : ""}
           ${yTicks.map((tick) => svg`<g>
             <line x1="${left}" x2="${right}" y1="${y(tick)}" y2="${y(tick)}"
               stroke="${tick === 0 ? "#f2c45f" : "#ffffff20"}" stroke-width="${tick === 0 ? "2.5" : "1"}"
@@ -1223,6 +1234,7 @@ class NBACenterCard extends LitElement {
             <text x="5" y="${y(tick) + 4}" fill="${tick === 0 ? "#f2c45f" : "#aab6ca"}" font-size="11" font-weight="${tick === 0 ? "900" : "600"}">${tick > 0 ? "+" : ""}${tick}</text>
           </g>`)}
           ${periodBoundaries.map((minute) => svg`<line x1="${x(minute)}" x2="${x(minute)}" y1="${top}" y2="${bottom}" stroke="#ffffff24" stroke-width="1" stroke-dasharray="3 5" />`)}
+          <path d="${areaPath}" fill="#58b9e8" fill-opacity="0.14" stroke="none" />
           <path d="${path}" fill="none" stroke="#58b9e8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
           ${points.slice(1).map((point, index) => svg`<circle cx="${x(point.elapsed)}" cy="${y(point.margin)}" r="3.4" fill="#58b9e8" stroke="#0d1726" stroke-width="1.4" />`)}
           ${points.filter((point) => Math.abs(point.margin) > 20).map((point) => svg`<text text-anchor="middle" x="${x(point.elapsed)}" y="${point.margin > 0 ? top - 7 : bottom + 13}" fill="#f2c45f" font-size="11" font-weight="900">${formatMargin(point.margin)}</text>`)}
@@ -1236,7 +1248,6 @@ class NBACenterCard extends LitElement {
             <text text-anchor="middle" x="${Math.min(right - 77, Math.max(left + 77, x(hoverPoint.elapsed)))}" y="31" fill="#c5cfde" font-size="10">${hoverPoint.period > 4 ? (hoverPoint.period === 5 ? "OT" : `${hoverPoint.period - 4}OT`) : `Q${hoverPoint.period}`} · ${hoverPoint.clock}</text>
           </g>` : ""}
         </svg>
-        <div class="score-timeline-legend"><span><strong>+ ${this._t("DOMICILE")}</strong> · ${this._t("L'extérieur mène sous 0")}</span><span>${this._t("Échelle fixe")} −20 / +20</span></div>
       </section>`;
   }
   _quarterScorePanel() {
