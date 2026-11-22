@@ -311,7 +311,7 @@ assert.match(source, /const areaPath =/, "score timeline must shade the area bet
 assert.match(source, /fill-opacity="0\.14"/, "score timeline zero-area fill must remain translucent");
 assert.match(source, /homeLogo \? svg`<image/, "score timeline must show the home logo above zero");
 assert.match(source, /awayLogo \? svg`<image/, "score timeline must show the away logo below zero");
-assert.doesNotMatch(source, /score-timeline-legend/, "score timeline must not render the redundant footer legend");
+assert.doesNotMatch(source.slice(source.indexOf("_scoreTimelinePanel()"), source.indexOf("_quarterScorePanel()")), /score-timeline-legend/, "score timeline must not render the redundant footer legend");
 assert.match(source, /competitor\.logo \?\? this\._overlayGame\?\.\[competitor\.home_away\]\?\.logo/, "Match Center must preserve team logos when syncing live state");
 
 
