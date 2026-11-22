@@ -285,6 +285,12 @@ assert.match(source, /class="overlay team-overlay"/, "team profile must use a si
 assert.match(source, /\.team-overlay\{z-index:9999\}/, "team profile must use the standard overlay layer");
 
 assert.match(source, /_scoreTimelinePanel\(\)/, "Match Center must render the score timeline panel");
+
+assert.match(source, /import \{ LitElement, css, html, svg \} from "lit"/, "score timeline must import Lit's SVG template tag");
+assert.match(source, /=> svg`<g>/, "dynamic SVG groups must be created in the SVG namespace");
+assert.match(source, /=> svg`<line/, "dynamic SVG axis lines must be created in the SVG namespace");
+assert.doesNotMatch(source.slice(source.indexOf("_scoreTimelinePanel()"), source.indexOf("_quarterScorePanel()")), /=> html`<(?:g|line|circle|text)/, "score timeline must not create SVG children in the HTML namespace");
+
 assert.match(source, /home - away/, "score timeline must plot home minus away point differential");
 assert.match(source, /score-timeline-zero/, "score timeline must show the zero lead-change baseline");
 assert.match(source, /score-timeline-tooltip/, "score timeline must expose score and margin on hover");
