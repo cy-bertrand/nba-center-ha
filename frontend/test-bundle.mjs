@@ -306,6 +306,13 @@ assert.match(source, /const yTicks = \[20, 10, 0, -10, -20\]/, "score timeline m
 assert.match(source, /const xTicks = \[/, "score timeline must expose elapsed-time axis ticks");
 assert.match(source, /const live = this\._overlayGame\?\.state === "in"/, "live timeline must include the current game clock and extend through overtime");
 assert.match(source, /points\.slice\(1\)\.map/, "score timeline must show individual scoring snapshots");
+assert.match(source, /\(\?:\\\.\(\\d\+\)\)\?/, "score timeline clock parser must accept fractional seconds in the final minute");
+assert.match(source, /const areaPath =/, "score timeline must shade the area between the curve and zero");
+assert.match(source, /fill-opacity="0\.14"/, "score timeline zero-area fill must remain translucent");
+assert.match(source, /homeLogo \? svg`<image/, "score timeline must show the home logo above zero");
+assert.match(source, /awayLogo \? svg`<image/, "score timeline must show the away logo below zero");
+assert.doesNotMatch(source, /score-timeline-legend/, "score timeline must not render the redundant footer legend");
+assert.match(source, /competitor\.logo \?\? this\._overlayGame\?\.\[competitor\.home_away\]\?\.logo/, "Match Center must preserve team logos when syncing live state");
 
 
 assert.match(translations, /"L\u0027extérieur mène sous 0": "Away team leads below 0"/, "score timeline English helper text must be translated");
