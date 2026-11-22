@@ -1,5 +1,5 @@
 // NBA Center Lovelace card — reads only Home Assistant entity state. Lit is bundled locally.
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, svg } from "lit";
 import { translate } from "./translations.js";
 
 // Takes the build version directly from manifest.json
@@ -1216,19 +1216,19 @@ class NBACenterCard extends LitElement {
             this._scoreTimelineHover = { index: nearest };
           }}
           @pointerleave=${() => { this._scoreTimelineHover = null; }}>
-          ${yTicks.map((tick) => html`<g>
+          ${yTicks.map((tick) => svg`<g>
             <line x1="${left}" x2="${right}" y1="${y(tick)}" y2="${y(tick)}"
               stroke="${tick === 0 ? "#f2c45f" : "#ffffff20"}" stroke-width="${tick === 0 ? "2.5" : "1"}"
               stroke-dasharray="${tick === 0 ? "none" : "3 5"}" />
             <text x="5" y="${y(tick) + 4}" fill="${tick === 0 ? "#f2c45f" : "#aab6ca"}" font-size="11" font-weight="${tick === 0 ? "900" : "600"}">${tick > 0 ? "+" : ""}${tick}</text>
           </g>`)}
-          ${periodBoundaries.map((minute) => html`<line x1="${x(minute)}" x2="${x(minute)}" y1="${top}" y2="${bottom}" stroke="#ffffff24" stroke-width="1" stroke-dasharray="3 5" />`)}
+          ${periodBoundaries.map((minute) => svg`<line x1="${x(minute)}" x2="${x(minute)}" y1="${top}" y2="${bottom}" stroke="#ffffff24" stroke-width="1" stroke-dasharray="3 5" />`)}
           <path d="${path}" fill="none" stroke="#58b9e8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
-          ${points.slice(1).map((point, index) => html`<circle cx="${x(point.elapsed)}" cy="${y(point.margin)}" r="3.4" fill="#58b9e8" stroke="#0d1726" stroke-width="1.4" />`)}
-          ${points.filter((point) => Math.abs(point.margin) > 20).map((point) => html`<text text-anchor="middle" x="${x(point.elapsed)}" y="${point.margin > 0 ? top - 7 : bottom + 13}" fill="#f2c45f" font-size="11" font-weight="900">${formatMargin(point.margin)}</text>`)}
-          ${periodLabels.map((item) => html`<text text-anchor="middle" x="${x(item.minute)}" y="248" fill="#d5deeb" font-size="10" font-weight="900">${item.label}</text>`)}
-          ${xTicks.map((tick) => html`<text text-anchor="middle" x="${x(tick.minute)}" y="267" fill="#8292aa" font-size="9">${tick.label}</text>`)}
-          ${hoverPoint ? html`<g>
+          ${points.slice(1).map((point, index) => svg`<circle cx="${x(point.elapsed)}" cy="${y(point.margin)}" r="3.4" fill="#58b9e8" stroke="#0d1726" stroke-width="1.4" />`)}
+          ${points.filter((point) => Math.abs(point.margin) > 20).map((point) => svg`<text text-anchor="middle" x="${x(point.elapsed)}" y="${point.margin > 0 ? top - 7 : bottom + 13}" fill="#f2c45f" font-size="11" font-weight="900">${formatMargin(point.margin)}</text>`)}
+          ${periodLabels.map((item) => svg`<text text-anchor="middle" x="${x(item.minute)}" y="248" fill="#d5deeb" font-size="10" font-weight="900">${item.label}</text>`)}
+          ${xTicks.map((tick) => svg`<text text-anchor="middle" x="${x(tick.minute)}" y="267" fill="#8292aa" font-size="9">${tick.label}</text>`)}
+          ${hoverPoint ? svg`<g>
             <line x1="${x(hoverPoint.elapsed)}" x2="${x(hoverPoint.elapsed)}" y1="${top}" y2="${bottom}" stroke="#f2c45f" stroke-width="1.5" stroke-dasharray="4 4" />
             <circle cx="${x(hoverPoint.elapsed)}" cy="${y(hoverPoint.margin)}" r="6" fill="#f2c45f" stroke="#0d1726" stroke-width="2" />
             <rect x="${Math.min(right - 154, Math.max(left, x(hoverPoint.elapsed) - 77))}" y="2" width="154" height="39" rx="7" fill="#101c2d" stroke="#f2c45f" stroke-width="1" />
