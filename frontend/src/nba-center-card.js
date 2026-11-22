@@ -1225,8 +1225,8 @@ class NBACenterCard extends LitElement {
             this._scoreTimelineHover = { index: nearest };
           }}
           @pointerleave=${() => { this._scoreTimelineHover = null; }}>
-          ${homeLogo ? svg`<image href="${homeLogo}" x="${logoX}" y="${top + 3}" width="${logoSize}" height="${(zeroY - top) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.25" />` : ""}
-          ${awayLogo ? svg`<image href="${awayLogo}" x="${logoX}" y="${zeroY + 5}" width="${logoSize}" height="${(bottom - zeroY) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.25" />` : ""}
+          ${homeLogo ? svg`<image href="${homeLogo}" x="${logoX}" y="${top + 3}" width="${logoSize}" height="${(zeroY - top) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.35" />` : ""}
+          ${awayLogo ? svg`<image href="${awayLogo}" x="${logoX}" y="${zeroY + 5}" width="${logoSize}" height="${(bottom - zeroY) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.35" />` : ""}
           ${yTicks.map((tick) => svg`<g>
             <line x1="${left}" x2="${right}" y1="${y(tick)}" y2="${y(tick)}"
               stroke="${tick === 0 ? "#f2c45f" : "#ffffff20"}" stroke-width="${tick === 0 ? "2.5" : "1"}"
