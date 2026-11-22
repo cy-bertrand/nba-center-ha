@@ -283,3 +283,37 @@ assert.match(source, /this\._closeTeamOverlay\(\);[\s\S]*?this\._openGame\(/, "o
 assert.match(source, /\.player-overlay\{z-index:10001\}/, "player profile overlay must appear above the team profile");
 assert.match(source, /class="overlay team-overlay"/, "team profile must use a single stable overlay layer");
 assert.match(source, /\.team-overlay\{z-index:9999\}/, "team profile must use the standard overlay layer");
+
+assert.match(source, /_scoreTimelinePanel\(\)/, "Match Center must render the score timeline panel");
+
+assert.match(source, /import \{ LitElement, css, html, svg \} from "lit"/, "score timeline must import Lit's SVG template tag");
+assert.match(source, /=> svg`<g>/, "dynamic SVG groups must be created in the SVG namespace");
+assert.match(source, /=> svg`<line/, "dynamic SVG axis lines must be created in the SVG namespace");
+assert.doesNotMatch(source.slice(source.indexOf("_scoreTimelinePanel()"), source.indexOf("_quarterScorePanel()")), /=> html`<(?:g|line|circle|text)/, "score timeline must not create SVG children in the HTML namespace");
+
+assert.match(source, /home - away/, "score timeline must plot home minus away point differential");
+assert.match(source, /score-timeline-zero/, "score timeline must show the zero lead-change baseline");
+assert.match(source, /score-timeline-tooltip/, "score timeline must expose score and margin on hover");
+assert.match(source, /48 \+ overtimeCount \* 5/, "score timeline must extend its time axis for overtime periods");
+assert.match(translations, /"SCORE TIMELINE": "SCORE TIMELINE"/, "score timeline labels must have an English translation");
+
+
+
+assert.match(source, /_scoreTimelineHover: \{ state: true \}/, "score timeline hover state must be reactive");
+
+assert.match(source, /tick === 0 \? "#f2c45f"/, "score timeline zero baseline must be visibly rendered in the SVG");
+assert.match(source, /const yTicks = \[20, 10, 0, -10, -20\]/, "score timeline must show a fixed -20 to +20 vertical scale");
+assert.match(source, /const xTicks = \[/, "score timeline must expose elapsed-time axis ticks");
+assert.match(source, /const live = this\._overlayGame\?\.state === "in"/, "live timeline must include the current game clock and extend through overtime");
+assert.match(source, /points\.slice\(1\)\.map/, "score timeline must show individual scoring snapshots");
+assert.match(source, /\(\?:\(\\d\{1,2\}\):\)\?/, "score timeline clock parser must accept seconds-only timestamps in the final minute");
+assert.match(source, /opacity="0\.25"/, "score timeline team logos must use 25% opacity");
+assert.match(source, /const areaPath =/, "score timeline must shade the area between the curve and zero");
+assert.match(source, /fill-opacity="0\.14"/, "score timeline zero-area fill must remain translucent");
+assert.match(source, /homeLogo \? svg`<image/, "score timeline must show the home logo above zero");
+assert.match(source, /awayLogo \? svg`<image/, "score timeline must show the away logo below zero");
+assert.doesNotMatch(source.slice(source.indexOf("_scoreTimelinePanel()"), source.indexOf("_quarterScorePanel()")), /score-timeline-legend/, "score timeline must not render the redundant footer legend");
+assert.match(source, /competitor\.logo \?\? this\._overlayGame\?\.\[competitor\.home_away\]\?\.logo/, "Match Center must preserve team logos when syncing live state");
+
+
+assert.match(translations, /"L\u0027extérieur mène sous 0": "Away team leads below 0"/, "score timeline English helper text must be translated");
