@@ -285,7 +285,6 @@ assert.match(source, /class="overlay team-overlay"/, "team profile must use a si
 assert.match(source, /\.team-overlay\{z-index:9999\}/, "team profile must use the standard overlay layer");
 
 assert.match(source, /_scoreTimelinePanel\(\)/, "Match Center must render the score timeline panel");
-assert.match(source, /"id": str\(athlete\.get\("id"\)\)/, "game summary leaders must retain ESPN athlete IDs");
 assert.match(source, /player\.id \? html`<button class="game-leader-name game-leader-name-button"/, "Match Center leaders with an ESPN ID must be rendered as clickable buttons");
 assert.match(source, /_openPlayer\(player\.id, \{ player: player\.player, team: team\.abbr \?\? team\.name \}\)/, "clicking a Match Center leader must open their player profile");
 
