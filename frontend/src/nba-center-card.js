@@ -1147,7 +1147,7 @@ class NBACenterCard extends LitElement {
       const away = Number(play.away_score);
       const home = Number(play.home_score);
       const period = Number(play.period);
-      const clock = String(play.clock ?? "").match(/^(\d{1,2}):(\d{1,2})(?:\.(\d+))?$/);
+      const clock = String(play.clock ?? "").match(/^(?:(\d{1,2}):)?(\d{1,2})(?:\.(\d+))?$/);
       if (!Number.isFinite(away) || !Number.isFinite(home) || !Number.isInteger(period) || period < 1 || !clock) continue;
       const seconds = Number(clock[2]) + (clock[3] ? Number("0." + clock[3]) : 0);
       if (seconds >= 60) continue;
@@ -1166,7 +1166,7 @@ class NBACenterCard extends LitElement {
 
     const live = this._overlayGame?.state === "in" ? this._overlayGame : null;
     const livePeriod = Number(live?.period);
-    const liveClock = String(live?.clock ?? "").match(/^(\d{1,2}):(\d{1,2})(?:\.(\d+))?$/);
+    const liveClock = String(live?.clock ?? "").match(/^(?:(\d{1,2}):)?(\d{1,2})(?:\.(\d+))?$/);
     const currentPeriod = live && Number.isInteger(livePeriod) && livePeriod > 0 ? livePeriod : 0;
     const overtimeCount = Math.max(0, ...snapshots.map((point) => point.period - 4), currentPeriod - 4);
     const totalMinutes = 48 + overtimeCount * 5;
@@ -1225,8 +1225,8 @@ class NBACenterCard extends LitElement {
             this._scoreTimelineHover = { index: nearest };
           }}
           @pointerleave=${() => { this._scoreTimelineHover = null; }}>
-          ${homeLogo ? svg`<image href="${homeLogo}" x="${logoX}" y="${top + 3}" width="${logoSize}" height="${(zeroY - top) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.13" />` : ""}
-          ${awayLogo ? svg`<image href="${awayLogo}" x="${logoX}" y="${zeroY + 5}" width="${logoSize}" height="${(bottom - zeroY) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.13" />` : ""}
+          ${homeLogo ? svg`<image href="${homeLogo}" x="${logoX}" y="${top + 3}" width="${logoSize}" height="${(zeroY - top) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.25" />` : ""}
+          ${awayLogo ? svg`<image href="${awayLogo}" x="${logoX}" y="${zeroY + 5}" width="${logoSize}" height="${(bottom - zeroY) * 0.88}" preserveAspectRatio="xMidYMid meet" opacity="0.25" />` : ""}
           ${yTicks.map((tick) => svg`<g>
             <line x1="${left}" x2="${right}" y1="${y(tick)}" y2="${y(tick)}"
               stroke="${tick === 0 ? "#f2c45f" : "#ffffff20"}" stroke-width="${tick === 0 ? "2.5" : "1"}"
