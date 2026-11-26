@@ -6,7 +6,7 @@
 - Dépôt : `cy-bertrand/nba-center-ha`
 - Domaine Home Assistant : `nba_center`
 - Carte Lovelace : `custom:nba-center-ha-card`
-- Version stable initiale : `1.0.0`
+- Version stable actuelle préparée : `1.2.2`
 - Licence : MIT
 
 ## Architecture
@@ -19,6 +19,7 @@ Le projet est une intégration Home Assistant autonome :
 - La ressource Lovelace est servie localement par l'intégration.
 - En mode Lovelace Storage, l'intégration enregistre automatiquement la ressource de la carte.
 - Le bundle frontend précompilé est fourni dans le dépôt : aucune compilation n'est nécessaire sur l'installation Home Assistant de l'utilisateur.
+- Le Match Center présente une Score Timeline (écart domicile moins extérieur, temps réglementaire et prolongations) et des leaders dont le nom ouvre la fiche du joueur.
 
 ## Principes de développement
 
@@ -27,7 +28,7 @@ Le projet est une intégration Home Assistant autonome :
 - Respecter le fuseau horaire configuré dans Home Assistant.
 - Maintenir les tests backend, frontend et les contrôles HACS/Hassfest.
 - Documenter les changements incompatibles et les migrations avant toute release.
--  Pour la release au format tag x.y.z, bien penser à mettre à jour le numéro de release dans le manifest pour assurer le refresh du frontend.
+- Pour chaque release au format tag `vX.Y.Z`, mettre à jour `version` dans `manifest.json` avant le build : la version est injectée automatiquement dans le bundle frontend.
 
 ## Build frontend
 

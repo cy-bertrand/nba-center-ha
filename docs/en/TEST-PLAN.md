@@ -54,6 +54,8 @@
 - Play-by-Play chronology, periods and missing data.
 - Live, completed, overtime and partial-data games.
 - Consistency of game leaders and team statistics.
+- Score Timeline: home-minus-away margin, zero crossings when the lead changes, fixed -20 to +20 scale, overtime extension and hover tooltip.
+- Clicking the points, rebounds or assists leader opens the corresponding player profile.
 
 ### Teams Center
 
