@@ -54,6 +54,8 @@
 - Play-by-Play : ordre chronologique, périodes et données absentes.
 - Match en direct, terminé, prolongation et données partielles.
 - Cohérence des meilleurs joueurs et des statistiques d'équipe.
+- Score Timeline : écart domicile moins extérieur, passage par zéro lors des changements de leader, échelle fixe de -20 à +20, prolongations et infobulle au survol.
+- Cliquer sur les noms des leaders (points, rebonds, passes) ouvre la fiche du joueur correspondant.
 
 ### Teams Center
 
