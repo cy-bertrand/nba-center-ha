@@ -30,7 +30,7 @@ NBA Center HomeAssistant transforme votre Home Assistant en véritable centre de
 ### Fonctionnalités
 
 - **Matchs et scores** — rencontres du jour, matchs à venir, résultats et informations de match.
-- **Match Center** — détails des rencontres, boxscores et Play-by-Play lorsque les données sont disponibles.
+- **Match Center** — détails des rencontres, boxscores et Play-by-Play lorsque les données sont disponibles, graphique Score Timeline de l'évolution de l'écart et leaders cliquables pour ouvrir les fiches joueurs.
 - **Teams Center** — exploration des franchises, informations et performances des équipes.
 - **Players Center** — fiches joueurs, statistiques et saisons disponibles.
 - **Classements et playoffs** — conférences, classements, playoffs et play-in.
@@ -144,7 +144,7 @@ NBA Center HomeAssistant turns your Home Assistant instance into an NBA hub. Fol
 ### Features
 
 - **Games and scores** — today's games, upcoming matchups, results and available game information.
-- **Match Center** — game details, box scores and Play-by-Play when provided by the data source.
+- **Match Center** — game details, box scores, Play-by-Play when provided by the data source, a Score Timeline chart showing the scoring margin over time, and clickable game leaders that open player profiles.
 - **Teams Center** — explore NBA franchises, team information and performance.
 - **Players Center** — player profiles, statistics and available seasons.
 - **Standings and playoffs** — conference standings, playoffs and play-in coverage.
